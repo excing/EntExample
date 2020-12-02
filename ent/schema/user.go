@@ -32,6 +32,7 @@ func (User) Fields() []ent.Field {
 		field.UUID("uuid", uuid.UUID{}).Default(uuid.New),
 		// 	Nickname *string `json:"nickname,omitempty"
 		field.String("nickname").Optional().Nillable(),
+		field.String("password").Sensitive(),
 	}
 }
 

@@ -138,6 +138,12 @@ func (uc *UserCreate) SetNillableNickname(s *string) *UserCreate {
 	return uc
 }
 
+// SetPassword sets the password field.
+func (uc *UserCreate) SetPassword(s string) *UserCreate {
+	uc.mutation.SetPassword(s)
+	return uc
+}
+
 // AddCarIDs adds the cars edge to Car by ids.
 func (uc *UserCreate) AddCarIDs(ids ...int) *UserCreate {
 	uc.mutation.AddCarIDs(ids...)
@@ -283,6 +289,9 @@ func (uc *UserCreate) check() error {
 	if _, ok := uc.mutation.UUID(); !ok {
 		return &ValidationError{Name: "uuid", err: errors.New("ent: missing required field \"uuid\"")}
 	}
+	if _, ok := uc.mutation.Password(); !ok {
+		return &ValidationError{Name: "password", err: errors.New("ent: missing required field \"password\"")}
+	}
 	return nil
 }
 
@@ -397,6 +406,14 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Column: user.FieldNickname,
 		})
 		_node.Nickname = &value
+	}
+	if value, ok := uc.mutation.Password(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: user.FieldPassword,
+		})
+		_node.Password = value
 	}
 	if nodes := uc.mutation.CarsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

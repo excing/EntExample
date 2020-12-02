@@ -36,6 +36,8 @@ const (
 	FieldUUID = "uuid"
 	// FieldNickname holds the string denoting the nickname field in the database.
 	FieldNickname = "nickname"
+	// FieldPassword holds the string denoting the password field in the database.
+	FieldPassword = "password"
 
 	// EdgeCars holds the string denoting the cars edge name in mutations.
 	EdgeCars = "cars"
@@ -78,6 +80,7 @@ var Columns = []string{
 	FieldState,
 	FieldUUID,
 	FieldNickname,
+	FieldPassword,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the User type.
