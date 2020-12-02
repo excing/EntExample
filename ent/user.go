@@ -29,6 +29,8 @@ type User struct {
 	Name string `json:"name,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// URL holds the value of the "url" field.
 	URL *url.URL `json:"url,omitempty"`
 	// Strings holds the value of the "strings" field.
@@ -92,6 +94,7 @@ func (*User) scanValues() []interface{} {
 		&sql.NullBool{},    // active
 		&sql.NullString{},  // name
 		&sql.NullTime{},    // created_at
+		&sql.NullTime{},    // updated_at
 		&[]byte{},          // url
 		&[]byte{},          // strings
 		&sql.NullString{},  // state
@@ -143,33 +146,38 @@ func (u *User) assignValues(values ...interface{}) error {
 	} else if value.Valid {
 		u.CreatedAt = value.Time
 	}
+	if value, ok := values[5].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field updated_at", values[5])
+	} else if value.Valid {
+		u.UpdatedAt = value.Time
+	}
 
-	if value, ok := values[5].(*[]byte); !ok {
-		return fmt.Errorf("unexpected type %T for field url", values[5])
+	if value, ok := values[6].(*[]byte); !ok {
+		return fmt.Errorf("unexpected type %T for field url", values[6])
 	} else if value != nil && len(*value) > 0 {
 		if err := json.Unmarshal(*value, &u.URL); err != nil {
 			return fmt.Errorf("unmarshal field url: %v", err)
 		}
 	}
 
-	if value, ok := values[6].(*[]byte); !ok {
-		return fmt.Errorf("unexpected type %T for field strings", values[6])
+	if value, ok := values[7].(*[]byte); !ok {
+		return fmt.Errorf("unexpected type %T for field strings", values[7])
 	} else if value != nil && len(*value) > 0 {
 		if err := json.Unmarshal(*value, &u.Strings); err != nil {
 			return fmt.Errorf("unmarshal field strings: %v", err)
 		}
 	}
-	if value, ok := values[7].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field state", values[7])
+	if value, ok := values[8].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field state", values[8])
 	} else if value.Valid {
 		u.State = user.State(value.String)
 	}
-	if value, ok := values[8].(*uuid.UUID); !ok {
-		return fmt.Errorf("unexpected type %T for field uuid", values[8])
+	if value, ok := values[9].(*uuid.UUID); !ok {
+		return fmt.Errorf("unexpected type %T for field uuid", values[9])
 	} else if value != nil {
 		u.UUID = *value
 	}
-	values = values[9:]
+	values = values[10:]
 	if len(values) == len(user.ForeignKeys) {
 		if value, ok := values[0].(*sql.NullInt64); !ok {
 			return fmt.Errorf("unexpected type %T for edge-field group_users", value)
@@ -229,6 +237,8 @@ func (u *User) String() string {
 	builder.WriteString(u.Name)
 	builder.WriteString(", created_at=")
 	builder.WriteString(u.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", updated_at=")
+	builder.WriteString(u.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", url=")
 	builder.WriteString(fmt.Sprintf("%v", u.URL))
 	builder.WriteString(", strings=")

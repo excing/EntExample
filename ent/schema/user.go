@@ -24,6 +24,7 @@ func (User) Fields() []ent.Field {
 		field.Bool("active").Default(false),
 		field.String("name").Unique(),
 		field.Time("created_at").Default(time.Now),
+		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
 		field.JSON("url", &url.URL{}).Optional(),
 		field.JSON("strings", []string{}).Optional(),
 		field.Enum("state").Values("on", "off").Optional(),

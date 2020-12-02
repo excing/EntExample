@@ -24,6 +24,8 @@ const (
 	FieldName = "name"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
 	// FieldURL holds the string denoting the url field in the database.
 	FieldURL = "url"
 	// FieldStrings holds the string denoting the strings field in the database.
@@ -68,6 +70,7 @@ var Columns = []string{
 	FieldActive,
 	FieldName,
 	FieldCreatedAt,
+	FieldUpdatedAt,
 	FieldURL,
 	FieldStrings,
 	FieldState,
@@ -107,6 +110,10 @@ var (
 	DefaultActive bool
 	// DefaultCreatedAt holds the default value on creation for the created_at field.
 	DefaultCreatedAt func() time.Time
+	// DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	DefaultUpdatedAt func() time.Time
+	// UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	UpdateDefaultUpdatedAt func() time.Time
 	// DefaultUUID holds the default value on creation for the uuid field.
 	DefaultUUID func() uuid.UUID
 )
