@@ -33,6 +33,12 @@ func (gu *GroupUpdate) SetName(s string) *GroupUpdate {
 	return gu
 }
 
+// SetNickname sets the nickname field.
+func (gu *GroupUpdate) SetNickname(s string) *GroupUpdate {
+	gu.mutation.SetNickname(s)
+	return gu
+}
+
 // AddUserIDs adds the users edge to User by ids.
 func (gu *GroupUpdate) AddUserIDs(ids ...int) *GroupUpdate {
 	gu.mutation.AddUserIDs(ids...)
@@ -138,6 +144,11 @@ func (gu *GroupUpdate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf("ent: validator failed for field \"name\": %w", err)}
 		}
 	}
+	if v, ok := gu.mutation.Nickname(); ok {
+		if err := group.NicknameValidator(v); err != nil {
+			return &ValidationError{Name: "nickname", err: fmt.Errorf("ent: validator failed for field \"nickname\": %w", err)}
+		}
+	}
 	return nil
 }
 
@@ -164,6 +175,13 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Type:   field.TypeString,
 			Value:  value,
 			Column: group.FieldName,
+		})
+	}
+	if value, ok := gu.mutation.Nickname(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: group.FieldNickname,
 		})
 	}
 	if gu.mutation.UsersCleared() {
@@ -241,6 +259,12 @@ type GroupUpdateOne struct {
 // SetName sets the name field.
 func (guo *GroupUpdateOne) SetName(s string) *GroupUpdateOne {
 	guo.mutation.SetName(s)
+	return guo
+}
+
+// SetNickname sets the nickname field.
+func (guo *GroupUpdateOne) SetNickname(s string) *GroupUpdateOne {
+	guo.mutation.SetNickname(s)
 	return guo
 }
 
@@ -349,6 +373,11 @@ func (guo *GroupUpdateOne) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf("ent: validator failed for field \"name\": %w", err)}
 		}
 	}
+	if v, ok := guo.mutation.Nickname(); ok {
+		if err := group.NicknameValidator(v); err != nil {
+			return &ValidationError{Name: "nickname", err: fmt.Errorf("ent: validator failed for field \"nickname\": %w", err)}
+		}
+	}
 	return nil
 }
 
@@ -373,6 +402,13 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 			Type:   field.TypeString,
 			Value:  value,
 			Column: group.FieldName,
+		})
+	}
+	if value, ok := guo.mutation.Nickname(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: group.FieldNickname,
 		})
 	}
 	if guo.mutation.UsersCleared() {

@@ -28,7 +28,25 @@ func init() {
 	// groupDescName is the schema descriptor for name field.
 	groupDescName := groupFields[1].Descriptor()
 	// group.NameValidator is a validator for the "name" field. It is called by the builders before save.
-	group.NameValidator = groupDescName.Validators[0].(func(string) error)
+	group.NameValidator = func() func(string) error {
+		validators := groupDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// groupDescNickname is the schema descriptor for nickname field.
+	groupDescNickname := groupFields[2].Descriptor()
+	// group.NicknameValidator is a validator for the "nickname" field. It is called by the builders before save.
+	group.NicknameValidator = groupDescNickname.Validators[0].(func(string) error)
 	petFields := schema.Pet{}.Fields()
 	_ = petFields
 	// petDescID is the schema descriptor for id field.

@@ -1,7 +1,10 @@
 package schema
 
 import (
+	"errors"
 	"regexp"
+	"strings"
+	"unicode/utf8"
 
 	"github.com/facebook/ent"
 	"github.com/facebook/ent/schema/edge"
@@ -19,7 +22,14 @@ func (Group) Fields() []ent.Field {
 		field.Int("id").StructTag(`json:"old,omitempty"`),
 		field.String("name").
 			// Regexp validation for group name.
-			Match(regexp.MustCompile("[a-zA-Z_]+$")),
+			Match(regexp.MustCompile("[a-zA-Z_]+$")).
+			Validate(func(s string) error {
+				if strings.ToLower(s) == s {
+					return errors.New("group name must begin with uppercase")
+				}
+				return nil
+			}),
+		field.String("nickname").Validate(MaxRuneCount(20)),
 	}
 }
 
@@ -27,5 +37,15 @@ func (Group) Fields() []ent.Field {
 func (Group) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("users", User.Type),
+	}
+}
+
+// MaxRuneCount validates the rune length of a string by using the unicode/utf8 package
+func MaxRuneCount(maxLen int) func(s string) error {
+	return func(s string) error {
+		if utf8.RuneCountInString(s) > maxLen {
+			return errors.New("value is more than the max length")
+		}
+		return nil
 	}
 }

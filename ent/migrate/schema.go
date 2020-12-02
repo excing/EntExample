@@ -58,6 +58,7 @@ var (
 	GroupsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString},
+		{Name: "nickname", Type: field.TypeString},
 		{Name: "user_groups", Type: field.TypeInt, Nullable: true},
 	}
 	// GroupsTable holds the schema information for the "groups" table.
@@ -68,7 +69,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:  "groups_users_groups",
-				Columns: []*schema.Column{GroupsColumns[2]},
+				Columns: []*schema.Column{GroupsColumns[3]},
 
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,

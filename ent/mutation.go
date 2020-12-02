@@ -1107,6 +1107,7 @@ type GroupMutation struct {
 	typ           string
 	id            *int
 	name          *string
+	nickname      *string
 	clearedFields map[string]struct{}
 	users         map[int]struct{}
 	removedusers  map[int]struct{}
@@ -1238,6 +1239,43 @@ func (m *GroupMutation) ResetName() {
 	m.name = nil
 }
 
+// SetNickname sets the nickname field.
+func (m *GroupMutation) SetNickname(s string) {
+	m.nickname = &s
+}
+
+// Nickname returns the nickname value in the mutation.
+func (m *GroupMutation) Nickname() (r string, exists bool) {
+	v := m.nickname
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNickname returns the old nickname value of the Group.
+// If the Group object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *GroupMutation) OldNickname(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldNickname is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldNickname requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNickname: %w", err)
+	}
+	return oldValue.Nickname, nil
+}
+
+// ResetNickname reset all changes of the "nickname" field.
+func (m *GroupMutation) ResetNickname() {
+	m.nickname = nil
+}
+
 // AddUserIDs adds the users edge to User by ids.
 func (m *GroupMutation) AddUserIDs(ids ...int) {
 	if m.users == nil {
@@ -1305,9 +1343,12 @@ func (m *GroupMutation) Type() string {
 // this mutation. Note that, in order to get all numeric
 // fields that were in/decremented, call AddedFields().
 func (m *GroupMutation) Fields() []string {
-	fields := make([]string, 0, 1)
+	fields := make([]string, 0, 2)
 	if m.name != nil {
 		fields = append(fields, group.FieldName)
+	}
+	if m.nickname != nil {
+		fields = append(fields, group.FieldNickname)
 	}
 	return fields
 }
@@ -1319,6 +1360,8 @@ func (m *GroupMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case group.FieldName:
 		return m.Name()
+	case group.FieldNickname:
+		return m.Nickname()
 	}
 	return nil, false
 }
@@ -1330,6 +1373,8 @@ func (m *GroupMutation) OldField(ctx context.Context, name string) (ent.Value, e
 	switch name {
 	case group.FieldName:
 		return m.OldName(ctx)
+	case group.FieldNickname:
+		return m.OldNickname(ctx)
 	}
 	return nil, fmt.Errorf("unknown Group field %s", name)
 }
@@ -1345,6 +1390,13 @@ func (m *GroupMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetName(v)
+		return nil
+	case group.FieldNickname:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNickname(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Group field %s", name)
@@ -1398,6 +1450,9 @@ func (m *GroupMutation) ResetField(name string) error {
 	switch name {
 	case group.FieldName:
 		m.ResetName()
+		return nil
+	case group.FieldNickname:
+		m.ResetNickname()
 		return nil
 	}
 	return fmt.Errorf("unknown Group field %s", name)

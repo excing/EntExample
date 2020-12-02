@@ -26,6 +26,12 @@ func (gc *GroupCreate) SetName(s string) *GroupCreate {
 	return gc
 }
 
+// SetNickname sets the nickname field.
+func (gc *GroupCreate) SetNickname(s string) *GroupCreate {
+	gc.mutation.SetNickname(s)
+	return gc
+}
+
 // SetID sets the id field.
 func (gc *GroupCreate) SetID(i int) *GroupCreate {
 	gc.mutation.SetID(i)
@@ -106,6 +112,14 @@ func (gc *GroupCreate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf("ent: validator failed for field \"name\": %w", err)}
 		}
 	}
+	if _, ok := gc.mutation.Nickname(); !ok {
+		return &ValidationError{Name: "nickname", err: errors.New("ent: missing required field \"nickname\"")}
+	}
+	if v, ok := gc.mutation.Nickname(); ok {
+		if err := group.NicknameValidator(v); err != nil {
+			return &ValidationError{Name: "nickname", err: fmt.Errorf("ent: validator failed for field \"nickname\": %w", err)}
+		}
+	}
 	return nil
 }
 
@@ -146,6 +160,14 @@ func (gc *GroupCreate) createSpec() (*Group, *sqlgraph.CreateSpec) {
 			Column: group.FieldName,
 		})
 		_node.Name = value
+	}
+	if value, ok := gc.mutation.Nickname(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: group.FieldNickname,
+		})
+		_node.Nickname = value
 	}
 	if nodes := gc.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

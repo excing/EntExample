@@ -17,6 +17,8 @@ type Group struct {
 	ID int `json:"old,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
+	// Nickname holds the value of the "nickname" field.
+	Nickname string `json:"nickname,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the GroupQuery when eager-loading is set.
 	Edges       GroupEdges `json:"edges"`
@@ -46,6 +48,7 @@ func (*Group) scanValues() []interface{} {
 	return []interface{}{
 		&sql.NullInt64{},  // id
 		&sql.NullString{}, // name
+		&sql.NullString{}, // nickname
 	}
 }
 
@@ -73,7 +76,12 @@ func (gr *Group) assignValues(values ...interface{}) error {
 	} else if value.Valid {
 		gr.Name = value.String
 	}
-	values = values[1:]
+	if value, ok := values[1].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field nickname", values[1])
+	} else if value.Valid {
+		gr.Nickname = value.String
+	}
+	values = values[2:]
 	if len(values) == len(group.ForeignKeys) {
 		if value, ok := values[0].(*sql.NullInt64); !ok {
 			return fmt.Errorf("unexpected type %T for edge-field user_groups", value)
@@ -115,6 +123,8 @@ func (gr *Group) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v", gr.ID))
 	builder.WriteString(", name=")
 	builder.WriteString(gr.Name)
+	builder.WriteString(", nickname=")
+	builder.WriteString(gr.Nickname)
 	builder.WriteByte(')')
 	return builder.String()
 }

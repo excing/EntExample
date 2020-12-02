@@ -9,6 +9,8 @@ const (
 	FieldID = "id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
+	// FieldNickname holds the string denoting the nickname field in the database.
+	FieldNickname = "nickname"
 
 	// EdgeUsers holds the string denoting the users edge name in mutations.
 	EdgeUsers = "users"
@@ -28,6 +30,7 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldName,
+	FieldNickname,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the Group type.
@@ -53,4 +56,6 @@ func ValidColumn(column string) bool {
 var (
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
+	// NicknameValidator is a validator for the "nickname" field. It is called by the builders before save.
+	NicknameValidator func(string) error
 )
