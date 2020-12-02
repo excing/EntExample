@@ -29,6 +29,8 @@ func (User) Fields() []ent.Field {
 		field.JSON("strings", []string{}).Optional(),
 		field.Enum("state").Values("on", "off").Optional(),
 		field.UUID("uuid", uuid.UUID{}).Default(uuid.New),
+		// 	Nickname *string `json:"nickname,omitempty"
+		field.String("nickname").Optional().Nillable(),
 	}
 }
 
@@ -41,6 +43,7 @@ func (User) Edges() []ent.Edge {
 	}
 }
 
+// Index user index
 func (User) Index() []ent.Index {
 	return []ent.Index{
 		index.Fields("age", "name").Unique(),
