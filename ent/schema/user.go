@@ -8,6 +8,7 @@ import (
 	"github.com/facebook/ent/schema/edge"
 	"github.com/facebook/ent/schema/field"
 	"github.com/facebook/ent/schema/index"
+	"github.com/facebookincubator/ent-contrib/entgql"
 	"github.com/google/uuid"
 )
 
@@ -33,6 +34,9 @@ func (User) Fields() []ent.Field {
 		// 	Nickname *string `json:"nickname,omitempty"
 		field.String("nickname").Optional().Nillable(),
 		field.String("password").Sensitive(),
+		field.Time("creation_date").Annotations(entgql.Annotation{
+			OrderField: "CREATE_AT",
+		}),
 	}
 }
 

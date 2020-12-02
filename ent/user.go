@@ -43,6 +43,8 @@ type User struct {
 	Nickname *string `json:"nickname,omitempty"`
 	// Password holds the value of the "password" field.
 	Password string `gqlgen:"-" json:"-"`
+	// CreationDate holds the value of the "creation_date" field.
+	CreationDate time.Time `json:"creation_date,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges       UserEdges `json:"edges"`
@@ -105,6 +107,7 @@ func (*User) scanValues() []interface{} {
 		&uuid.UUID{},       // uuid
 		&sql.NullString{},  // nickname
 		&sql.NullString{},  // password
+		&sql.NullTime{},    // creation_date
 	}
 }
 
@@ -194,7 +197,12 @@ func (u *User) assignValues(values ...interface{}) error {
 	} else if value.Valid {
 		u.Password = value.String
 	}
-	values = values[12:]
+	if value, ok := values[12].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field creation_date", values[12])
+	} else if value.Valid {
+		u.CreationDate = value.Time
+	}
+	values = values[13:]
 	if len(values) == len(user.ForeignKeys) {
 		if value, ok := values[0].(*sql.NullInt64); !ok {
 			return fmt.Errorf("unexpected type %T for edge-field group_users", value)
@@ -269,6 +277,8 @@ func (u *User) String() string {
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", password=<sensitive>")
+	builder.WriteString(", creation_date=")
+	builder.WriteString(u.CreationDate.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

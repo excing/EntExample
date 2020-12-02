@@ -2500,6 +2500,7 @@ type UserMutation struct {
 	uuid           *uuid.UUID
 	nickname       *string
 	password       *string
+	creation_date  *time.Time
 	clearedFields  map[string]struct{}
 	cars           map[int]struct{}
 	removedcars    map[int]struct{}
@@ -3144,6 +3145,43 @@ func (m *UserMutation) ResetPassword() {
 	m.password = nil
 }
 
+// SetCreationDate sets the creation_date field.
+func (m *UserMutation) SetCreationDate(t time.Time) {
+	m.creation_date = &t
+}
+
+// CreationDate returns the creation_date value in the mutation.
+func (m *UserMutation) CreationDate() (r time.Time, exists bool) {
+	v := m.creation_date
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreationDate returns the old creation_date value of the User.
+// If the User object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *UserMutation) OldCreationDate(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldCreationDate is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldCreationDate requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreationDate: %w", err)
+	}
+	return oldValue.CreationDate, nil
+}
+
+// ResetCreationDate reset all changes of the "creation_date" field.
+func (m *UserMutation) ResetCreationDate() {
+	m.creation_date = nil
+}
+
 // AddCarIDs adds the cars edge to Car by ids.
 func (m *UserMutation) AddCarIDs(ids ...int) {
 	if m.cars == nil {
@@ -3317,7 +3355,7 @@ func (m *UserMutation) Type() string {
 // this mutation. Note that, in order to get all numeric
 // fields that were in/decremented, call AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 13)
 	if m.age != nil {
 		fields = append(fields, user.FieldAge)
 	}
@@ -3354,6 +3392,9 @@ func (m *UserMutation) Fields() []string {
 	if m.password != nil {
 		fields = append(fields, user.FieldPassword)
 	}
+	if m.creation_date != nil {
+		fields = append(fields, user.FieldCreationDate)
+	}
 	return fields
 }
 
@@ -3386,6 +3427,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.Nickname()
 	case user.FieldPassword:
 		return m.Password()
+	case user.FieldCreationDate:
+		return m.CreationDate()
 	}
 	return nil, false
 }
@@ -3419,6 +3462,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldNickname(ctx)
 	case user.FieldPassword:
 		return m.OldPassword(ctx)
+	case user.FieldCreationDate:
+		return m.OldCreationDate(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -3511,6 +3556,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetPassword(v)
+		return nil
+	case user.FieldCreationDate:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreationDate(v)
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
@@ -3657,6 +3709,9 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldPassword:
 		m.ResetPassword()
+		return nil
+	case user.FieldCreationDate:
+		m.ResetCreationDate()
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)

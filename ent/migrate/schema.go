@@ -111,6 +111,7 @@ var (
 		{Name: "uuid", Type: field.TypeUUID},
 		{Name: "nickname", Type: field.TypeString, Nullable: true},
 		{Name: "password", Type: field.TypeString},
+		{Name: "creation_date", Type: field.TypeTime},
 		{Name: "group_users", Type: field.TypeInt, Nullable: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
@@ -121,7 +122,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:  "users_groups_users",
-				Columns: []*schema.Column{UsersColumns[13]},
+				Columns: []*schema.Column{UsersColumns[14]},
 
 				RefColumns: []*schema.Column{GroupsColumns[0]},
 				OnDelete:   schema.SetNull,

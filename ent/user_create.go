@@ -144,6 +144,12 @@ func (uc *UserCreate) SetPassword(s string) *UserCreate {
 	return uc
 }
 
+// SetCreationDate sets the creation_date field.
+func (uc *UserCreate) SetCreationDate(t time.Time) *UserCreate {
+	uc.mutation.SetCreationDate(t)
+	return uc
+}
+
 // AddCarIDs adds the cars edge to Car by ids.
 func (uc *UserCreate) AddCarIDs(ids ...int) *UserCreate {
 	uc.mutation.AddCarIDs(ids...)
@@ -292,6 +298,9 @@ func (uc *UserCreate) check() error {
 	if _, ok := uc.mutation.Password(); !ok {
 		return &ValidationError{Name: "password", err: errors.New("ent: missing required field \"password\"")}
 	}
+	if _, ok := uc.mutation.CreationDate(); !ok {
+		return &ValidationError{Name: "creation_date", err: errors.New("ent: missing required field \"creation_date\"")}
+	}
 	return nil
 }
 
@@ -414,6 +423,14 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Column: user.FieldPassword,
 		})
 		_node.Password = value
+	}
+	if value, ok := uc.mutation.CreationDate(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: user.FieldCreationDate,
+		})
+		_node.CreationDate = value
 	}
 	if nodes := uc.mutation.CarsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

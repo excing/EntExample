@@ -157,6 +157,13 @@ func Password(v string) predicate.User {
 	})
 }
 
+// CreationDate applies equality check predicate on the "creation_date" field. It's identical to CreationDateEQ.
+func CreationDate(v time.Time) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldCreationDate), v))
+	})
+}
+
 // AgeEQ applies the EQ predicate on the "age" field.
 func AgeEQ(v int) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
@@ -999,6 +1006,82 @@ func PasswordEqualFold(v string) predicate.User {
 func PasswordContainsFold(v string) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldPassword), v))
+	})
+}
+
+// CreationDateEQ applies the EQ predicate on the "creation_date" field.
+func CreationDateEQ(v time.Time) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldCreationDate), v))
+	})
+}
+
+// CreationDateNEQ applies the NEQ predicate on the "creation_date" field.
+func CreationDateNEQ(v time.Time) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldCreationDate), v))
+	})
+}
+
+// CreationDateIn applies the In predicate on the "creation_date" field.
+func CreationDateIn(vs ...time.Time) predicate.User {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.User(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldCreationDate), v...))
+	})
+}
+
+// CreationDateNotIn applies the NotIn predicate on the "creation_date" field.
+func CreationDateNotIn(vs ...time.Time) predicate.User {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.User(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldCreationDate), v...))
+	})
+}
+
+// CreationDateGT applies the GT predicate on the "creation_date" field.
+func CreationDateGT(v time.Time) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldCreationDate), v))
+	})
+}
+
+// CreationDateGTE applies the GTE predicate on the "creation_date" field.
+func CreationDateGTE(v time.Time) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldCreationDate), v))
+	})
+}
+
+// CreationDateLT applies the LT predicate on the "creation_date" field.
+func CreationDateLT(v time.Time) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldCreationDate), v))
+	})
+}
+
+// CreationDateLTE applies the LTE predicate on the "creation_date" field.
+func CreationDateLTE(v time.Time) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldCreationDate), v))
 	})
 }
 

@@ -173,6 +173,12 @@ func (uu *UserUpdate) SetPassword(s string) *UserUpdate {
 	return uu
 }
 
+// SetCreationDate sets the creation_date field.
+func (uu *UserUpdate) SetCreationDate(t time.Time) *UserUpdate {
+	uu.mutation.SetCreationDate(t)
+	return uu
+}
+
 // AddCarIDs adds the cars edge to Car by ids.
 func (uu *UserUpdate) AddCarIDs(ids ...int) *UserUpdate {
 	uu.mutation.AddCarIDs(ids...)
@@ -506,6 +512,13 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: user.FieldPassword,
 		})
 	}
+	if value, ok := uu.mutation.CreationDate(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: user.FieldCreationDate,
+		})
+	}
 	if uu.mutation.CarsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -825,6 +838,12 @@ func (uuo *UserUpdateOne) ClearNickname() *UserUpdateOne {
 // SetPassword sets the password field.
 func (uuo *UserUpdateOne) SetPassword(s string) *UserUpdateOne {
 	uuo.mutation.SetPassword(s)
+	return uuo
+}
+
+// SetCreationDate sets the creation_date field.
+func (uuo *UserUpdateOne) SetCreationDate(t time.Time) *UserUpdateOne {
+	uuo.mutation.SetCreationDate(t)
 	return uuo
 }
 
@@ -1157,6 +1176,13 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Type:   field.TypeString,
 			Value:  value,
 			Column: user.FieldPassword,
+		})
+	}
+	if value, ok := uuo.mutation.CreationDate(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: user.FieldCreationDate,
 		})
 	}
 	if uuo.mutation.CarsCleared() {
