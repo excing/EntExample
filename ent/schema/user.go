@@ -22,7 +22,8 @@ func (User) Fields() []ent.Field {
 		field.Int("age").Positive(),
 		field.Float("rank").Optional(),
 		field.Bool("active").Default(false),
-		field.String("name").StorageKey("old_name").Unique(),
+		// Name string `json:"name,omitempty" gqlgen:"gql_name"`
+		field.String("name").StorageKey("old_name").StructTag(`gqlgen:"gql_name"`).Unique(),
 		field.Time("created_at").Default(time.Now).Immutable(),
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
 		field.JSON("url", &url.URL{}).Optional(),
