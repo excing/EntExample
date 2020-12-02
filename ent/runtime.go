@@ -47,6 +47,42 @@ func init() {
 	groupDescNickname := groupFields[2].Descriptor()
 	// group.NicknameValidator is a validator for the "nickname" field. It is called by the builders before save.
 	group.NicknameValidator = groupDescNickname.Validators[0].(func(string) error)
+	// groupDescCount is the schema descriptor for count field.
+	groupDescCount := groupFields[3].Descriptor()
+	// group.CountValidator is a validator for the "count" field. It is called by the builders before save.
+	group.CountValidator = groupDescCount.Validators[0].(func(int) error)
+	// groupDescCode is the schema descriptor for code field.
+	groupDescCode := groupFields[4].Descriptor()
+	// group.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	group.CodeValidator = groupDescCode.Validators[0].(func(int) error)
+	// groupDescIndex is the schema descriptor for index field.
+	groupDescIndex := groupFields[5].Descriptor()
+	// group.IndexValidator is a validator for the "index" field. It is called by the builders before save.
+	group.IndexValidator = groupDescIndex.Validators[0].(func(int) error)
+	// groupDescMin is the schema descriptor for min field.
+	groupDescMin := groupFields[6].Descriptor()
+	// group.MinValidator is a validator for the "min" field. It is called by the builders before save.
+	group.MinValidator = groupDescMin.Validators[0].(func(int) error)
+	// groupDescMax is the schema descriptor for max field.
+	groupDescMax := groupFields[7].Descriptor()
+	// group.MaxValidator is a validator for the "max" field. It is called by the builders before save.
+	group.MaxValidator = groupDescMax.Validators[0].(func(int) error)
+	// groupDescRange is the schema descriptor for range field.
+	groupDescRange := groupFields[8].Descriptor()
+	// group.RangeValidator is a validator for the "range" field. It is called by the builders before save.
+	group.RangeValidator = groupDescRange.Validators[0].(func(int) error)
+	// groupDescNote is the schema descriptor for note field.
+	groupDescNote := groupFields[9].Descriptor()
+	// group.NoteValidator is a validator for the "note" field. It is called by the builders before save.
+	group.NoteValidator = groupDescNote.Validators[0].(func(string) error)
+	// groupDescLog is the schema descriptor for log field.
+	groupDescLog := groupFields[10].Descriptor()
+	// group.LogValidator is a validator for the "log" field. It is called by the builders before save.
+	group.LogValidator = groupDescLog.Validators[0].(func(string) error)
+	// groupDescUsername is the schema descriptor for username field.
+	groupDescUsername := groupFields[11].Descriptor()
+	// group.UsernameValidator is a validator for the "username" field. It is called by the builders before save.
+	group.UsernameValidator = groupDescUsername.Validators[0].(func(string) error)
 	petFields := schema.Pet{}.Fields()
 	_ = petFields
 	// petDescID is the schema descriptor for id field.

@@ -32,6 +32,60 @@ func (gc *GroupCreate) SetNickname(s string) *GroupCreate {
 	return gc
 }
 
+// SetCount sets the count field.
+func (gc *GroupCreate) SetCount(i int) *GroupCreate {
+	gc.mutation.SetCount(i)
+	return gc
+}
+
+// SetCode sets the code field.
+func (gc *GroupCreate) SetCode(i int) *GroupCreate {
+	gc.mutation.SetCode(i)
+	return gc
+}
+
+// SetIndex sets the index field.
+func (gc *GroupCreate) SetIndex(i int) *GroupCreate {
+	gc.mutation.SetIndex(i)
+	return gc
+}
+
+// SetMin sets the min field.
+func (gc *GroupCreate) SetMin(i int) *GroupCreate {
+	gc.mutation.SetMin(i)
+	return gc
+}
+
+// SetMax sets the max field.
+func (gc *GroupCreate) SetMax(i int) *GroupCreate {
+	gc.mutation.SetMax(i)
+	return gc
+}
+
+// SetRange sets the range field.
+func (gc *GroupCreate) SetRange(i int) *GroupCreate {
+	gc.mutation.SetRange(i)
+	return gc
+}
+
+// SetNote sets the note field.
+func (gc *GroupCreate) SetNote(s string) *GroupCreate {
+	gc.mutation.SetNote(s)
+	return gc
+}
+
+// SetLog sets the log field.
+func (gc *GroupCreate) SetLog(s string) *GroupCreate {
+	gc.mutation.SetLog(s)
+	return gc
+}
+
+// SetUsername sets the username field.
+func (gc *GroupCreate) SetUsername(s string) *GroupCreate {
+	gc.mutation.SetUsername(s)
+	return gc
+}
+
 // SetID sets the id field.
 func (gc *GroupCreate) SetID(i int) *GroupCreate {
 	gc.mutation.SetID(i)
@@ -120,6 +174,78 @@ func (gc *GroupCreate) check() error {
 			return &ValidationError{Name: "nickname", err: fmt.Errorf("ent: validator failed for field \"nickname\": %w", err)}
 		}
 	}
+	if _, ok := gc.mutation.Count(); !ok {
+		return &ValidationError{Name: "count", err: errors.New("ent: missing required field \"count\"")}
+	}
+	if v, ok := gc.mutation.Count(); ok {
+		if err := group.CountValidator(v); err != nil {
+			return &ValidationError{Name: "count", err: fmt.Errorf("ent: validator failed for field \"count\": %w", err)}
+		}
+	}
+	if _, ok := gc.mutation.Code(); !ok {
+		return &ValidationError{Name: "code", err: errors.New("ent: missing required field \"code\"")}
+	}
+	if v, ok := gc.mutation.Code(); ok {
+		if err := group.CodeValidator(v); err != nil {
+			return &ValidationError{Name: "code", err: fmt.Errorf("ent: validator failed for field \"code\": %w", err)}
+		}
+	}
+	if _, ok := gc.mutation.Index(); !ok {
+		return &ValidationError{Name: "index", err: errors.New("ent: missing required field \"index\"")}
+	}
+	if v, ok := gc.mutation.Index(); ok {
+		if err := group.IndexValidator(v); err != nil {
+			return &ValidationError{Name: "index", err: fmt.Errorf("ent: validator failed for field \"index\": %w", err)}
+		}
+	}
+	if _, ok := gc.mutation.Min(); !ok {
+		return &ValidationError{Name: "min", err: errors.New("ent: missing required field \"min\"")}
+	}
+	if v, ok := gc.mutation.Min(); ok {
+		if err := group.MinValidator(v); err != nil {
+			return &ValidationError{Name: "min", err: fmt.Errorf("ent: validator failed for field \"min\": %w", err)}
+		}
+	}
+	if _, ok := gc.mutation.Max(); !ok {
+		return &ValidationError{Name: "max", err: errors.New("ent: missing required field \"max\"")}
+	}
+	if v, ok := gc.mutation.Max(); ok {
+		if err := group.MaxValidator(v); err != nil {
+			return &ValidationError{Name: "max", err: fmt.Errorf("ent: validator failed for field \"max\": %w", err)}
+		}
+	}
+	if _, ok := gc.mutation.Range(); !ok {
+		return &ValidationError{Name: "range", err: errors.New("ent: missing required field \"range\"")}
+	}
+	if v, ok := gc.mutation.Range(); ok {
+		if err := group.RangeValidator(v); err != nil {
+			return &ValidationError{Name: "range", err: fmt.Errorf("ent: validator failed for field \"range\": %w", err)}
+		}
+	}
+	if _, ok := gc.mutation.Note(); !ok {
+		return &ValidationError{Name: "note", err: errors.New("ent: missing required field \"note\"")}
+	}
+	if v, ok := gc.mutation.Note(); ok {
+		if err := group.NoteValidator(v); err != nil {
+			return &ValidationError{Name: "note", err: fmt.Errorf("ent: validator failed for field \"note\": %w", err)}
+		}
+	}
+	if _, ok := gc.mutation.Log(); !ok {
+		return &ValidationError{Name: "log", err: errors.New("ent: missing required field \"log\"")}
+	}
+	if v, ok := gc.mutation.Log(); ok {
+		if err := group.LogValidator(v); err != nil {
+			return &ValidationError{Name: "log", err: fmt.Errorf("ent: validator failed for field \"log\": %w", err)}
+		}
+	}
+	if _, ok := gc.mutation.Username(); !ok {
+		return &ValidationError{Name: "username", err: errors.New("ent: missing required field \"username\"")}
+	}
+	if v, ok := gc.mutation.Username(); ok {
+		if err := group.UsernameValidator(v); err != nil {
+			return &ValidationError{Name: "username", err: fmt.Errorf("ent: validator failed for field \"username\": %w", err)}
+		}
+	}
 	return nil
 }
 
@@ -168,6 +294,78 @@ func (gc *GroupCreate) createSpec() (*Group, *sqlgraph.CreateSpec) {
 			Column: group.FieldNickname,
 		})
 		_node.Nickname = value
+	}
+	if value, ok := gc.mutation.Count(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldCount,
+		})
+		_node.Count = value
+	}
+	if value, ok := gc.mutation.Code(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldCode,
+		})
+		_node.Code = value
+	}
+	if value, ok := gc.mutation.Index(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldIndex,
+		})
+		_node.Index = value
+	}
+	if value, ok := gc.mutation.Min(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldMin,
+		})
+		_node.Min = value
+	}
+	if value, ok := gc.mutation.Max(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldMax,
+		})
+		_node.Max = value
+	}
+	if value, ok := gc.mutation.Range(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldRange,
+		})
+		_node.Range = value
+	}
+	if value, ok := gc.mutation.Note(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: group.FieldNote,
+		})
+		_node.Note = value
+	}
+	if value, ok := gc.mutation.Log(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: group.FieldLog,
+		})
+		_node.Log = value
+	}
+	if value, ok := gc.mutation.Username(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: group.FieldUsername,
+		})
+		_node.Username = value
 	}
 	if nodes := gc.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

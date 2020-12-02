@@ -59,6 +59,15 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString},
 		{Name: "nickname", Type: field.TypeString},
+		{Name: "count", Type: field.TypeInt},
+		{Name: "code", Type: field.TypeInt},
+		{Name: "index", Type: field.TypeInt},
+		{Name: "min", Type: field.TypeInt},
+		{Name: "max", Type: field.TypeInt},
+		{Name: "range", Type: field.TypeInt},
+		{Name: "note", Type: field.TypeString},
+		{Name: "log", Type: field.TypeString, Size: 200},
+		{Name: "username", Type: field.TypeString},
 		{Name: "user_groups", Type: field.TypeInt, Nullable: true},
 	}
 	// GroupsTable holds the schema information for the "groups" table.
@@ -69,7 +78,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:  "groups_users_groups",
-				Columns: []*schema.Column{GroupsColumns[3]},
+				Columns: []*schema.Column{GroupsColumns[12]},
 
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,

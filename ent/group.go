@@ -19,6 +19,24 @@ type Group struct {
 	Name string `json:"name,omitempty"`
 	// Nickname holds the value of the "nickname" field.
 	Nickname string `json:"nickname,omitempty"`
+	// Count holds the value of the "count" field.
+	Count int `json:"count,omitempty"`
+	// Code holds the value of the "code" field.
+	Code int `json:"code,omitempty"`
+	// Index holds the value of the "index" field.
+	Index int `json:"index,omitempty"`
+	// Min holds the value of the "min" field.
+	Min int `json:"min,omitempty"`
+	// Max holds the value of the "max" field.
+	Max int `json:"max,omitempty"`
+	// Range holds the value of the "range" field.
+	Range int `json:"range,omitempty"`
+	// Note holds the value of the "note" field.
+	Note string `json:"note,omitempty"`
+	// Log holds the value of the "log" field.
+	Log string `json:"log,omitempty"`
+	// Username holds the value of the "username" field.
+	Username string `json:"username,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the GroupQuery when eager-loading is set.
 	Edges       GroupEdges `json:"edges"`
@@ -49,6 +67,15 @@ func (*Group) scanValues() []interface{} {
 		&sql.NullInt64{},  // id
 		&sql.NullString{}, // name
 		&sql.NullString{}, // nickname
+		&sql.NullInt64{},  // count
+		&sql.NullInt64{},  // code
+		&sql.NullInt64{},  // index
+		&sql.NullInt64{},  // min
+		&sql.NullInt64{},  // max
+		&sql.NullInt64{},  // range
+		&sql.NullString{}, // note
+		&sql.NullString{}, // log
+		&sql.NullString{}, // username
 	}
 }
 
@@ -81,7 +108,52 @@ func (gr *Group) assignValues(values ...interface{}) error {
 	} else if value.Valid {
 		gr.Nickname = value.String
 	}
-	values = values[2:]
+	if value, ok := values[2].(*sql.NullInt64); !ok {
+		return fmt.Errorf("unexpected type %T for field count", values[2])
+	} else if value.Valid {
+		gr.Count = int(value.Int64)
+	}
+	if value, ok := values[3].(*sql.NullInt64); !ok {
+		return fmt.Errorf("unexpected type %T for field code", values[3])
+	} else if value.Valid {
+		gr.Code = int(value.Int64)
+	}
+	if value, ok := values[4].(*sql.NullInt64); !ok {
+		return fmt.Errorf("unexpected type %T for field index", values[4])
+	} else if value.Valid {
+		gr.Index = int(value.Int64)
+	}
+	if value, ok := values[5].(*sql.NullInt64); !ok {
+		return fmt.Errorf("unexpected type %T for field min", values[5])
+	} else if value.Valid {
+		gr.Min = int(value.Int64)
+	}
+	if value, ok := values[6].(*sql.NullInt64); !ok {
+		return fmt.Errorf("unexpected type %T for field max", values[6])
+	} else if value.Valid {
+		gr.Max = int(value.Int64)
+	}
+	if value, ok := values[7].(*sql.NullInt64); !ok {
+		return fmt.Errorf("unexpected type %T for field range", values[7])
+	} else if value.Valid {
+		gr.Range = int(value.Int64)
+	}
+	if value, ok := values[8].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field note", values[8])
+	} else if value.Valid {
+		gr.Note = value.String
+	}
+	if value, ok := values[9].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field log", values[9])
+	} else if value.Valid {
+		gr.Log = value.String
+	}
+	if value, ok := values[10].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field username", values[10])
+	} else if value.Valid {
+		gr.Username = value.String
+	}
+	values = values[11:]
 	if len(values) == len(group.ForeignKeys) {
 		if value, ok := values[0].(*sql.NullInt64); !ok {
 			return fmt.Errorf("unexpected type %T for edge-field user_groups", value)
@@ -125,6 +197,24 @@ func (gr *Group) String() string {
 	builder.WriteString(gr.Name)
 	builder.WriteString(", nickname=")
 	builder.WriteString(gr.Nickname)
+	builder.WriteString(", count=")
+	builder.WriteString(fmt.Sprintf("%v", gr.Count))
+	builder.WriteString(", code=")
+	builder.WriteString(fmt.Sprintf("%v", gr.Code))
+	builder.WriteString(", index=")
+	builder.WriteString(fmt.Sprintf("%v", gr.Index))
+	builder.WriteString(", min=")
+	builder.WriteString(fmt.Sprintf("%v", gr.Min))
+	builder.WriteString(", max=")
+	builder.WriteString(fmt.Sprintf("%v", gr.Max))
+	builder.WriteString(", range=")
+	builder.WriteString(fmt.Sprintf("%v", gr.Range))
+	builder.WriteString(", note=")
+	builder.WriteString(gr.Note)
+	builder.WriteString(", log=")
+	builder.WriteString(gr.Log)
+	builder.WriteString(", username=")
+	builder.WriteString(gr.Username)
 	builder.WriteByte(')')
 	return builder.String()
 }

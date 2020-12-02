@@ -106,6 +106,69 @@ func Nickname(v string) predicate.Group {
 	})
 }
 
+// Count applies equality check predicate on the "count" field. It's identical to CountEQ.
+func Count(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldCount), v))
+	})
+}
+
+// Code applies equality check predicate on the "code" field. It's identical to CodeEQ.
+func Code(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldCode), v))
+	})
+}
+
+// Index applies equality check predicate on the "index" field. It's identical to IndexEQ.
+func Index(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldIndex), v))
+	})
+}
+
+// Min applies equality check predicate on the "min" field. It's identical to MinEQ.
+func Min(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldMin), v))
+	})
+}
+
+// Max applies equality check predicate on the "max" field. It's identical to MaxEQ.
+func Max(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldMax), v))
+	})
+}
+
+// Range applies equality check predicate on the "range" field. It's identical to RangeEQ.
+func Range(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldRange), v))
+	})
+}
+
+// Note applies equality check predicate on the "note" field. It's identical to NoteEQ.
+func Note(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldNote), v))
+	})
+}
+
+// Log applies equality check predicate on the "log" field. It's identical to LogEQ.
+func Log(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldLog), v))
+	})
+}
+
+// Username applies equality check predicate on the "username" field. It's identical to UsernameEQ.
+func Username(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldUsername), v))
+	})
+}
+
 // NameEQ applies the EQ predicate on the "name" field.
 func NameEQ(v string) predicate.Group {
 	return predicate.Group(func(s *sql.Selector) {
@@ -325,6 +388,795 @@ func NicknameEqualFold(v string) predicate.Group {
 func NicknameContainsFold(v string) predicate.Group {
 	return predicate.Group(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldNickname), v))
+	})
+}
+
+// CountEQ applies the EQ predicate on the "count" field.
+func CountEQ(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldCount), v))
+	})
+}
+
+// CountNEQ applies the NEQ predicate on the "count" field.
+func CountNEQ(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldCount), v))
+	})
+}
+
+// CountIn applies the In predicate on the "count" field.
+func CountIn(vs ...int) predicate.Group {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Group(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldCount), v...))
+	})
+}
+
+// CountNotIn applies the NotIn predicate on the "count" field.
+func CountNotIn(vs ...int) predicate.Group {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Group(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldCount), v...))
+	})
+}
+
+// CountGT applies the GT predicate on the "count" field.
+func CountGT(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldCount), v))
+	})
+}
+
+// CountGTE applies the GTE predicate on the "count" field.
+func CountGTE(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldCount), v))
+	})
+}
+
+// CountLT applies the LT predicate on the "count" field.
+func CountLT(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldCount), v))
+	})
+}
+
+// CountLTE applies the LTE predicate on the "count" field.
+func CountLTE(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldCount), v))
+	})
+}
+
+// CodeEQ applies the EQ predicate on the "code" field.
+func CodeEQ(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldCode), v))
+	})
+}
+
+// CodeNEQ applies the NEQ predicate on the "code" field.
+func CodeNEQ(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldCode), v))
+	})
+}
+
+// CodeIn applies the In predicate on the "code" field.
+func CodeIn(vs ...int) predicate.Group {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Group(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldCode), v...))
+	})
+}
+
+// CodeNotIn applies the NotIn predicate on the "code" field.
+func CodeNotIn(vs ...int) predicate.Group {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Group(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldCode), v...))
+	})
+}
+
+// CodeGT applies the GT predicate on the "code" field.
+func CodeGT(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldCode), v))
+	})
+}
+
+// CodeGTE applies the GTE predicate on the "code" field.
+func CodeGTE(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldCode), v))
+	})
+}
+
+// CodeLT applies the LT predicate on the "code" field.
+func CodeLT(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldCode), v))
+	})
+}
+
+// CodeLTE applies the LTE predicate on the "code" field.
+func CodeLTE(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldCode), v))
+	})
+}
+
+// IndexEQ applies the EQ predicate on the "index" field.
+func IndexEQ(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldIndex), v))
+	})
+}
+
+// IndexNEQ applies the NEQ predicate on the "index" field.
+func IndexNEQ(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldIndex), v))
+	})
+}
+
+// IndexIn applies the In predicate on the "index" field.
+func IndexIn(vs ...int) predicate.Group {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Group(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldIndex), v...))
+	})
+}
+
+// IndexNotIn applies the NotIn predicate on the "index" field.
+func IndexNotIn(vs ...int) predicate.Group {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Group(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldIndex), v...))
+	})
+}
+
+// IndexGT applies the GT predicate on the "index" field.
+func IndexGT(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldIndex), v))
+	})
+}
+
+// IndexGTE applies the GTE predicate on the "index" field.
+func IndexGTE(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldIndex), v))
+	})
+}
+
+// IndexLT applies the LT predicate on the "index" field.
+func IndexLT(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldIndex), v))
+	})
+}
+
+// IndexLTE applies the LTE predicate on the "index" field.
+func IndexLTE(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldIndex), v))
+	})
+}
+
+// MinEQ applies the EQ predicate on the "min" field.
+func MinEQ(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldMin), v))
+	})
+}
+
+// MinNEQ applies the NEQ predicate on the "min" field.
+func MinNEQ(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldMin), v))
+	})
+}
+
+// MinIn applies the In predicate on the "min" field.
+func MinIn(vs ...int) predicate.Group {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Group(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldMin), v...))
+	})
+}
+
+// MinNotIn applies the NotIn predicate on the "min" field.
+func MinNotIn(vs ...int) predicate.Group {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Group(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldMin), v...))
+	})
+}
+
+// MinGT applies the GT predicate on the "min" field.
+func MinGT(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldMin), v))
+	})
+}
+
+// MinGTE applies the GTE predicate on the "min" field.
+func MinGTE(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldMin), v))
+	})
+}
+
+// MinLT applies the LT predicate on the "min" field.
+func MinLT(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldMin), v))
+	})
+}
+
+// MinLTE applies the LTE predicate on the "min" field.
+func MinLTE(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldMin), v))
+	})
+}
+
+// MaxEQ applies the EQ predicate on the "max" field.
+func MaxEQ(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldMax), v))
+	})
+}
+
+// MaxNEQ applies the NEQ predicate on the "max" field.
+func MaxNEQ(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldMax), v))
+	})
+}
+
+// MaxIn applies the In predicate on the "max" field.
+func MaxIn(vs ...int) predicate.Group {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Group(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldMax), v...))
+	})
+}
+
+// MaxNotIn applies the NotIn predicate on the "max" field.
+func MaxNotIn(vs ...int) predicate.Group {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Group(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldMax), v...))
+	})
+}
+
+// MaxGT applies the GT predicate on the "max" field.
+func MaxGT(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldMax), v))
+	})
+}
+
+// MaxGTE applies the GTE predicate on the "max" field.
+func MaxGTE(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldMax), v))
+	})
+}
+
+// MaxLT applies the LT predicate on the "max" field.
+func MaxLT(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldMax), v))
+	})
+}
+
+// MaxLTE applies the LTE predicate on the "max" field.
+func MaxLTE(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldMax), v))
+	})
+}
+
+// RangeEQ applies the EQ predicate on the "range" field.
+func RangeEQ(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldRange), v))
+	})
+}
+
+// RangeNEQ applies the NEQ predicate on the "range" field.
+func RangeNEQ(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldRange), v))
+	})
+}
+
+// RangeIn applies the In predicate on the "range" field.
+func RangeIn(vs ...int) predicate.Group {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Group(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldRange), v...))
+	})
+}
+
+// RangeNotIn applies the NotIn predicate on the "range" field.
+func RangeNotIn(vs ...int) predicate.Group {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Group(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldRange), v...))
+	})
+}
+
+// RangeGT applies the GT predicate on the "range" field.
+func RangeGT(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldRange), v))
+	})
+}
+
+// RangeGTE applies the GTE predicate on the "range" field.
+func RangeGTE(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldRange), v))
+	})
+}
+
+// RangeLT applies the LT predicate on the "range" field.
+func RangeLT(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldRange), v))
+	})
+}
+
+// RangeLTE applies the LTE predicate on the "range" field.
+func RangeLTE(v int) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldRange), v))
+	})
+}
+
+// NoteEQ applies the EQ predicate on the "note" field.
+func NoteEQ(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldNote), v))
+	})
+}
+
+// NoteNEQ applies the NEQ predicate on the "note" field.
+func NoteNEQ(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldNote), v))
+	})
+}
+
+// NoteIn applies the In predicate on the "note" field.
+func NoteIn(vs ...string) predicate.Group {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Group(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldNote), v...))
+	})
+}
+
+// NoteNotIn applies the NotIn predicate on the "note" field.
+func NoteNotIn(vs ...string) predicate.Group {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Group(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldNote), v...))
+	})
+}
+
+// NoteGT applies the GT predicate on the "note" field.
+func NoteGT(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldNote), v))
+	})
+}
+
+// NoteGTE applies the GTE predicate on the "note" field.
+func NoteGTE(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldNote), v))
+	})
+}
+
+// NoteLT applies the LT predicate on the "note" field.
+func NoteLT(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldNote), v))
+	})
+}
+
+// NoteLTE applies the LTE predicate on the "note" field.
+func NoteLTE(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldNote), v))
+	})
+}
+
+// NoteContains applies the Contains predicate on the "note" field.
+func NoteContains(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldNote), v))
+	})
+}
+
+// NoteHasPrefix applies the HasPrefix predicate on the "note" field.
+func NoteHasPrefix(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldNote), v))
+	})
+}
+
+// NoteHasSuffix applies the HasSuffix predicate on the "note" field.
+func NoteHasSuffix(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldNote), v))
+	})
+}
+
+// NoteEqualFold applies the EqualFold predicate on the "note" field.
+func NoteEqualFold(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldNote), v))
+	})
+}
+
+// NoteContainsFold applies the ContainsFold predicate on the "note" field.
+func NoteContainsFold(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldNote), v))
+	})
+}
+
+// LogEQ applies the EQ predicate on the "log" field.
+func LogEQ(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldLog), v))
+	})
+}
+
+// LogNEQ applies the NEQ predicate on the "log" field.
+func LogNEQ(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldLog), v))
+	})
+}
+
+// LogIn applies the In predicate on the "log" field.
+func LogIn(vs ...string) predicate.Group {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Group(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldLog), v...))
+	})
+}
+
+// LogNotIn applies the NotIn predicate on the "log" field.
+func LogNotIn(vs ...string) predicate.Group {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Group(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldLog), v...))
+	})
+}
+
+// LogGT applies the GT predicate on the "log" field.
+func LogGT(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldLog), v))
+	})
+}
+
+// LogGTE applies the GTE predicate on the "log" field.
+func LogGTE(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldLog), v))
+	})
+}
+
+// LogLT applies the LT predicate on the "log" field.
+func LogLT(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldLog), v))
+	})
+}
+
+// LogLTE applies the LTE predicate on the "log" field.
+func LogLTE(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldLog), v))
+	})
+}
+
+// LogContains applies the Contains predicate on the "log" field.
+func LogContains(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldLog), v))
+	})
+}
+
+// LogHasPrefix applies the HasPrefix predicate on the "log" field.
+func LogHasPrefix(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldLog), v))
+	})
+}
+
+// LogHasSuffix applies the HasSuffix predicate on the "log" field.
+func LogHasSuffix(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldLog), v))
+	})
+}
+
+// LogEqualFold applies the EqualFold predicate on the "log" field.
+func LogEqualFold(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldLog), v))
+	})
+}
+
+// LogContainsFold applies the ContainsFold predicate on the "log" field.
+func LogContainsFold(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldLog), v))
+	})
+}
+
+// UsernameEQ applies the EQ predicate on the "username" field.
+func UsernameEQ(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldUsername), v))
+	})
+}
+
+// UsernameNEQ applies the NEQ predicate on the "username" field.
+func UsernameNEQ(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldUsername), v))
+	})
+}
+
+// UsernameIn applies the In predicate on the "username" field.
+func UsernameIn(vs ...string) predicate.Group {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Group(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldUsername), v...))
+	})
+}
+
+// UsernameNotIn applies the NotIn predicate on the "username" field.
+func UsernameNotIn(vs ...string) predicate.Group {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Group(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldUsername), v...))
+	})
+}
+
+// UsernameGT applies the GT predicate on the "username" field.
+func UsernameGT(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldUsername), v))
+	})
+}
+
+// UsernameGTE applies the GTE predicate on the "username" field.
+func UsernameGTE(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldUsername), v))
+	})
+}
+
+// UsernameLT applies the LT predicate on the "username" field.
+func UsernameLT(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldUsername), v))
+	})
+}
+
+// UsernameLTE applies the LTE predicate on the "username" field.
+func UsernameLTE(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldUsername), v))
+	})
+}
+
+// UsernameContains applies the Contains predicate on the "username" field.
+func UsernameContains(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldUsername), v))
+	})
+}
+
+// UsernameHasPrefix applies the HasPrefix predicate on the "username" field.
+func UsernameHasPrefix(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldUsername), v))
+	})
+}
+
+// UsernameHasSuffix applies the HasSuffix predicate on the "username" field.
+func UsernameHasSuffix(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldUsername), v))
+	})
+}
+
+// UsernameEqualFold applies the EqualFold predicate on the "username" field.
+func UsernameEqualFold(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldUsername), v))
+	})
+}
+
+// UsernameContainsFold applies the ContainsFold predicate on the "username" field.
+func UsernameContainsFold(v string) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldUsername), v))
 	})
 }
 

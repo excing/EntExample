@@ -39,6 +39,102 @@ func (gu *GroupUpdate) SetNickname(s string) *GroupUpdate {
 	return gu
 }
 
+// SetCount sets the count field.
+func (gu *GroupUpdate) SetCount(i int) *GroupUpdate {
+	gu.mutation.ResetCount()
+	gu.mutation.SetCount(i)
+	return gu
+}
+
+// AddCount adds i to count.
+func (gu *GroupUpdate) AddCount(i int) *GroupUpdate {
+	gu.mutation.AddCount(i)
+	return gu
+}
+
+// SetCode sets the code field.
+func (gu *GroupUpdate) SetCode(i int) *GroupUpdate {
+	gu.mutation.ResetCode()
+	gu.mutation.SetCode(i)
+	return gu
+}
+
+// AddCode adds i to code.
+func (gu *GroupUpdate) AddCode(i int) *GroupUpdate {
+	gu.mutation.AddCode(i)
+	return gu
+}
+
+// SetIndex sets the index field.
+func (gu *GroupUpdate) SetIndex(i int) *GroupUpdate {
+	gu.mutation.ResetIndex()
+	gu.mutation.SetIndex(i)
+	return gu
+}
+
+// AddIndex adds i to index.
+func (gu *GroupUpdate) AddIndex(i int) *GroupUpdate {
+	gu.mutation.AddIndex(i)
+	return gu
+}
+
+// SetMin sets the min field.
+func (gu *GroupUpdate) SetMin(i int) *GroupUpdate {
+	gu.mutation.ResetMin()
+	gu.mutation.SetMin(i)
+	return gu
+}
+
+// AddMin adds i to min.
+func (gu *GroupUpdate) AddMin(i int) *GroupUpdate {
+	gu.mutation.AddMin(i)
+	return gu
+}
+
+// SetMax sets the max field.
+func (gu *GroupUpdate) SetMax(i int) *GroupUpdate {
+	gu.mutation.ResetMax()
+	gu.mutation.SetMax(i)
+	return gu
+}
+
+// AddMax adds i to max.
+func (gu *GroupUpdate) AddMax(i int) *GroupUpdate {
+	gu.mutation.AddMax(i)
+	return gu
+}
+
+// SetRange sets the range field.
+func (gu *GroupUpdate) SetRange(i int) *GroupUpdate {
+	gu.mutation.ResetRange()
+	gu.mutation.SetRange(i)
+	return gu
+}
+
+// AddRange adds i to range.
+func (gu *GroupUpdate) AddRange(i int) *GroupUpdate {
+	gu.mutation.AddRange(i)
+	return gu
+}
+
+// SetNote sets the note field.
+func (gu *GroupUpdate) SetNote(s string) *GroupUpdate {
+	gu.mutation.SetNote(s)
+	return gu
+}
+
+// SetLog sets the log field.
+func (gu *GroupUpdate) SetLog(s string) *GroupUpdate {
+	gu.mutation.SetLog(s)
+	return gu
+}
+
+// SetUsername sets the username field.
+func (gu *GroupUpdate) SetUsername(s string) *GroupUpdate {
+	gu.mutation.SetUsername(s)
+	return gu
+}
+
 // AddUserIDs adds the users edge to User by ids.
 func (gu *GroupUpdate) AddUserIDs(ids ...int) *GroupUpdate {
 	gu.mutation.AddUserIDs(ids...)
@@ -149,6 +245,51 @@ func (gu *GroupUpdate) check() error {
 			return &ValidationError{Name: "nickname", err: fmt.Errorf("ent: validator failed for field \"nickname\": %w", err)}
 		}
 	}
+	if v, ok := gu.mutation.Count(); ok {
+		if err := group.CountValidator(v); err != nil {
+			return &ValidationError{Name: "count", err: fmt.Errorf("ent: validator failed for field \"count\": %w", err)}
+		}
+	}
+	if v, ok := gu.mutation.Code(); ok {
+		if err := group.CodeValidator(v); err != nil {
+			return &ValidationError{Name: "code", err: fmt.Errorf("ent: validator failed for field \"code\": %w", err)}
+		}
+	}
+	if v, ok := gu.mutation.Index(); ok {
+		if err := group.IndexValidator(v); err != nil {
+			return &ValidationError{Name: "index", err: fmt.Errorf("ent: validator failed for field \"index\": %w", err)}
+		}
+	}
+	if v, ok := gu.mutation.Min(); ok {
+		if err := group.MinValidator(v); err != nil {
+			return &ValidationError{Name: "min", err: fmt.Errorf("ent: validator failed for field \"min\": %w", err)}
+		}
+	}
+	if v, ok := gu.mutation.Max(); ok {
+		if err := group.MaxValidator(v); err != nil {
+			return &ValidationError{Name: "max", err: fmt.Errorf("ent: validator failed for field \"max\": %w", err)}
+		}
+	}
+	if v, ok := gu.mutation.Range(); ok {
+		if err := group.RangeValidator(v); err != nil {
+			return &ValidationError{Name: "range", err: fmt.Errorf("ent: validator failed for field \"range\": %w", err)}
+		}
+	}
+	if v, ok := gu.mutation.Note(); ok {
+		if err := group.NoteValidator(v); err != nil {
+			return &ValidationError{Name: "note", err: fmt.Errorf("ent: validator failed for field \"note\": %w", err)}
+		}
+	}
+	if v, ok := gu.mutation.Log(); ok {
+		if err := group.LogValidator(v); err != nil {
+			return &ValidationError{Name: "log", err: fmt.Errorf("ent: validator failed for field \"log\": %w", err)}
+		}
+	}
+	if v, ok := gu.mutation.Username(); ok {
+		if err := group.UsernameValidator(v); err != nil {
+			return &ValidationError{Name: "username", err: fmt.Errorf("ent: validator failed for field \"username\": %w", err)}
+		}
+	}
 	return nil
 }
 
@@ -182,6 +323,111 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Type:   field.TypeString,
 			Value:  value,
 			Column: group.FieldNickname,
+		})
+	}
+	if value, ok := gu.mutation.Count(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldCount,
+		})
+	}
+	if value, ok := gu.mutation.AddedCount(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldCount,
+		})
+	}
+	if value, ok := gu.mutation.Code(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldCode,
+		})
+	}
+	if value, ok := gu.mutation.AddedCode(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldCode,
+		})
+	}
+	if value, ok := gu.mutation.Index(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldIndex,
+		})
+	}
+	if value, ok := gu.mutation.AddedIndex(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldIndex,
+		})
+	}
+	if value, ok := gu.mutation.Min(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldMin,
+		})
+	}
+	if value, ok := gu.mutation.AddedMin(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldMin,
+		})
+	}
+	if value, ok := gu.mutation.Max(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldMax,
+		})
+	}
+	if value, ok := gu.mutation.AddedMax(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldMax,
+		})
+	}
+	if value, ok := gu.mutation.Range(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldRange,
+		})
+	}
+	if value, ok := gu.mutation.AddedRange(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldRange,
+		})
+	}
+	if value, ok := gu.mutation.Note(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: group.FieldNote,
+		})
+	}
+	if value, ok := gu.mutation.Log(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: group.FieldLog,
+		})
+	}
+	if value, ok := gu.mutation.Username(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: group.FieldUsername,
 		})
 	}
 	if gu.mutation.UsersCleared() {
@@ -265,6 +511,102 @@ func (guo *GroupUpdateOne) SetName(s string) *GroupUpdateOne {
 // SetNickname sets the nickname field.
 func (guo *GroupUpdateOne) SetNickname(s string) *GroupUpdateOne {
 	guo.mutation.SetNickname(s)
+	return guo
+}
+
+// SetCount sets the count field.
+func (guo *GroupUpdateOne) SetCount(i int) *GroupUpdateOne {
+	guo.mutation.ResetCount()
+	guo.mutation.SetCount(i)
+	return guo
+}
+
+// AddCount adds i to count.
+func (guo *GroupUpdateOne) AddCount(i int) *GroupUpdateOne {
+	guo.mutation.AddCount(i)
+	return guo
+}
+
+// SetCode sets the code field.
+func (guo *GroupUpdateOne) SetCode(i int) *GroupUpdateOne {
+	guo.mutation.ResetCode()
+	guo.mutation.SetCode(i)
+	return guo
+}
+
+// AddCode adds i to code.
+func (guo *GroupUpdateOne) AddCode(i int) *GroupUpdateOne {
+	guo.mutation.AddCode(i)
+	return guo
+}
+
+// SetIndex sets the index field.
+func (guo *GroupUpdateOne) SetIndex(i int) *GroupUpdateOne {
+	guo.mutation.ResetIndex()
+	guo.mutation.SetIndex(i)
+	return guo
+}
+
+// AddIndex adds i to index.
+func (guo *GroupUpdateOne) AddIndex(i int) *GroupUpdateOne {
+	guo.mutation.AddIndex(i)
+	return guo
+}
+
+// SetMin sets the min field.
+func (guo *GroupUpdateOne) SetMin(i int) *GroupUpdateOne {
+	guo.mutation.ResetMin()
+	guo.mutation.SetMin(i)
+	return guo
+}
+
+// AddMin adds i to min.
+func (guo *GroupUpdateOne) AddMin(i int) *GroupUpdateOne {
+	guo.mutation.AddMin(i)
+	return guo
+}
+
+// SetMax sets the max field.
+func (guo *GroupUpdateOne) SetMax(i int) *GroupUpdateOne {
+	guo.mutation.ResetMax()
+	guo.mutation.SetMax(i)
+	return guo
+}
+
+// AddMax adds i to max.
+func (guo *GroupUpdateOne) AddMax(i int) *GroupUpdateOne {
+	guo.mutation.AddMax(i)
+	return guo
+}
+
+// SetRange sets the range field.
+func (guo *GroupUpdateOne) SetRange(i int) *GroupUpdateOne {
+	guo.mutation.ResetRange()
+	guo.mutation.SetRange(i)
+	return guo
+}
+
+// AddRange adds i to range.
+func (guo *GroupUpdateOne) AddRange(i int) *GroupUpdateOne {
+	guo.mutation.AddRange(i)
+	return guo
+}
+
+// SetNote sets the note field.
+func (guo *GroupUpdateOne) SetNote(s string) *GroupUpdateOne {
+	guo.mutation.SetNote(s)
+	return guo
+}
+
+// SetLog sets the log field.
+func (guo *GroupUpdateOne) SetLog(s string) *GroupUpdateOne {
+	guo.mutation.SetLog(s)
+	return guo
+}
+
+// SetUsername sets the username field.
+func (guo *GroupUpdateOne) SetUsername(s string) *GroupUpdateOne {
+	guo.mutation.SetUsername(s)
 	return guo
 }
 
@@ -378,6 +720,51 @@ func (guo *GroupUpdateOne) check() error {
 			return &ValidationError{Name: "nickname", err: fmt.Errorf("ent: validator failed for field \"nickname\": %w", err)}
 		}
 	}
+	if v, ok := guo.mutation.Count(); ok {
+		if err := group.CountValidator(v); err != nil {
+			return &ValidationError{Name: "count", err: fmt.Errorf("ent: validator failed for field \"count\": %w", err)}
+		}
+	}
+	if v, ok := guo.mutation.Code(); ok {
+		if err := group.CodeValidator(v); err != nil {
+			return &ValidationError{Name: "code", err: fmt.Errorf("ent: validator failed for field \"code\": %w", err)}
+		}
+	}
+	if v, ok := guo.mutation.Index(); ok {
+		if err := group.IndexValidator(v); err != nil {
+			return &ValidationError{Name: "index", err: fmt.Errorf("ent: validator failed for field \"index\": %w", err)}
+		}
+	}
+	if v, ok := guo.mutation.Min(); ok {
+		if err := group.MinValidator(v); err != nil {
+			return &ValidationError{Name: "min", err: fmt.Errorf("ent: validator failed for field \"min\": %w", err)}
+		}
+	}
+	if v, ok := guo.mutation.Max(); ok {
+		if err := group.MaxValidator(v); err != nil {
+			return &ValidationError{Name: "max", err: fmt.Errorf("ent: validator failed for field \"max\": %w", err)}
+		}
+	}
+	if v, ok := guo.mutation.Range(); ok {
+		if err := group.RangeValidator(v); err != nil {
+			return &ValidationError{Name: "range", err: fmt.Errorf("ent: validator failed for field \"range\": %w", err)}
+		}
+	}
+	if v, ok := guo.mutation.Note(); ok {
+		if err := group.NoteValidator(v); err != nil {
+			return &ValidationError{Name: "note", err: fmt.Errorf("ent: validator failed for field \"note\": %w", err)}
+		}
+	}
+	if v, ok := guo.mutation.Log(); ok {
+		if err := group.LogValidator(v); err != nil {
+			return &ValidationError{Name: "log", err: fmt.Errorf("ent: validator failed for field \"log\": %w", err)}
+		}
+	}
+	if v, ok := guo.mutation.Username(); ok {
+		if err := group.UsernameValidator(v); err != nil {
+			return &ValidationError{Name: "username", err: fmt.Errorf("ent: validator failed for field \"username\": %w", err)}
+		}
+	}
 	return nil
 }
 
@@ -409,6 +796,111 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 			Type:   field.TypeString,
 			Value:  value,
 			Column: group.FieldNickname,
+		})
+	}
+	if value, ok := guo.mutation.Count(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldCount,
+		})
+	}
+	if value, ok := guo.mutation.AddedCount(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldCount,
+		})
+	}
+	if value, ok := guo.mutation.Code(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldCode,
+		})
+	}
+	if value, ok := guo.mutation.AddedCode(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldCode,
+		})
+	}
+	if value, ok := guo.mutation.Index(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldIndex,
+		})
+	}
+	if value, ok := guo.mutation.AddedIndex(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldIndex,
+		})
+	}
+	if value, ok := guo.mutation.Min(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldMin,
+		})
+	}
+	if value, ok := guo.mutation.AddedMin(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldMin,
+		})
+	}
+	if value, ok := guo.mutation.Max(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldMax,
+		})
+	}
+	if value, ok := guo.mutation.AddedMax(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldMax,
+		})
+	}
+	if value, ok := guo.mutation.Range(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldRange,
+		})
+	}
+	if value, ok := guo.mutation.AddedRange(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: group.FieldRange,
+		})
+	}
+	if value, ok := guo.mutation.Note(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: group.FieldNote,
+		})
+	}
+	if value, ok := guo.mutation.Log(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: group.FieldLog,
+		})
+	}
+	if value, ok := guo.mutation.Username(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: group.FieldUsername,
 		})
 	}
 	if guo.mutation.UsersCleared() {

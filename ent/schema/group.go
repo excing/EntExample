@@ -30,6 +30,15 @@ func (Group) Fields() []ent.Field {
 				return nil
 			}),
 		field.String("nickname").Validate(MaxRuneCount(20)),
+		field.Int("count").Positive(),
+		field.Int("code").Negative(),
+		field.Int("index").NonNegative(),
+		field.Int("min").Min(3),
+		field.Int("max").Max(9),
+		field.Int("range").Range(3, 9),
+		field.String("note").MinLen(10),
+		field.String("log").MaxLen(200),
+		field.String("username").NotEmpty(),
 	}
 }
 

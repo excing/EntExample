@@ -1108,6 +1108,21 @@ type GroupMutation struct {
 	id            *int
 	name          *string
 	nickname      *string
+	count         *int
+	addcount      *int
+	code          *int
+	addcode       *int
+	index         *int
+	addindex      *int
+	min           *int
+	addmin        *int
+	max           *int
+	addmax        *int
+	_range        *int
+	add_range     *int
+	note          *string
+	log           *string
+	username      *string
 	clearedFields map[string]struct{}
 	users         map[int]struct{}
 	removedusers  map[int]struct{}
@@ -1276,6 +1291,459 @@ func (m *GroupMutation) ResetNickname() {
 	m.nickname = nil
 }
 
+// SetCount sets the count field.
+func (m *GroupMutation) SetCount(i int) {
+	m.count = &i
+	m.addcount = nil
+}
+
+// Count returns the count value in the mutation.
+func (m *GroupMutation) Count() (r int, exists bool) {
+	v := m.count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCount returns the old count value of the Group.
+// If the Group object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *GroupMutation) OldCount(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldCount is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCount: %w", err)
+	}
+	return oldValue.Count, nil
+}
+
+// AddCount adds i to count.
+func (m *GroupMutation) AddCount(i int) {
+	if m.addcount != nil {
+		*m.addcount += i
+	} else {
+		m.addcount = &i
+	}
+}
+
+// AddedCount returns the value that was added to the count field in this mutation.
+func (m *GroupMutation) AddedCount() (r int, exists bool) {
+	v := m.addcount
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetCount reset all changes of the "count" field.
+func (m *GroupMutation) ResetCount() {
+	m.count = nil
+	m.addcount = nil
+}
+
+// SetCode sets the code field.
+func (m *GroupMutation) SetCode(i int) {
+	m.code = &i
+	m.addcode = nil
+}
+
+// Code returns the code value in the mutation.
+func (m *GroupMutation) Code() (r int, exists bool) {
+	v := m.code
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCode returns the old code value of the Group.
+// If the Group object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *GroupMutation) OldCode(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldCode is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldCode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCode: %w", err)
+	}
+	return oldValue.Code, nil
+}
+
+// AddCode adds i to code.
+func (m *GroupMutation) AddCode(i int) {
+	if m.addcode != nil {
+		*m.addcode += i
+	} else {
+		m.addcode = &i
+	}
+}
+
+// AddedCode returns the value that was added to the code field in this mutation.
+func (m *GroupMutation) AddedCode() (r int, exists bool) {
+	v := m.addcode
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetCode reset all changes of the "code" field.
+func (m *GroupMutation) ResetCode() {
+	m.code = nil
+	m.addcode = nil
+}
+
+// SetIndex sets the index field.
+func (m *GroupMutation) SetIndex(i int) {
+	m.index = &i
+	m.addindex = nil
+}
+
+// Index returns the index value in the mutation.
+func (m *GroupMutation) Index() (r int, exists bool) {
+	v := m.index
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIndex returns the old index value of the Group.
+// If the Group object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *GroupMutation) OldIndex(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldIndex is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldIndex requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIndex: %w", err)
+	}
+	return oldValue.Index, nil
+}
+
+// AddIndex adds i to index.
+func (m *GroupMutation) AddIndex(i int) {
+	if m.addindex != nil {
+		*m.addindex += i
+	} else {
+		m.addindex = &i
+	}
+}
+
+// AddedIndex returns the value that was added to the index field in this mutation.
+func (m *GroupMutation) AddedIndex() (r int, exists bool) {
+	v := m.addindex
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetIndex reset all changes of the "index" field.
+func (m *GroupMutation) ResetIndex() {
+	m.index = nil
+	m.addindex = nil
+}
+
+// SetMin sets the min field.
+func (m *GroupMutation) SetMin(i int) {
+	m.min = &i
+	m.addmin = nil
+}
+
+// Min returns the min value in the mutation.
+func (m *GroupMutation) Min() (r int, exists bool) {
+	v := m.min
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMin returns the old min value of the Group.
+// If the Group object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *GroupMutation) OldMin(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldMin is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldMin requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMin: %w", err)
+	}
+	return oldValue.Min, nil
+}
+
+// AddMin adds i to min.
+func (m *GroupMutation) AddMin(i int) {
+	if m.addmin != nil {
+		*m.addmin += i
+	} else {
+		m.addmin = &i
+	}
+}
+
+// AddedMin returns the value that was added to the min field in this mutation.
+func (m *GroupMutation) AddedMin() (r int, exists bool) {
+	v := m.addmin
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetMin reset all changes of the "min" field.
+func (m *GroupMutation) ResetMin() {
+	m.min = nil
+	m.addmin = nil
+}
+
+// SetMax sets the max field.
+func (m *GroupMutation) SetMax(i int) {
+	m.max = &i
+	m.addmax = nil
+}
+
+// Max returns the max value in the mutation.
+func (m *GroupMutation) Max() (r int, exists bool) {
+	v := m.max
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMax returns the old max value of the Group.
+// If the Group object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *GroupMutation) OldMax(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldMax is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldMax requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMax: %w", err)
+	}
+	return oldValue.Max, nil
+}
+
+// AddMax adds i to max.
+func (m *GroupMutation) AddMax(i int) {
+	if m.addmax != nil {
+		*m.addmax += i
+	} else {
+		m.addmax = &i
+	}
+}
+
+// AddedMax returns the value that was added to the max field in this mutation.
+func (m *GroupMutation) AddedMax() (r int, exists bool) {
+	v := m.addmax
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetMax reset all changes of the "max" field.
+func (m *GroupMutation) ResetMax() {
+	m.max = nil
+	m.addmax = nil
+}
+
+// SetRange sets the range field.
+func (m *GroupMutation) SetRange(i int) {
+	m._range = &i
+	m.add_range = nil
+}
+
+// Range returns the range value in the mutation.
+func (m *GroupMutation) Range() (r int, exists bool) {
+	v := m._range
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRange returns the old range value of the Group.
+// If the Group object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *GroupMutation) OldRange(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldRange is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldRange requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRange: %w", err)
+	}
+	return oldValue.Range, nil
+}
+
+// AddRange adds i to range.
+func (m *GroupMutation) AddRange(i int) {
+	if m.add_range != nil {
+		*m.add_range += i
+	} else {
+		m.add_range = &i
+	}
+}
+
+// AddedRange returns the value that was added to the range field in this mutation.
+func (m *GroupMutation) AddedRange() (r int, exists bool) {
+	v := m.add_range
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetRange reset all changes of the "range" field.
+func (m *GroupMutation) ResetRange() {
+	m._range = nil
+	m.add_range = nil
+}
+
+// SetNote sets the note field.
+func (m *GroupMutation) SetNote(s string) {
+	m.note = &s
+}
+
+// Note returns the note value in the mutation.
+func (m *GroupMutation) Note() (r string, exists bool) {
+	v := m.note
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNote returns the old note value of the Group.
+// If the Group object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *GroupMutation) OldNote(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldNote is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldNote requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNote: %w", err)
+	}
+	return oldValue.Note, nil
+}
+
+// ResetNote reset all changes of the "note" field.
+func (m *GroupMutation) ResetNote() {
+	m.note = nil
+}
+
+// SetLog sets the log field.
+func (m *GroupMutation) SetLog(s string) {
+	m.log = &s
+}
+
+// Log returns the log value in the mutation.
+func (m *GroupMutation) Log() (r string, exists bool) {
+	v := m.log
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLog returns the old log value of the Group.
+// If the Group object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *GroupMutation) OldLog(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldLog is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldLog requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLog: %w", err)
+	}
+	return oldValue.Log, nil
+}
+
+// ResetLog reset all changes of the "log" field.
+func (m *GroupMutation) ResetLog() {
+	m.log = nil
+}
+
+// SetUsername sets the username field.
+func (m *GroupMutation) SetUsername(s string) {
+	m.username = &s
+}
+
+// Username returns the username value in the mutation.
+func (m *GroupMutation) Username() (r string, exists bool) {
+	v := m.username
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUsername returns the old username value of the Group.
+// If the Group object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *GroupMutation) OldUsername(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldUsername is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldUsername requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUsername: %w", err)
+	}
+	return oldValue.Username, nil
+}
+
+// ResetUsername reset all changes of the "username" field.
+func (m *GroupMutation) ResetUsername() {
+	m.username = nil
+}
+
 // AddUserIDs adds the users edge to User by ids.
 func (m *GroupMutation) AddUserIDs(ids ...int) {
 	if m.users == nil {
@@ -1343,12 +1811,39 @@ func (m *GroupMutation) Type() string {
 // this mutation. Note that, in order to get all numeric
 // fields that were in/decremented, call AddedFields().
 func (m *GroupMutation) Fields() []string {
-	fields := make([]string, 0, 2)
+	fields := make([]string, 0, 11)
 	if m.name != nil {
 		fields = append(fields, group.FieldName)
 	}
 	if m.nickname != nil {
 		fields = append(fields, group.FieldNickname)
+	}
+	if m.count != nil {
+		fields = append(fields, group.FieldCount)
+	}
+	if m.code != nil {
+		fields = append(fields, group.FieldCode)
+	}
+	if m.index != nil {
+		fields = append(fields, group.FieldIndex)
+	}
+	if m.min != nil {
+		fields = append(fields, group.FieldMin)
+	}
+	if m.max != nil {
+		fields = append(fields, group.FieldMax)
+	}
+	if m._range != nil {
+		fields = append(fields, group.FieldRange)
+	}
+	if m.note != nil {
+		fields = append(fields, group.FieldNote)
+	}
+	if m.log != nil {
+		fields = append(fields, group.FieldLog)
+	}
+	if m.username != nil {
+		fields = append(fields, group.FieldUsername)
 	}
 	return fields
 }
@@ -1362,6 +1857,24 @@ func (m *GroupMutation) Field(name string) (ent.Value, bool) {
 		return m.Name()
 	case group.FieldNickname:
 		return m.Nickname()
+	case group.FieldCount:
+		return m.Count()
+	case group.FieldCode:
+		return m.Code()
+	case group.FieldIndex:
+		return m.Index()
+	case group.FieldMin:
+		return m.Min()
+	case group.FieldMax:
+		return m.Max()
+	case group.FieldRange:
+		return m.Range()
+	case group.FieldNote:
+		return m.Note()
+	case group.FieldLog:
+		return m.Log()
+	case group.FieldUsername:
+		return m.Username()
 	}
 	return nil, false
 }
@@ -1375,6 +1888,24 @@ func (m *GroupMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldName(ctx)
 	case group.FieldNickname:
 		return m.OldNickname(ctx)
+	case group.FieldCount:
+		return m.OldCount(ctx)
+	case group.FieldCode:
+		return m.OldCode(ctx)
+	case group.FieldIndex:
+		return m.OldIndex(ctx)
+	case group.FieldMin:
+		return m.OldMin(ctx)
+	case group.FieldMax:
+		return m.OldMax(ctx)
+	case group.FieldRange:
+		return m.OldRange(ctx)
+	case group.FieldNote:
+		return m.OldNote(ctx)
+	case group.FieldLog:
+		return m.OldLog(ctx)
+	case group.FieldUsername:
+		return m.OldUsername(ctx)
 	}
 	return nil, fmt.Errorf("unknown Group field %s", name)
 }
@@ -1398,6 +1929,69 @@ func (m *GroupMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetNickname(v)
 		return nil
+	case group.FieldCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCount(v)
+		return nil
+	case group.FieldCode:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCode(v)
+		return nil
+	case group.FieldIndex:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIndex(v)
+		return nil
+	case group.FieldMin:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMin(v)
+		return nil
+	case group.FieldMax:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMax(v)
+		return nil
+	case group.FieldRange:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRange(v)
+		return nil
+	case group.FieldNote:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNote(v)
+		return nil
+	case group.FieldLog:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLog(v)
+		return nil
+	case group.FieldUsername:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUsername(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Group field %s", name)
 }
@@ -1405,13 +1999,46 @@ func (m *GroupMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented
 // or decremented during this mutation.
 func (m *GroupMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addcount != nil {
+		fields = append(fields, group.FieldCount)
+	}
+	if m.addcode != nil {
+		fields = append(fields, group.FieldCode)
+	}
+	if m.addindex != nil {
+		fields = append(fields, group.FieldIndex)
+	}
+	if m.addmin != nil {
+		fields = append(fields, group.FieldMin)
+	}
+	if m.addmax != nil {
+		fields = append(fields, group.FieldMax)
+	}
+	if m.add_range != nil {
+		fields = append(fields, group.FieldRange)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was in/decremented
 // from a field with the given name. The second value indicates
 // that this field was not set, or was not define in the schema.
 func (m *GroupMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case group.FieldCount:
+		return m.AddedCount()
+	case group.FieldCode:
+		return m.AddedCode()
+	case group.FieldIndex:
+		return m.AddedIndex()
+	case group.FieldMin:
+		return m.AddedMin()
+	case group.FieldMax:
+		return m.AddedMax()
+	case group.FieldRange:
+		return m.AddedRange()
+	}
 	return nil, false
 }
 
@@ -1420,6 +2047,48 @@ func (m *GroupMutation) AddedField(name string) (ent.Value, bool) {
 // type mismatch the field type.
 func (m *GroupMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case group.FieldCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCount(v)
+		return nil
+	case group.FieldCode:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCode(v)
+		return nil
+	case group.FieldIndex:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddIndex(v)
+		return nil
+	case group.FieldMin:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddMin(v)
+		return nil
+	case group.FieldMax:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddMax(v)
+		return nil
+	case group.FieldRange:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddRange(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Group numeric field %s", name)
 }
@@ -1453,6 +2122,33 @@ func (m *GroupMutation) ResetField(name string) error {
 		return nil
 	case group.FieldNickname:
 		m.ResetNickname()
+		return nil
+	case group.FieldCount:
+		m.ResetCount()
+		return nil
+	case group.FieldCode:
+		m.ResetCode()
+		return nil
+	case group.FieldIndex:
+		m.ResetIndex()
+		return nil
+	case group.FieldMin:
+		m.ResetMin()
+		return nil
+	case group.FieldMax:
+		m.ResetMax()
+		return nil
+	case group.FieldRange:
+		m.ResetRange()
+		return nil
+	case group.FieldNote:
+		m.ResetNote()
+		return nil
+	case group.FieldLog:
+		m.ResetLog()
+		return nil
+	case group.FieldUsername:
+		m.ResetUsername()
 		return nil
 	}
 	return fmt.Errorf("unknown Group field %s", name)
