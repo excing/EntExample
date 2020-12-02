@@ -11,11 +11,15 @@ const (
 	FieldAge = "age"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
+	// FieldNickname holds the string denoting the nickname field in the database.
+	FieldNickname = "nickname"
 
 	// EdgeCars holds the string denoting the cars edge name in mutations.
 	EdgeCars = "cars"
 	// EdgeGroups holds the string denoting the groups edge name in mutations.
 	EdgeGroups = "groups"
+	// EdgeFriends holds the string denoting the friends edge name in mutations.
+	EdgeFriends = "friends"
 
 	// Table holds the table name of the user in the database.
 	Table = "users"
@@ -26,11 +30,15 @@ const (
 	CarsInverseTable = "cars"
 	// CarsColumn is the table column denoting the cars relation/edge.
 	CarsColumn = "user_cars"
-	// GroupsTable is the table the holds the groups relation/edge. The primary key declared below.
-	GroupsTable = "group_users"
+	// GroupsTable is the table the holds the groups relation/edge.
+	GroupsTable = "groups"
 	// GroupsInverseTable is the table name for the Group entity.
 	// It exists in this package in order to avoid circular dependency with the "group" package.
 	GroupsInverseTable = "groups"
+	// GroupsColumn is the table column denoting the groups relation/edge.
+	GroupsColumn = "user_groups"
+	// FriendsTable is the table the holds the friends relation/edge. The primary key declared below.
+	FriendsTable = "user_friends"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -38,18 +46,29 @@ var Columns = []string{
 	FieldID,
 	FieldAge,
 	FieldName,
+	FieldNickname,
+}
+
+// ForeignKeys holds the SQL foreign-keys that are owned by the User type.
+var ForeignKeys = []string{
+	"group_users",
 }
 
 var (
-	// GroupsPrimaryKey and GroupsColumn2 are the table columns denoting the
-	// primary key for the groups relation (M2M).
-	GroupsPrimaryKey = []string{"group_id", "user_id"}
+	// FriendsPrimaryKey and FriendsColumn2 are the table columns denoting the
+	// primary key for the friends relation (M2M).
+	FriendsPrimaryKey = []string{"user_id", "friend_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
+			return true
+		}
+	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
 			return true
 		}
 	}

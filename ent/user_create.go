@@ -41,6 +41,12 @@ func (uc *UserCreate) SetNillableName(s *string) *UserCreate {
 	return uc
 }
 
+// SetNickname sets the nickname field.
+func (uc *UserCreate) SetNickname(s string) *UserCreate {
+	uc.mutation.SetNickname(s)
+	return uc
+}
+
 // AddCarIDs adds the cars edge to Car by ids.
 func (uc *UserCreate) AddCarIDs(ids ...int) *UserCreate {
 	uc.mutation.AddCarIDs(ids...)
@@ -69,6 +75,21 @@ func (uc *UserCreate) AddGroups(g ...*Group) *UserCreate {
 		ids[i] = g[i].ID
 	}
 	return uc.AddGroupIDs(ids...)
+}
+
+// AddFriendIDs adds the friends edge to User by ids.
+func (uc *UserCreate) AddFriendIDs(ids ...int) *UserCreate {
+	uc.mutation.AddFriendIDs(ids...)
+	return uc
+}
+
+// AddFriends adds the friends edges to User.
+func (uc *UserCreate) AddFriends(u ...*User) *UserCreate {
+	ids := make([]int, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return uc.AddFriendIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -142,6 +163,9 @@ func (uc *UserCreate) check() error {
 	if _, ok := uc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New("ent: missing required field \"name\"")}
 	}
+	if _, ok := uc.mutation.Nickname(); !ok {
+		return &ValidationError{Name: "nickname", err: errors.New("ent: missing required field \"nickname\"")}
+	}
 	return nil
 }
 
@@ -185,6 +209,14 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		})
 		_node.Name = value
 	}
+	if value, ok := uc.mutation.Nickname(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: user.FieldNickname,
+		})
+		_node.Nickname = value
+	}
 	if nodes := uc.mutation.CarsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -206,15 +238,34 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	}
 	if nodes := uc.mutation.GroupsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
 			Table:   user.GroupsTable,
-			Columns: user.GroupsPrimaryKey,
+			Columns: []string{user.GroupsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: group.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.FriendsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   user.FriendsTable,
+			Columns: user.FriendsPrimaryKey,
+			Bidi:    true,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
 				},
 			},
 		}

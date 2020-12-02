@@ -837,22 +837,26 @@ func (m *GroupMutation) ResetEdge(name string) error {
 // nodes in the graph.
 type UserMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *int
-	age           *int
-	addage        *int
-	name          *string
-	clearedFields map[string]struct{}
-	cars          map[int]struct{}
-	removedcars   map[int]struct{}
-	clearedcars   bool
-	groups        map[int]struct{}
-	removedgroups map[int]struct{}
-	clearedgroups bool
-	done          bool
-	oldValue      func(context.Context) (*User, error)
-	predicates    []predicate.User
+	op             Op
+	typ            string
+	id             *int
+	age            *int
+	addage         *int
+	name           *string
+	nickname       *string
+	clearedFields  map[string]struct{}
+	cars           map[int]struct{}
+	removedcars    map[int]struct{}
+	clearedcars    bool
+	groups         map[int]struct{}
+	removedgroups  map[int]struct{}
+	clearedgroups  bool
+	friends        map[int]struct{}
+	removedfriends map[int]struct{}
+	clearedfriends bool
+	done           bool
+	oldValue       func(context.Context) (*User, error)
+	predicates     []predicate.User
 }
 
 var _ ent.Mutation = (*UserMutation)(nil)
@@ -1028,6 +1032,43 @@ func (m *UserMutation) ResetName() {
 	m.name = nil
 }
 
+// SetNickname sets the nickname field.
+func (m *UserMutation) SetNickname(s string) {
+	m.nickname = &s
+}
+
+// Nickname returns the nickname value in the mutation.
+func (m *UserMutation) Nickname() (r string, exists bool) {
+	v := m.nickname
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNickname returns the old nickname value of the User.
+// If the User object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *UserMutation) OldNickname(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldNickname is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldNickname requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNickname: %w", err)
+	}
+	return oldValue.Nickname, nil
+}
+
+// ResetNickname reset all changes of the "nickname" field.
+func (m *UserMutation) ResetNickname() {
+	m.nickname = nil
+}
+
 // AddCarIDs adds the cars edge to Car by ids.
 func (m *UserMutation) AddCarIDs(ids ...int) {
 	if m.cars == nil {
@@ -1134,6 +1175,59 @@ func (m *UserMutation) ResetGroups() {
 	m.removedgroups = nil
 }
 
+// AddFriendIDs adds the friends edge to User by ids.
+func (m *UserMutation) AddFriendIDs(ids ...int) {
+	if m.friends == nil {
+		m.friends = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.friends[ids[i]] = struct{}{}
+	}
+}
+
+// ClearFriends clears the friends edge to User.
+func (m *UserMutation) ClearFriends() {
+	m.clearedfriends = true
+}
+
+// FriendsCleared returns if the edge friends was cleared.
+func (m *UserMutation) FriendsCleared() bool {
+	return m.clearedfriends
+}
+
+// RemoveFriendIDs removes the friends edge to User by ids.
+func (m *UserMutation) RemoveFriendIDs(ids ...int) {
+	if m.removedfriends == nil {
+		m.removedfriends = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.removedfriends[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedFriends returns the removed ids of friends.
+func (m *UserMutation) RemovedFriendsIDs() (ids []int) {
+	for id := range m.removedfriends {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// FriendsIDs returns the friends ids in the mutation.
+func (m *UserMutation) FriendsIDs() (ids []int) {
+	for id := range m.friends {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetFriends reset all changes of the "friends" edge.
+func (m *UserMutation) ResetFriends() {
+	m.friends = nil
+	m.clearedfriends = false
+	m.removedfriends = nil
+}
+
 // Op returns the operation name.
 func (m *UserMutation) Op() Op {
 	return m.op
@@ -1148,12 +1242,15 @@ func (m *UserMutation) Type() string {
 // this mutation. Note that, in order to get all numeric
 // fields that were in/decremented, call AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 2)
+	fields := make([]string, 0, 3)
 	if m.age != nil {
 		fields = append(fields, user.FieldAge)
 	}
 	if m.name != nil {
 		fields = append(fields, user.FieldName)
+	}
+	if m.nickname != nil {
+		fields = append(fields, user.FieldNickname)
 	}
 	return fields
 }
@@ -1167,6 +1264,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.Age()
 	case user.FieldName:
 		return m.Name()
+	case user.FieldNickname:
+		return m.Nickname()
 	}
 	return nil, false
 }
@@ -1180,6 +1279,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldAge(ctx)
 	case user.FieldName:
 		return m.OldName(ctx)
+	case user.FieldNickname:
+		return m.OldNickname(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -1202,6 +1303,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetName(v)
+		return nil
+	case user.FieldNickname:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNickname(v)
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
@@ -1274,6 +1382,9 @@ func (m *UserMutation) ResetField(name string) error {
 	case user.FieldName:
 		m.ResetName()
 		return nil
+	case user.FieldNickname:
+		m.ResetNickname()
+		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
 }
@@ -1281,12 +1392,15 @@ func (m *UserMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this
 // mutation.
 func (m *UserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.cars != nil {
 		edges = append(edges, user.EdgeCars)
 	}
 	if m.groups != nil {
 		edges = append(edges, user.EdgeGroups)
+	}
+	if m.friends != nil {
+		edges = append(edges, user.EdgeFriends)
 	}
 	return edges
 }
@@ -1307,6 +1421,12 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgeFriends:
+		ids := make([]ent.Value, 0, len(m.friends))
+		for id := range m.friends {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
@@ -1314,12 +1434,15 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this
 // mutation.
 func (m *UserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.removedcars != nil {
 		edges = append(edges, user.EdgeCars)
 	}
 	if m.removedgroups != nil {
 		edges = append(edges, user.EdgeGroups)
+	}
+	if m.removedfriends != nil {
+		edges = append(edges, user.EdgeFriends)
 	}
 	return edges
 }
@@ -1340,6 +1463,12 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgeFriends:
+		ids := make([]ent.Value, 0, len(m.removedfriends))
+		for id := range m.removedfriends {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
@@ -1347,12 +1476,15 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this
 // mutation.
 func (m *UserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.clearedcars {
 		edges = append(edges, user.EdgeCars)
 	}
 	if m.clearedgroups {
 		edges = append(edges, user.EdgeGroups)
+	}
+	if m.clearedfriends {
+		edges = append(edges, user.EdgeFriends)
 	}
 	return edges
 }
@@ -1365,6 +1497,8 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 		return m.clearedcars
 	case user.EdgeGroups:
 		return m.clearedgroups
+	case user.EdgeFriends:
+		return m.clearedfriends
 	}
 	return false
 }
@@ -1387,6 +1521,9 @@ func (m *UserMutation) ResetEdge(name string) error {
 		return nil
 	case user.EdgeGroups:
 		m.ResetGroups()
+		return nil
+	case user.EdgeFriends:
+		m.ResetFriends()
 		return nil
 	}
 	return fmt.Errorf("unknown User edge %s", name)

@@ -19,9 +19,12 @@ type User struct {
 	Age int `json:"age,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
+	// Nickname holds the value of the "nickname" field.
+	Nickname string `json:"nickname,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
-	Edges UserEdges `json:"edges"`
+	Edges       UserEdges `json:"edges"`
+	group_users *int
 }
 
 // UserEdges holds the relations/edges for other nodes in the graph.
@@ -30,9 +33,11 @@ type UserEdges struct {
 	Cars []*Car
 	// Groups holds the value of the groups edge.
 	Groups []*Group
+	// Friends holds the value of the friends edge.
+	Friends []*User
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // CarsOrErr returns the Cars value or an error if the edge
@@ -53,12 +58,29 @@ func (e UserEdges) GroupsOrErr() ([]*Group, error) {
 	return nil, &NotLoadedError{edge: "groups"}
 }
 
+// FriendsOrErr returns the Friends value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) FriendsOrErr() ([]*User, error) {
+	if e.loadedTypes[2] {
+		return e.Friends, nil
+	}
+	return nil, &NotLoadedError{edge: "friends"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*User) scanValues() []interface{} {
 	return []interface{}{
 		&sql.NullInt64{},  // id
 		&sql.NullInt64{},  // age
 		&sql.NullString{}, // name
+		&sql.NullString{}, // nickname
+	}
+}
+
+// fkValues returns the types for scanning foreign-keys values from sql.Rows.
+func (*User) fkValues() []interface{} {
+	return []interface{}{
+		&sql.NullInt64{}, // group_users
 	}
 }
 
@@ -84,6 +106,20 @@ func (u *User) assignValues(values ...interface{}) error {
 	} else if value.Valid {
 		u.Name = value.String
 	}
+	if value, ok := values[2].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field nickname", values[2])
+	} else if value.Valid {
+		u.Nickname = value.String
+	}
+	values = values[3:]
+	if len(values) == len(user.ForeignKeys) {
+		if value, ok := values[0].(*sql.NullInt64); !ok {
+			return fmt.Errorf("unexpected type %T for edge-field group_users", value)
+		} else if value.Valid {
+			u.group_users = new(int)
+			*u.group_users = int(value.Int64)
+		}
+	}
 	return nil
 }
 
@@ -95,6 +131,11 @@ func (u *User) QueryCars() *CarQuery {
 // QueryGroups queries the groups edge of the User.
 func (u *User) QueryGroups() *GroupQuery {
 	return (&UserClient{config: u.config}).QueryGroups(u)
+}
+
+// QueryFriends queries the friends edge of the User.
+func (u *User) QueryFriends() *UserQuery {
+	return (&UserClient{config: u.config}).QueryFriends(u)
 }
 
 // Update returns a builder for updating this User.
@@ -124,6 +165,8 @@ func (u *User) String() string {
 	builder.WriteString(fmt.Sprintf("%v", u.Age))
 	builder.WriteString(", name=")
 	builder.WriteString(u.Name)
+	builder.WriteString(", nickname=")
+	builder.WriteString(u.Nickname)
 	builder.WriteByte(')')
 	return builder.String()
 }
