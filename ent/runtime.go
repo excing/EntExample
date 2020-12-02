@@ -3,7 +3,9 @@
 package ent
 
 import (
+	"ent_example/ent/blob"
 	"ent_example/ent/group"
+	"ent_example/ent/pet"
 	"ent_example/ent/schema"
 	"ent_example/ent/user"
 	"time"
@@ -15,12 +17,38 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	blobFields := schema.Blob{}.Fields()
+	_ = blobFields
+	// blobDescID is the schema descriptor for id field.
+	blobDescID := blobFields[0].Descriptor()
+	// blob.DefaultID holds the default value on creation for the id field.
+	blob.DefaultID = blobDescID.Default.(func() uuid.UUID)
 	groupFields := schema.Group{}.Fields()
 	_ = groupFields
 	// groupDescName is the schema descriptor for name field.
-	groupDescName := groupFields[0].Descriptor()
+	groupDescName := groupFields[1].Descriptor()
 	// group.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	group.NameValidator = groupDescName.Validators[0].(func(string) error)
+	petFields := schema.Pet{}.Fields()
+	_ = petFields
+	// petDescID is the schema descriptor for id field.
+	petDescID := petFields[0].Descriptor()
+	// pet.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	pet.IDValidator = func() func(string) error {
+		validators := petDescID.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(id string) error {
+			for _, fn := range fns {
+				if err := fn(id); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescAge is the schema descriptor for age field.

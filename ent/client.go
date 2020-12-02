@@ -9,13 +9,16 @@ import (
 
 	"ent_example/ent/migrate"
 
+	"ent_example/ent/blob"
 	"ent_example/ent/car"
 	"ent_example/ent/group"
+	"ent_example/ent/pet"
 	"ent_example/ent/user"
 
 	"github.com/facebook/ent/dialect"
 	"github.com/facebook/ent/dialect/sql"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 // Client is the client that holds all ent builders.
@@ -23,10 +26,14 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// Blob is the client for interacting with the Blob builders.
+	Blob *BlobClient
 	// Car is the client for interacting with the Car builders.
 	Car *CarClient
 	// Group is the client for interacting with the Group builders.
 	Group *GroupClient
+	// Pet is the client for interacting with the Pet builders.
+	Pet *PetClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 }
@@ -42,8 +49,10 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.Blob = NewBlobClient(c.config)
 	c.Car = NewCarClient(c.config)
 	c.Group = NewGroupClient(c.config)
+	c.Pet = NewPetClient(c.config)
 	c.User = NewUserClient(c.config)
 }
 
@@ -77,8 +86,10 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:    ctx,
 		config: cfg,
+		Blob:   NewBlobClient(cfg),
 		Car:    NewCarClient(cfg),
 		Group:  NewGroupClient(cfg),
+		Pet:    NewPetClient(cfg),
 		User:   NewUserClient(cfg),
 	}, nil
 }
@@ -95,8 +106,10 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := config{driver: &txDriver{tx: tx, drv: c.driver}, log: c.log, debug: c.debug, hooks: c.hooks}
 	return &Tx{
 		config: cfg,
+		Blob:   NewBlobClient(cfg),
 		Car:    NewCarClient(cfg),
 		Group:  NewGroupClient(cfg),
+		Pet:    NewPetClient(cfg),
 		User:   NewUserClient(cfg),
 	}, nil
 }
@@ -104,7 +117,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Car.
+//		Blob.
 //		Query().
 //		Count(ctx)
 //
@@ -126,9 +139,99 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
+	c.Blob.Use(hooks...)
 	c.Car.Use(hooks...)
 	c.Group.Use(hooks...)
+	c.Pet.Use(hooks...)
 	c.User.Use(hooks...)
+}
+
+// BlobClient is a client for the Blob schema.
+type BlobClient struct {
+	config
+}
+
+// NewBlobClient returns a client for the Blob from the given config.
+func NewBlobClient(c config) *BlobClient {
+	return &BlobClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `blob.Hooks(f(g(h())))`.
+func (c *BlobClient) Use(hooks ...Hook) {
+	c.hooks.Blob = append(c.hooks.Blob, hooks...)
+}
+
+// Create returns a create builder for Blob.
+func (c *BlobClient) Create() *BlobCreate {
+	mutation := newBlobMutation(c.config, OpCreate)
+	return &BlobCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Blob entities.
+func (c *BlobClient) CreateBulk(builders ...*BlobCreate) *BlobCreateBulk {
+	return &BlobCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Blob.
+func (c *BlobClient) Update() *BlobUpdate {
+	mutation := newBlobMutation(c.config, OpUpdate)
+	return &BlobUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *BlobClient) UpdateOne(b *Blob) *BlobUpdateOne {
+	mutation := newBlobMutation(c.config, OpUpdateOne, withBlob(b))
+	return &BlobUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *BlobClient) UpdateOneID(id uuid.UUID) *BlobUpdateOne {
+	mutation := newBlobMutation(c.config, OpUpdateOne, withBlobID(id))
+	return &BlobUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Blob.
+func (c *BlobClient) Delete() *BlobDelete {
+	mutation := newBlobMutation(c.config, OpDelete)
+	return &BlobDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *BlobClient) DeleteOne(b *Blob) *BlobDeleteOne {
+	return c.DeleteOneID(b.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *BlobClient) DeleteOneID(id uuid.UUID) *BlobDeleteOne {
+	builder := c.Delete().Where(blob.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &BlobDeleteOne{builder}
+}
+
+// Query returns a query builder for Blob.
+func (c *BlobClient) Query() *BlobQuery {
+	return &BlobQuery{config: c.config}
+}
+
+// Get returns a Blob entity by its id.
+func (c *BlobClient) Get(ctx context.Context, id uuid.UUID) (*Blob, error) {
+	return c.Query().Where(blob.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *BlobClient) GetX(ctx context.Context, id uuid.UUID) *Blob {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *BlobClient) Hooks() []Hook {
+	return c.hooks.Blob
 }
 
 // CarClient is a client for the Car schema.
@@ -337,6 +440,94 @@ func (c *GroupClient) QueryUsers(gr *Group) *UserQuery {
 // Hooks returns the client hooks.
 func (c *GroupClient) Hooks() []Hook {
 	return c.hooks.Group
+}
+
+// PetClient is a client for the Pet schema.
+type PetClient struct {
+	config
+}
+
+// NewPetClient returns a client for the Pet from the given config.
+func NewPetClient(c config) *PetClient {
+	return &PetClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `pet.Hooks(f(g(h())))`.
+func (c *PetClient) Use(hooks ...Hook) {
+	c.hooks.Pet = append(c.hooks.Pet, hooks...)
+}
+
+// Create returns a create builder for Pet.
+func (c *PetClient) Create() *PetCreate {
+	mutation := newPetMutation(c.config, OpCreate)
+	return &PetCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Pet entities.
+func (c *PetClient) CreateBulk(builders ...*PetCreate) *PetCreateBulk {
+	return &PetCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Pet.
+func (c *PetClient) Update() *PetUpdate {
+	mutation := newPetMutation(c.config, OpUpdate)
+	return &PetUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *PetClient) UpdateOne(pe *Pet) *PetUpdateOne {
+	mutation := newPetMutation(c.config, OpUpdateOne, withPet(pe))
+	return &PetUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *PetClient) UpdateOneID(id string) *PetUpdateOne {
+	mutation := newPetMutation(c.config, OpUpdateOne, withPetID(id))
+	return &PetUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Pet.
+func (c *PetClient) Delete() *PetDelete {
+	mutation := newPetMutation(c.config, OpDelete)
+	return &PetDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *PetClient) DeleteOne(pe *Pet) *PetDeleteOne {
+	return c.DeleteOneID(pe.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *PetClient) DeleteOneID(id string) *PetDeleteOne {
+	builder := c.Delete().Where(pet.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &PetDeleteOne{builder}
+}
+
+// Query returns a query builder for Pet.
+func (c *PetClient) Query() *PetQuery {
+	return &PetQuery{config: c.config}
+}
+
+// Get returns a Pet entity by its id.
+func (c *PetClient) Get(ctx context.Context, id string) (*Pet, error) {
+	return c.Query().Where(pet.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *PetClient) GetX(ctx context.Context, id string) *Pet {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *PetClient) Hooks() []Hook {
+	return c.hooks.Pet
 }
 
 // UserClient is a client for the User schema.

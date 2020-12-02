@@ -8,6 +8,17 @@ import (
 )
 
 var (
+	// BlobsColumns holds the columns for the "blobs" table.
+	BlobsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+	}
+	// BlobsTable holds the schema information for the "blobs" table.
+	BlobsTable = &schema.Table{
+		Name:        "blobs",
+		Columns:     BlobsColumns,
+		PrimaryKey:  []*schema.Column{BlobsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{},
+	}
 	// CarsColumns holds the columns for the "cars" table.
 	CarsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -50,6 +61,17 @@ var (
 				OnDelete:   schema.SetNull,
 			},
 		},
+	}
+	// PetsColumns holds the columns for the "pets" table.
+	PetsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true, Size: 25},
+	}
+	// PetsTable holds the schema information for the "pets" table.
+	PetsTable = &schema.Table{
+		Name:        "pets",
+		Columns:     PetsColumns,
+		PrimaryKey:  []*schema.Column{PetsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{},
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
@@ -109,8 +131,10 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		BlobsTable,
 		CarsTable,
 		GroupsTable,
+		PetsTable,
 		UsersTable,
 		UserFriendsTable,
 	}
