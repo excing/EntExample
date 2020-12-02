@@ -2,6 +2,10 @@
 
 package user
 
+import (
+	"time"
+)
+
 const (
 	// Label holds the string label denoting the user type in the database.
 	Label = "user"
@@ -11,8 +15,10 @@ const (
 	FieldAge = "age"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
-	// FieldNickname holds the string denoting the nickname field in the database.
-	FieldNickname = "nickname"
+	// FieldUsername holds the string denoting the username field in the database.
+	FieldUsername = "username"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
 
 	// EdgeCars holds the string denoting the cars edge name in mutations.
 	EdgeCars = "cars"
@@ -46,7 +52,8 @@ var Columns = []string{
 	FieldID,
 	FieldAge,
 	FieldName,
-	FieldNickname,
+	FieldUsername,
+	FieldCreatedAt,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the User type.
@@ -80,4 +87,6 @@ var (
 	AgeValidator func(int) error
 	// DefaultName holds the default value on creation for the name field.
 	DefaultName string
+	// DefaultCreatedAt holds the default value on creation for the created_at field.
+	DefaultCreatedAt func() time.Time
 )

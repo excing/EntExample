@@ -1,6 +1,8 @@
 package schema
 
 import (
+	"time"
+
 	"github.com/facebook/ent"
 	"github.com/facebook/ent/schema/edge"
 	"github.com/facebook/ent/schema/field"
@@ -17,7 +19,8 @@ func (User) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int("age").Positive(),
 		field.String("name").Default("a8m"),
-		field.String("nickname").Unique(),
+		field.String("username").Unique(),
+		field.Time("created_at").Default(time.Now),
 	}
 }
 

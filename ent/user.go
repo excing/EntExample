@@ -6,6 +6,7 @@ import (
 	"ent_example/ent/user"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/facebook/ent/dialect/sql"
 )
@@ -19,8 +20,10 @@ type User struct {
 	Age int `json:"age,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
-	// Nickname holds the value of the "nickname" field.
-	Nickname string `json:"nickname,omitempty"`
+	// Username holds the value of the "username" field.
+	Username string `json:"username,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges       UserEdges `json:"edges"`
@@ -73,7 +76,8 @@ func (*User) scanValues() []interface{} {
 		&sql.NullInt64{},  // id
 		&sql.NullInt64{},  // age
 		&sql.NullString{}, // name
-		&sql.NullString{}, // nickname
+		&sql.NullString{}, // username
+		&sql.NullTime{},   // created_at
 	}
 }
 
@@ -107,11 +111,16 @@ func (u *User) assignValues(values ...interface{}) error {
 		u.Name = value.String
 	}
 	if value, ok := values[2].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field nickname", values[2])
+		return fmt.Errorf("unexpected type %T for field username", values[2])
 	} else if value.Valid {
-		u.Nickname = value.String
+		u.Username = value.String
 	}
-	values = values[3:]
+	if value, ok := values[3].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field created_at", values[3])
+	} else if value.Valid {
+		u.CreatedAt = value.Time
+	}
+	values = values[4:]
 	if len(values) == len(user.ForeignKeys) {
 		if value, ok := values[0].(*sql.NullInt64); !ok {
 			return fmt.Errorf("unexpected type %T for edge-field group_users", value)
@@ -165,8 +174,10 @@ func (u *User) String() string {
 	builder.WriteString(fmt.Sprintf("%v", u.Age))
 	builder.WriteString(", name=")
 	builder.WriteString(u.Name)
-	builder.WriteString(", nickname=")
-	builder.WriteString(u.Nickname)
+	builder.WriteString(", username=")
+	builder.WriteString(u.Username)
+	builder.WriteString(", created_at=")
+	builder.WriteString(u.CreatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }
