@@ -22,7 +22,7 @@ func (User) Fields() []ent.Field {
 		field.Int("age").Positive(),
 		field.Float("rank").Optional(),
 		field.Bool("active").Default(false),
-		field.String("name").Unique(),
+		field.String("name").StorageKey("old_name").Unique(),
 		field.Time("created_at").Default(time.Now).Immutable(),
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
 		field.JSON("url", &url.URL{}).Optional(),

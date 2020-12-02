@@ -102,7 +102,7 @@ var (
 		{Name: "age", Type: field.TypeInt},
 		{Name: "rank", Type: field.TypeFloat64, Nullable: true},
 		{Name: "active", Type: field.TypeBool},
-		{Name: "name", Type: field.TypeString, Unique: true},
+		{Name: "old_name", Type: field.TypeString, Unique: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "url", Type: field.TypeJSON, Nullable: true},
