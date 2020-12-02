@@ -4,6 +4,7 @@ package card
 
 import (
 	"ent_example/ent/predicate"
+	"ent_example/ent/schema"
 
 	"github.com/facebook/ent/dialect/sql"
 )
@@ -92,31 +93,42 @@ func IDLTE(id int) predicate.Card {
 }
 
 // Amout applies equality check predicate on the "amout" field. It's identical to AmoutEQ.
-func Amout(v float64) predicate.Card {
+func Amout(v schema.Amount) predicate.Card {
+	vc := float64(v)
 	return predicate.Card(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldAmout), v))
+		s.Where(sql.EQ(s.C(FieldAmout), vc))
+	})
+}
+
+// Name applies equality check predicate on the "name" field. It's identical to NameEQ.
+func Name(v sql.NullString) predicate.Card {
+	vc := v.String
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldName), vc))
 	})
 }
 
 // AmoutEQ applies the EQ predicate on the "amout" field.
-func AmoutEQ(v float64) predicate.Card {
+func AmoutEQ(v schema.Amount) predicate.Card {
+	vc := float64(v)
 	return predicate.Card(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldAmout), v))
+		s.Where(sql.EQ(s.C(FieldAmout), vc))
 	})
 }
 
 // AmoutNEQ applies the NEQ predicate on the "amout" field.
-func AmoutNEQ(v float64) predicate.Card {
+func AmoutNEQ(v schema.Amount) predicate.Card {
+	vc := float64(v)
 	return predicate.Card(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldAmout), v))
+		s.Where(sql.NEQ(s.C(FieldAmout), vc))
 	})
 }
 
 // AmoutIn applies the In predicate on the "amout" field.
-func AmoutIn(vs ...float64) predicate.Card {
+func AmoutIn(vs ...schema.Amount) predicate.Card {
 	v := make([]interface{}, len(vs))
 	for i := range v {
-		v[i] = vs[i]
+		v[i] = float64(vs[i])
 	}
 	return predicate.Card(func(s *sql.Selector) {
 		// if not arguments were provided, append the FALSE constants,
@@ -130,10 +142,10 @@ func AmoutIn(vs ...float64) predicate.Card {
 }
 
 // AmoutNotIn applies the NotIn predicate on the "amout" field.
-func AmoutNotIn(vs ...float64) predicate.Card {
+func AmoutNotIn(vs ...schema.Amount) predicate.Card {
 	v := make([]interface{}, len(vs))
 	for i := range v {
-		v[i] = vs[i]
+		v[i] = float64(vs[i])
 	}
 	return predicate.Card(func(s *sql.Selector) {
 		// if not arguments were provided, append the FALSE constants,
@@ -147,30 +159,170 @@ func AmoutNotIn(vs ...float64) predicate.Card {
 }
 
 // AmoutGT applies the GT predicate on the "amout" field.
-func AmoutGT(v float64) predicate.Card {
+func AmoutGT(v schema.Amount) predicate.Card {
+	vc := float64(v)
 	return predicate.Card(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldAmout), v))
+		s.Where(sql.GT(s.C(FieldAmout), vc))
 	})
 }
 
 // AmoutGTE applies the GTE predicate on the "amout" field.
-func AmoutGTE(v float64) predicate.Card {
+func AmoutGTE(v schema.Amount) predicate.Card {
+	vc := float64(v)
 	return predicate.Card(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldAmout), v))
+		s.Where(sql.GTE(s.C(FieldAmout), vc))
 	})
 }
 
 // AmoutLT applies the LT predicate on the "amout" field.
-func AmoutLT(v float64) predicate.Card {
+func AmoutLT(v schema.Amount) predicate.Card {
+	vc := float64(v)
 	return predicate.Card(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldAmout), v))
+		s.Where(sql.LT(s.C(FieldAmout), vc))
 	})
 }
 
 // AmoutLTE applies the LTE predicate on the "amout" field.
-func AmoutLTE(v float64) predicate.Card {
+func AmoutLTE(v schema.Amount) predicate.Card {
+	vc := float64(v)
 	return predicate.Card(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldAmout), v))
+		s.Where(sql.LTE(s.C(FieldAmout), vc))
+	})
+}
+
+// NameEQ applies the EQ predicate on the "name" field.
+func NameEQ(v sql.NullString) predicate.Card {
+	vc := v.String
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldName), vc))
+	})
+}
+
+// NameNEQ applies the NEQ predicate on the "name" field.
+func NameNEQ(v sql.NullString) predicate.Card {
+	vc := v.String
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldName), vc))
+	})
+}
+
+// NameIn applies the In predicate on the "name" field.
+func NameIn(vs ...sql.NullString) predicate.Card {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i].String
+	}
+	return predicate.Card(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldName), v...))
+	})
+}
+
+// NameNotIn applies the NotIn predicate on the "name" field.
+func NameNotIn(vs ...sql.NullString) predicate.Card {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i].String
+	}
+	return predicate.Card(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldName), v...))
+	})
+}
+
+// NameGT applies the GT predicate on the "name" field.
+func NameGT(v sql.NullString) predicate.Card {
+	vc := v.String
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldName), vc))
+	})
+}
+
+// NameGTE applies the GTE predicate on the "name" field.
+func NameGTE(v sql.NullString) predicate.Card {
+	vc := v.String
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldName), vc))
+	})
+}
+
+// NameLT applies the LT predicate on the "name" field.
+func NameLT(v sql.NullString) predicate.Card {
+	vc := v.String
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldName), vc))
+	})
+}
+
+// NameLTE applies the LTE predicate on the "name" field.
+func NameLTE(v sql.NullString) predicate.Card {
+	vc := v.String
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldName), vc))
+	})
+}
+
+// NameContains applies the Contains predicate on the "name" field.
+func NameContains(v sql.NullString) predicate.Card {
+	vc := v.String
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldName), vc))
+	})
+}
+
+// NameHasPrefix applies the HasPrefix predicate on the "name" field.
+func NameHasPrefix(v sql.NullString) predicate.Card {
+	vc := v.String
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldName), vc))
+	})
+}
+
+// NameHasSuffix applies the HasSuffix predicate on the "name" field.
+func NameHasSuffix(v sql.NullString) predicate.Card {
+	vc := v.String
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldName), vc))
+	})
+}
+
+// NameIsNil applies the IsNil predicate on the "name" field.
+func NameIsNil() predicate.Card {
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldName)))
+	})
+}
+
+// NameNotNil applies the NotNil predicate on the "name" field.
+func NameNotNil() predicate.Card {
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldName)))
+	})
+}
+
+// NameEqualFold applies the EqualFold predicate on the "name" field.
+func NameEqualFold(v sql.NullString) predicate.Card {
+	vc := v.String
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldName), vc))
+	})
+}
+
+// NameContainsFold applies the ContainsFold predicate on the "name" field.
+func NameContainsFold(v sql.NullString) predicate.Card {
+	vc := v.String
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldName), vc))
 	})
 }
 

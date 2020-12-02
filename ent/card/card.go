@@ -9,6 +9,8 @@ const (
 	FieldID = "id"
 	// FieldAmout holds the string denoting the amout field in the database.
 	FieldAmout = "amout"
+	// FieldName holds the string denoting the name field in the database.
+	FieldName = "name"
 
 	// Table holds the table name of the card in the database.
 	Table = "cards"
@@ -18,6 +20,7 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldAmout,
+	FieldName,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).

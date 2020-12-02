@@ -4,6 +4,7 @@ package ent
 
 import (
 	"ent_example/ent/card"
+	"ent_example/ent/schema"
 	"fmt"
 	"strings"
 
@@ -16,7 +17,9 @@ type Card struct {
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
 	// Amout holds the value of the "amout" field.
-	Amout float64 `json:"amout,omitempty"`
+	Amout schema.Amount `json:"amout,omitempty"`
+	// Name holds the value of the "name" field.
+	Name sql.NullString `json:"name,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -24,6 +27,7 @@ func (*Card) scanValues() []interface{} {
 	return []interface{}{
 		&sql.NullInt64{},   // id
 		&sql.NullFloat64{}, // amout
+		&sql.NullString{},  // name
 	}
 }
 
@@ -42,7 +46,12 @@ func (c *Card) assignValues(values ...interface{}) error {
 	if value, ok := values[0].(*sql.NullFloat64); !ok {
 		return fmt.Errorf("unexpected type %T for field amout", values[0])
 	} else if value.Valid {
-		c.Amout = value.Float64
+		c.Amout = schema.Amount(value.Float64)
+	}
+	if value, ok := values[1].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field name", values[1])
+	} else if value != nil {
+		c.Name = *value
 	}
 	return nil
 }
@@ -72,6 +81,8 @@ func (c *Card) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v", c.ID))
 	builder.WriteString(", amout=")
 	builder.WriteString(fmt.Sprintf("%v", c.Amout))
+	builder.WriteString(", name=")
+	builder.WriteString(fmt.Sprintf("%v", c.Name))
 	builder.WriteByte(')')
 	return builder.String()
 }

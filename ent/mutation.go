@@ -8,6 +8,7 @@ import (
 	"ent_example/ent/card"
 	"ent_example/ent/group"
 	"ent_example/ent/predicate"
+	"ent_example/ent/schema"
 	"ent_example/ent/user"
 	"fmt"
 	"net/url"
@@ -15,6 +16,7 @@ import (
 	"time"
 
 	"github.com/facebook/ent"
+	"github.com/facebook/ent/dialect/sql"
 	"github.com/google/uuid"
 )
 
@@ -697,8 +699,9 @@ type CardMutation struct {
 	op            Op
 	typ           string
 	id            *int
-	amout         *float64
-	addamout      *float64
+	amout         *schema.Amount
+	addamout      *schema.Amount
+	name          *sql.NullString
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*Card, error)
@@ -785,13 +788,13 @@ func (m *CardMutation) ID() (id int, exists bool) {
 }
 
 // SetAmout sets the amout field.
-func (m *CardMutation) SetAmout(f float64) {
-	m.amout = &f
+func (m *CardMutation) SetAmout(s schema.Amount) {
+	m.amout = &s
 	m.addamout = nil
 }
 
 // Amout returns the amout value in the mutation.
-func (m *CardMutation) Amout() (r float64, exists bool) {
+func (m *CardMutation) Amout() (r schema.Amount, exists bool) {
 	v := m.amout
 	if v == nil {
 		return
@@ -803,7 +806,7 @@ func (m *CardMutation) Amout() (r float64, exists bool) {
 // If the Card object wasn't provided to the builder, the object is fetched
 // from the database.
 // An error is returned if the mutation operation is not UpdateOne, or database query fails.
-func (m *CardMutation) OldAmout(ctx context.Context) (v float64, err error) {
+func (m *CardMutation) OldAmout(ctx context.Context) (v schema.Amount, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, fmt.Errorf("OldAmout is allowed only on UpdateOne operations")
 	}
@@ -817,17 +820,17 @@ func (m *CardMutation) OldAmout(ctx context.Context) (v float64, err error) {
 	return oldValue.Amout, nil
 }
 
-// AddAmout adds f to amout.
-func (m *CardMutation) AddAmout(f float64) {
+// AddAmout adds s to amout.
+func (m *CardMutation) AddAmout(s schema.Amount) {
 	if m.addamout != nil {
-		*m.addamout += f
+		*m.addamout += s
 	} else {
-		m.addamout = &f
+		m.addamout = &s
 	}
 }
 
 // AddedAmout returns the value that was added to the amout field in this mutation.
-func (m *CardMutation) AddedAmout() (r float64, exists bool) {
+func (m *CardMutation) AddedAmout() (r schema.Amount, exists bool) {
 	v := m.addamout
 	if v == nil {
 		return
@@ -839,6 +842,56 @@ func (m *CardMutation) AddedAmout() (r float64, exists bool) {
 func (m *CardMutation) ResetAmout() {
 	m.amout = nil
 	m.addamout = nil
+}
+
+// SetName sets the name field.
+func (m *CardMutation) SetName(ss sql.NullString) {
+	m.name = &ss
+}
+
+// Name returns the name value in the mutation.
+func (m *CardMutation) Name() (r sql.NullString, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old name value of the Card.
+// If the Card object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *CardMutation) OldName(ctx context.Context) (v sql.NullString, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldName is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ClearName clears the value of name.
+func (m *CardMutation) ClearName() {
+	m.name = nil
+	m.clearedFields[card.FieldName] = struct{}{}
+}
+
+// NameCleared returns if the field name was cleared in this mutation.
+func (m *CardMutation) NameCleared() bool {
+	_, ok := m.clearedFields[card.FieldName]
+	return ok
+}
+
+// ResetName reset all changes of the "name" field.
+func (m *CardMutation) ResetName() {
+	m.name = nil
+	delete(m.clearedFields, card.FieldName)
 }
 
 // Op returns the operation name.
@@ -855,9 +908,12 @@ func (m *CardMutation) Type() string {
 // this mutation. Note that, in order to get all numeric
 // fields that were in/decremented, call AddedFields().
 func (m *CardMutation) Fields() []string {
-	fields := make([]string, 0, 1)
+	fields := make([]string, 0, 2)
 	if m.amout != nil {
 		fields = append(fields, card.FieldAmout)
+	}
+	if m.name != nil {
+		fields = append(fields, card.FieldName)
 	}
 	return fields
 }
@@ -869,6 +925,8 @@ func (m *CardMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case card.FieldAmout:
 		return m.Amout()
+	case card.FieldName:
+		return m.Name()
 	}
 	return nil, false
 }
@@ -880,6 +938,8 @@ func (m *CardMutation) OldField(ctx context.Context, name string) (ent.Value, er
 	switch name {
 	case card.FieldAmout:
 		return m.OldAmout(ctx)
+	case card.FieldName:
+		return m.OldName(ctx)
 	}
 	return nil, fmt.Errorf("unknown Card field %s", name)
 }
@@ -890,11 +950,18 @@ func (m *CardMutation) OldField(ctx context.Context, name string) (ent.Value, er
 func (m *CardMutation) SetField(name string, value ent.Value) error {
 	switch name {
 	case card.FieldAmout:
-		v, ok := value.(float64)
+		v, ok := value.(schema.Amount)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetAmout(v)
+		return nil
+	case card.FieldName:
+		v, ok := value.(sql.NullString)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Card field %s", name)
@@ -927,7 +994,7 @@ func (m *CardMutation) AddedField(name string) (ent.Value, bool) {
 func (m *CardMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	case card.FieldAmout:
-		v, ok := value.(float64)
+		v, ok := value.(schema.Amount)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -940,7 +1007,11 @@ func (m *CardMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared
 // during this mutation.
 func (m *CardMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(card.FieldName) {
+		fields = append(fields, card.FieldName)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicates if this field was
@@ -953,6 +1024,11 @@ func (m *CardMutation) FieldCleared(name string) bool {
 // ClearField clears the value for the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *CardMutation) ClearField(name string) error {
+	switch name {
+	case card.FieldName:
+		m.ClearName()
+		return nil
+	}
 	return fmt.Errorf("unknown Card nullable field %s", name)
 }
 
@@ -963,6 +1039,9 @@ func (m *CardMutation) ResetField(name string) error {
 	switch name {
 	case card.FieldAmout:
 		m.ResetAmout()
+		return nil
+	case card.FieldName:
+		m.ResetName()
 		return nil
 	}
 	return fmt.Errorf("unknown Card field %s", name)

@@ -6,6 +6,7 @@ import (
 	"context"
 	"ent_example/ent/card"
 	"ent_example/ent/predicate"
+	"ent_example/ent/schema"
 	"fmt"
 
 	"github.com/facebook/ent/dialect/sql"
@@ -27,15 +28,27 @@ func (cu *CardUpdate) Where(ps ...predicate.Card) *CardUpdate {
 }
 
 // SetAmout sets the amout field.
-func (cu *CardUpdate) SetAmout(f float64) *CardUpdate {
+func (cu *CardUpdate) SetAmout(s schema.Amount) *CardUpdate {
 	cu.mutation.ResetAmout()
-	cu.mutation.SetAmout(f)
+	cu.mutation.SetAmout(s)
 	return cu
 }
 
-// AddAmout adds f to amout.
-func (cu *CardUpdate) AddAmout(f float64) *CardUpdate {
-	cu.mutation.AddAmout(f)
+// AddAmout adds s to amout.
+func (cu *CardUpdate) AddAmout(s schema.Amount) *CardUpdate {
+	cu.mutation.AddAmout(s)
+	return cu
+}
+
+// SetName sets the name field.
+func (cu *CardUpdate) SetName(ss sql.NullString) *CardUpdate {
+	cu.mutation.SetName(ss)
+	return cu
+}
+
+// ClearName clears the value of name.
+func (cu *CardUpdate) ClearName() *CardUpdate {
+	cu.mutation.ClearName()
 	return cu
 }
 
@@ -127,6 +140,19 @@ func (cu *CardUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: card.FieldAmout,
 		})
 	}
+	if value, ok := cu.mutation.Name(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: card.FieldName,
+		})
+	}
+	if cu.mutation.NameCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: card.FieldName,
+		})
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, cu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{card.Label}
@@ -146,15 +172,27 @@ type CardUpdateOne struct {
 }
 
 // SetAmout sets the amout field.
-func (cuo *CardUpdateOne) SetAmout(f float64) *CardUpdateOne {
+func (cuo *CardUpdateOne) SetAmout(s schema.Amount) *CardUpdateOne {
 	cuo.mutation.ResetAmout()
-	cuo.mutation.SetAmout(f)
+	cuo.mutation.SetAmout(s)
 	return cuo
 }
 
-// AddAmout adds f to amout.
-func (cuo *CardUpdateOne) AddAmout(f float64) *CardUpdateOne {
-	cuo.mutation.AddAmout(f)
+// AddAmout adds s to amout.
+func (cuo *CardUpdateOne) AddAmout(s schema.Amount) *CardUpdateOne {
+	cuo.mutation.AddAmout(s)
+	return cuo
+}
+
+// SetName sets the name field.
+func (cuo *CardUpdateOne) SetName(ss sql.NullString) *CardUpdateOne {
+	cuo.mutation.SetName(ss)
+	return cuo
+}
+
+// ClearName clears the value of name.
+func (cuo *CardUpdateOne) ClearName() *CardUpdateOne {
+	cuo.mutation.ClearName()
 	return cuo
 }
 
@@ -242,6 +280,19 @@ func (cuo *CardUpdateOne) sqlSave(ctx context.Context) (_node *Card, err error) 
 			Type:   field.TypeFloat64,
 			Value:  value,
 			Column: card.FieldAmout,
+		})
+	}
+	if value, ok := cuo.mutation.Name(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: card.FieldName,
+		})
+	}
+	if cuo.mutation.NameCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: card.FieldName,
 		})
 	}
 	_node = &Card{config: cuo.config}

@@ -240,7 +240,7 @@ func (cq *CardQuery) Clone() *CardQuery {
 // Example:
 //
 //	var v []struct {
-//		Amout float64 `json:"amout,omitempty"`
+//		Amout schema.Amount `json:"amout,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
@@ -266,7 +266,7 @@ func (cq *CardQuery) GroupBy(field string, fields ...string) *CardGroupBy {
 // Example:
 //
 //	var v []struct {
-//		Amout float64 `json:"amout,omitempty"`
+//		Amout schema.Amount `json:"amout,omitempty"`
 //	}
 //
 //	client.Card.Query().

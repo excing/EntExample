@@ -5,9 +5,11 @@ package ent
 import (
 	"context"
 	"ent_example/ent/card"
+	"ent_example/ent/schema"
 	"errors"
 	"fmt"
 
+	"github.com/facebook/ent/dialect/sql"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
 	"github.com/facebook/ent/schema/field"
 )
@@ -20,8 +22,14 @@ type CardCreate struct {
 }
 
 // SetAmout sets the amout field.
-func (cc *CardCreate) SetAmout(f float64) *CardCreate {
-	cc.mutation.SetAmout(f)
+func (cc *CardCreate) SetAmout(s schema.Amount) *CardCreate {
+	cc.mutation.SetAmout(s)
+	return cc
+}
+
+// SetName sets the name field.
+func (cc *CardCreate) SetName(ss sql.NullString) *CardCreate {
+	cc.mutation.SetName(ss)
 	return cc
 }
 
@@ -113,6 +121,14 @@ func (cc *CardCreate) createSpec() (*Card, *sqlgraph.CreateSpec) {
 			Column: card.FieldAmout,
 		})
 		_node.Amout = value
+	}
+	if value, ok := cc.mutation.Name(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: card.FieldName,
+		})
+		_node.Name = value
 	}
 	return _node, _spec
 }
