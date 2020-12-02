@@ -41,6 +41,18 @@ var (
 			},
 		},
 	}
+	// CardsColumns holds the columns for the "cards" table.
+	CardsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "amout", Type: field.TypeFloat64, SchemaType: map[string]string{"mysql": "decimal(6,2)", "postgres": "numeric"}},
+	}
+	// CardsTable holds the schema information for the "cards" table.
+	CardsTable = &schema.Table{
+		Name:        "cards",
+		Columns:     CardsColumns,
+		PrimaryKey:  []*schema.Column{CardsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{},
+	}
 	// GroupsColumns holds the columns for the "groups" table.
 	GroupsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -133,6 +145,7 @@ var (
 	Tables = []*schema.Table{
 		BlobsTable,
 		CarsTable,
+		CardsTable,
 		GroupsTable,
 		PetsTable,
 		UsersTable,

@@ -26,6 +26,7 @@ type config struct {
 type hooks struct {
 	Blob  []ent.Hook
 	Car   []ent.Hook
+	Card  []ent.Hook
 	Group []ent.Hook
 	Pet   []ent.Hook
 	User  []ent.Hook
