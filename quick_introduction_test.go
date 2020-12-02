@@ -16,7 +16,9 @@ import (
 	"context"
 	"ent_example/ent"
 	"ent_example/ent/car"
+	"ent_example/ent/enttest"
 	"ent_example/ent/group"
+	"ent_example/ent/migrate"
 	"ent_example/ent/user"
 	"testing"
 	"time"
@@ -24,30 +26,28 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func CreateClient() (context.Context, *ent.Client, error) {
-	// https://godoc.org/github.com/mattn/go-sqlite3#SQLiteDriver.Open
-	client, err := ent.Open("sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
-	if err != nil {
-		return nil, nil, err
+func CreateClient(t *testing.T) (context.Context, *ent.Client) {
+	opts := []enttest.Option{
+		enttest.WithOptions(ent.Log(t.Log)),
+		enttest.WithMigrateOptions(migrate.WithGlobalUniqueID(true)),
 	}
 
+	// https://godoc.org/github.com/mattn/go-sqlite3#SQLiteDriver.Open
+	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1", opts...)
+
 	if err := client.Schema.Create(context.Background()); err != nil {
-		return nil, nil, err
+		return nil, nil
 	}
-	return context.Background(), client, nil
+	return context.Background(), client
 }
 
 func TestCreateFirstEntity(t *testing.T) {
-	_, client, err := CreateClient()
-	t.Log(err)
+	_, client := CreateClient(t)
 	defer client.Close()
 }
 
 func TestCreateUser(t *testing.T) {
-	ctx, client, err := CreateClient()
-	if err != nil {
-		t.Fatalf("create client failed %v", err)
-	}
+	ctx, client := CreateClient(t)
 	defer client.Close()
 
 	u, err := client.User.Create().SetAge(30).SetName("a8m").Save(ctx)
@@ -72,10 +72,7 @@ func QueryUser(ctx context.Context, client *ent.Client, t *testing.T) {
 }
 
 func TestAddYourFirstEdge(t *testing.T) {
-	ctx, client, err := CreateClient()
-	if err != nil {
-		t.Fatalf("create client failed %v", err)
-	}
+	ctx, client := CreateClient(t)
 	defer client.Close()
 
 	// create a new car with model "Tesla".
@@ -117,10 +114,7 @@ func QueryCars(ctx context.Context, a8m *ent.User, t *testing.T) {
 }
 
 func TestAddYourFirstInverseEdge(t *testing.T) {
-	ctx, client, err := CreateClient()
-	if err != nil {
-		t.Fatalf("create client failed %v", err)
-	}
+	ctx, client := CreateClient(t)
 	defer client.Close()
 
 	// create a new car with model "Tesla".
@@ -163,10 +157,7 @@ func QueryCarUsers(ctx context.Context, a8m *ent.User, t *testing.T) {
 }
 
 func TestCreateYourSecondEdge(t *testing.T) {
-	ctx, client, err := CreateClient()
-	if err != nil {
-		t.Fatalf("create client failed %v", err)
-	}
+	ctx, client := CreateClient(t)
 	defer client.Close()
 
 	a8m, err := client.User.Create().SetAge(30).SetName("Ariel").Save(ctx)
