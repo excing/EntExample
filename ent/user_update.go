@@ -9,11 +9,13 @@ import (
 	"ent_example/ent/predicate"
 	"ent_example/ent/user"
 	"fmt"
+	"net/url"
 	"time"
 
 	"github.com/facebook/ent/dialect/sql"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
 	"github.com/facebook/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // UserUpdate is the builder for updating User entities.
@@ -42,23 +44,50 @@ func (uu *UserUpdate) AddAge(i int) *UserUpdate {
 	return uu
 }
 
-// SetName sets the name field.
-func (uu *UserUpdate) SetName(s string) *UserUpdate {
-	uu.mutation.SetName(s)
+// SetRank sets the rank field.
+func (uu *UserUpdate) SetRank(f float64) *UserUpdate {
+	uu.mutation.ResetRank()
+	uu.mutation.SetRank(f)
 	return uu
 }
 
-// SetNillableName sets the name field if the given value is not nil.
-func (uu *UserUpdate) SetNillableName(s *string) *UserUpdate {
-	if s != nil {
-		uu.SetName(*s)
+// SetNillableRank sets the rank field if the given value is not nil.
+func (uu *UserUpdate) SetNillableRank(f *float64) *UserUpdate {
+	if f != nil {
+		uu.SetRank(*f)
 	}
 	return uu
 }
 
-// SetUsername sets the username field.
-func (uu *UserUpdate) SetUsername(s string) *UserUpdate {
-	uu.mutation.SetUsername(s)
+// AddRank adds f to rank.
+func (uu *UserUpdate) AddRank(f float64) *UserUpdate {
+	uu.mutation.AddRank(f)
+	return uu
+}
+
+// ClearRank clears the value of rank.
+func (uu *UserUpdate) ClearRank() *UserUpdate {
+	uu.mutation.ClearRank()
+	return uu
+}
+
+// SetActive sets the active field.
+func (uu *UserUpdate) SetActive(b bool) *UserUpdate {
+	uu.mutation.SetActive(b)
+	return uu
+}
+
+// SetNillableActive sets the active field if the given value is not nil.
+func (uu *UserUpdate) SetNillableActive(b *bool) *UserUpdate {
+	if b != nil {
+		uu.SetActive(*b)
+	}
+	return uu
+}
+
+// SetName sets the name field.
+func (uu *UserUpdate) SetName(s string) *UserUpdate {
+	uu.mutation.SetName(s)
 	return uu
 }
 
@@ -73,6 +102,56 @@ func (uu *UserUpdate) SetNillableCreatedAt(t *time.Time) *UserUpdate {
 	if t != nil {
 		uu.SetCreatedAt(*t)
 	}
+	return uu
+}
+
+// SetURL sets the url field.
+func (uu *UserUpdate) SetURL(u *url.URL) *UserUpdate {
+	uu.mutation.SetURL(u)
+	return uu
+}
+
+// ClearURL clears the value of url.
+func (uu *UserUpdate) ClearURL() *UserUpdate {
+	uu.mutation.ClearURL()
+	return uu
+}
+
+// SetStrings sets the strings field.
+func (uu *UserUpdate) SetStrings(s []string) *UserUpdate {
+	uu.mutation.SetStrings(s)
+	return uu
+}
+
+// ClearStrings clears the value of strings.
+func (uu *UserUpdate) ClearStrings() *UserUpdate {
+	uu.mutation.ClearStrings()
+	return uu
+}
+
+// SetState sets the state field.
+func (uu *UserUpdate) SetState(u user.State) *UserUpdate {
+	uu.mutation.SetState(u)
+	return uu
+}
+
+// SetNillableState sets the state field if the given value is not nil.
+func (uu *UserUpdate) SetNillableState(u *user.State) *UserUpdate {
+	if u != nil {
+		uu.SetState(*u)
+	}
+	return uu
+}
+
+// ClearState clears the value of state.
+func (uu *UserUpdate) ClearState() *UserUpdate {
+	uu.mutation.ClearState()
+	return uu
+}
+
+// SetUUID sets the uuid field.
+func (uu *UserUpdate) SetUUID(u uuid.UUID) *UserUpdate {
+	uu.mutation.SetUUID(u)
 	return uu
 }
 
@@ -253,6 +332,11 @@ func (uu *UserUpdate) check() error {
 			return &ValidationError{Name: "age", err: fmt.Errorf("ent: validator failed for field \"age\": %w", err)}
 		}
 	}
+	if v, ok := uu.mutation.State(); ok {
+		if err := user.StateValidator(v); err != nil {
+			return &ValidationError{Name: "state", err: fmt.Errorf("ent: validator failed for field \"state\": %w", err)}
+		}
+	}
 	return nil
 }
 
@@ -288,6 +372,33 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: user.FieldAge,
 		})
 	}
+	if value, ok := uu.mutation.Rank(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeFloat64,
+			Value:  value,
+			Column: user.FieldRank,
+		})
+	}
+	if value, ok := uu.mutation.AddedRank(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeFloat64,
+			Value:  value,
+			Column: user.FieldRank,
+		})
+	}
+	if uu.mutation.RankCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeFloat64,
+			Column: user.FieldRank,
+		})
+	}
+	if value, ok := uu.mutation.Active(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: user.FieldActive,
+		})
+	}
 	if value, ok := uu.mutation.Name(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -295,18 +406,57 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: user.FieldName,
 		})
 	}
-	if value, ok := uu.mutation.Username(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: user.FieldUsername,
-		})
-	}
 	if value, ok := uu.mutation.CreatedAt(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Value:  value,
 			Column: user.FieldCreatedAt,
+		})
+	}
+	if value, ok := uu.mutation.URL(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeJSON,
+			Value:  value,
+			Column: user.FieldURL,
+		})
+	}
+	if uu.mutation.URLCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeJSON,
+			Column: user.FieldURL,
+		})
+	}
+	if value, ok := uu.mutation.Strings(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeJSON,
+			Value:  value,
+			Column: user.FieldStrings,
+		})
+	}
+	if uu.mutation.StringsCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeJSON,
+			Column: user.FieldStrings,
+		})
+	}
+	if value, ok := uu.mutation.State(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeEnum,
+			Value:  value,
+			Column: user.FieldState,
+		})
+	}
+	if uu.mutation.StateCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeEnum,
+			Column: user.FieldState,
+		})
+	}
+	if value, ok := uu.mutation.UUID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: user.FieldUUID,
 		})
 	}
 	if uu.mutation.CarsCleared() {
@@ -502,23 +652,50 @@ func (uuo *UserUpdateOne) AddAge(i int) *UserUpdateOne {
 	return uuo
 }
 
-// SetName sets the name field.
-func (uuo *UserUpdateOne) SetName(s string) *UserUpdateOne {
-	uuo.mutation.SetName(s)
+// SetRank sets the rank field.
+func (uuo *UserUpdateOne) SetRank(f float64) *UserUpdateOne {
+	uuo.mutation.ResetRank()
+	uuo.mutation.SetRank(f)
 	return uuo
 }
 
-// SetNillableName sets the name field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableName(s *string) *UserUpdateOne {
-	if s != nil {
-		uuo.SetName(*s)
+// SetNillableRank sets the rank field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableRank(f *float64) *UserUpdateOne {
+	if f != nil {
+		uuo.SetRank(*f)
 	}
 	return uuo
 }
 
-// SetUsername sets the username field.
-func (uuo *UserUpdateOne) SetUsername(s string) *UserUpdateOne {
-	uuo.mutation.SetUsername(s)
+// AddRank adds f to rank.
+func (uuo *UserUpdateOne) AddRank(f float64) *UserUpdateOne {
+	uuo.mutation.AddRank(f)
+	return uuo
+}
+
+// ClearRank clears the value of rank.
+func (uuo *UserUpdateOne) ClearRank() *UserUpdateOne {
+	uuo.mutation.ClearRank()
+	return uuo
+}
+
+// SetActive sets the active field.
+func (uuo *UserUpdateOne) SetActive(b bool) *UserUpdateOne {
+	uuo.mutation.SetActive(b)
+	return uuo
+}
+
+// SetNillableActive sets the active field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableActive(b *bool) *UserUpdateOne {
+	if b != nil {
+		uuo.SetActive(*b)
+	}
+	return uuo
+}
+
+// SetName sets the name field.
+func (uuo *UserUpdateOne) SetName(s string) *UserUpdateOne {
+	uuo.mutation.SetName(s)
 	return uuo
 }
 
@@ -533,6 +710,56 @@ func (uuo *UserUpdateOne) SetNillableCreatedAt(t *time.Time) *UserUpdateOne {
 	if t != nil {
 		uuo.SetCreatedAt(*t)
 	}
+	return uuo
+}
+
+// SetURL sets the url field.
+func (uuo *UserUpdateOne) SetURL(u *url.URL) *UserUpdateOne {
+	uuo.mutation.SetURL(u)
+	return uuo
+}
+
+// ClearURL clears the value of url.
+func (uuo *UserUpdateOne) ClearURL() *UserUpdateOne {
+	uuo.mutation.ClearURL()
+	return uuo
+}
+
+// SetStrings sets the strings field.
+func (uuo *UserUpdateOne) SetStrings(s []string) *UserUpdateOne {
+	uuo.mutation.SetStrings(s)
+	return uuo
+}
+
+// ClearStrings clears the value of strings.
+func (uuo *UserUpdateOne) ClearStrings() *UserUpdateOne {
+	uuo.mutation.ClearStrings()
+	return uuo
+}
+
+// SetState sets the state field.
+func (uuo *UserUpdateOne) SetState(u user.State) *UserUpdateOne {
+	uuo.mutation.SetState(u)
+	return uuo
+}
+
+// SetNillableState sets the state field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableState(u *user.State) *UserUpdateOne {
+	if u != nil {
+		uuo.SetState(*u)
+	}
+	return uuo
+}
+
+// ClearState clears the value of state.
+func (uuo *UserUpdateOne) ClearState() *UserUpdateOne {
+	uuo.mutation.ClearState()
+	return uuo
+}
+
+// SetUUID sets the uuid field.
+func (uuo *UserUpdateOne) SetUUID(u uuid.UUID) *UserUpdateOne {
+	uuo.mutation.SetUUID(u)
 	return uuo
 }
 
@@ -713,6 +940,11 @@ func (uuo *UserUpdateOne) check() error {
 			return &ValidationError{Name: "age", err: fmt.Errorf("ent: validator failed for field \"age\": %w", err)}
 		}
 	}
+	if v, ok := uuo.mutation.State(); ok {
+		if err := user.StateValidator(v); err != nil {
+			return &ValidationError{Name: "state", err: fmt.Errorf("ent: validator failed for field \"state\": %w", err)}
+		}
+	}
 	return nil
 }
 
@@ -746,6 +978,33 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Column: user.FieldAge,
 		})
 	}
+	if value, ok := uuo.mutation.Rank(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeFloat64,
+			Value:  value,
+			Column: user.FieldRank,
+		})
+	}
+	if value, ok := uuo.mutation.AddedRank(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeFloat64,
+			Value:  value,
+			Column: user.FieldRank,
+		})
+	}
+	if uuo.mutation.RankCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeFloat64,
+			Column: user.FieldRank,
+		})
+	}
+	if value, ok := uuo.mutation.Active(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: user.FieldActive,
+		})
+	}
 	if value, ok := uuo.mutation.Name(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -753,18 +1012,57 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Column: user.FieldName,
 		})
 	}
-	if value, ok := uuo.mutation.Username(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: user.FieldUsername,
-		})
-	}
 	if value, ok := uuo.mutation.CreatedAt(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Value:  value,
 			Column: user.FieldCreatedAt,
+		})
+	}
+	if value, ok := uuo.mutation.URL(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeJSON,
+			Value:  value,
+			Column: user.FieldURL,
+		})
+	}
+	if uuo.mutation.URLCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeJSON,
+			Column: user.FieldURL,
+		})
+	}
+	if value, ok := uuo.mutation.Strings(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeJSON,
+			Value:  value,
+			Column: user.FieldStrings,
+		})
+	}
+	if uuo.mutation.StringsCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeJSON,
+			Column: user.FieldStrings,
+		})
+	}
+	if value, ok := uuo.mutation.State(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeEnum,
+			Value:  value,
+			Column: user.FieldState,
+		})
+	}
+	if uuo.mutation.StateCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeEnum,
+			Column: user.FieldState,
+		})
+	}
+	if value, ok := uuo.mutation.UUID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: user.FieldUUID,
 		})
 	}
 	if uuo.mutation.CarsCleared() {

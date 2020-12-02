@@ -1,12 +1,14 @@
 package schema
 
 import (
+	"net/url"
 	"time"
 
 	"github.com/facebook/ent"
 	"github.com/facebook/ent/schema/edge"
 	"github.com/facebook/ent/schema/field"
 	"github.com/facebook/ent/schema/index"
+	"github.com/google/uuid"
 )
 
 // User holds the schema definition for the User entity.
@@ -18,9 +20,14 @@ type User struct {
 func (User) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int("age").Positive(),
-		field.String("name").Default("a8m"),
-		field.String("username").Unique(),
+		field.Float("rank").Optional(),
+		field.Bool("active").Default(false),
+		field.String("name").Unique(),
 		field.Time("created_at").Default(time.Now),
+		field.JSON("url", &url.URL{}).Optional(),
+		field.JSON("strings", []string{}).Optional(),
+		field.Enum("state").Values("on", "off").Optional(),
+		field.UUID("uuid", uuid.UUID{}).Default(uuid.New),
 	}
 }
 

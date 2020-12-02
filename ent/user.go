@@ -3,12 +3,15 @@
 package ent
 
 import (
+	"encoding/json"
 	"ent_example/ent/user"
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
 	"github.com/facebook/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // User is the model entity for the User schema.
@@ -18,12 +21,22 @@ type User struct {
 	ID int `json:"id,omitempty"`
 	// Age holds the value of the "age" field.
 	Age int `json:"age,omitempty"`
+	// Rank holds the value of the "rank" field.
+	Rank float64 `json:"rank,omitempty"`
+	// Active holds the value of the "active" field.
+	Active bool `json:"active,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
-	// Username holds the value of the "username" field.
-	Username string `json:"username,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
+	// URL holds the value of the "url" field.
+	URL *url.URL `json:"url,omitempty"`
+	// Strings holds the value of the "strings" field.
+	Strings []string `json:"strings,omitempty"`
+	// State holds the value of the "state" field.
+	State user.State `json:"state,omitempty"`
+	// UUID holds the value of the "uuid" field.
+	UUID uuid.UUID `json:"uuid,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges       UserEdges `json:"edges"`
@@ -73,11 +86,16 @@ func (e UserEdges) FriendsOrErr() ([]*User, error) {
 // scanValues returns the types for scanning values from sql.Rows.
 func (*User) scanValues() []interface{} {
 	return []interface{}{
-		&sql.NullInt64{},  // id
-		&sql.NullInt64{},  // age
-		&sql.NullString{}, // name
-		&sql.NullString{}, // username
-		&sql.NullTime{},   // created_at
+		&sql.NullInt64{},   // id
+		&sql.NullInt64{},   // age
+		&sql.NullFloat64{}, // rank
+		&sql.NullBool{},    // active
+		&sql.NullString{},  // name
+		&sql.NullTime{},    // created_at
+		&[]byte{},          // url
+		&[]byte{},          // strings
+		&sql.NullString{},  // state
+		&uuid.UUID{},       // uuid
 	}
 }
 
@@ -105,22 +123,53 @@ func (u *User) assignValues(values ...interface{}) error {
 	} else if value.Valid {
 		u.Age = int(value.Int64)
 	}
-	if value, ok := values[1].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field name", values[1])
+	if value, ok := values[1].(*sql.NullFloat64); !ok {
+		return fmt.Errorf("unexpected type %T for field rank", values[1])
+	} else if value.Valid {
+		u.Rank = value.Float64
+	}
+	if value, ok := values[2].(*sql.NullBool); !ok {
+		return fmt.Errorf("unexpected type %T for field active", values[2])
+	} else if value.Valid {
+		u.Active = value.Bool
+	}
+	if value, ok := values[3].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field name", values[3])
 	} else if value.Valid {
 		u.Name = value.String
 	}
-	if value, ok := values[2].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field username", values[2])
-	} else if value.Valid {
-		u.Username = value.String
-	}
-	if value, ok := values[3].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field created_at", values[3])
+	if value, ok := values[4].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field created_at", values[4])
 	} else if value.Valid {
 		u.CreatedAt = value.Time
 	}
-	values = values[4:]
+
+	if value, ok := values[5].(*[]byte); !ok {
+		return fmt.Errorf("unexpected type %T for field url", values[5])
+	} else if value != nil && len(*value) > 0 {
+		if err := json.Unmarshal(*value, &u.URL); err != nil {
+			return fmt.Errorf("unmarshal field url: %v", err)
+		}
+	}
+
+	if value, ok := values[6].(*[]byte); !ok {
+		return fmt.Errorf("unexpected type %T for field strings", values[6])
+	} else if value != nil && len(*value) > 0 {
+		if err := json.Unmarshal(*value, &u.Strings); err != nil {
+			return fmt.Errorf("unmarshal field strings: %v", err)
+		}
+	}
+	if value, ok := values[7].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field state", values[7])
+	} else if value.Valid {
+		u.State = user.State(value.String)
+	}
+	if value, ok := values[8].(*uuid.UUID); !ok {
+		return fmt.Errorf("unexpected type %T for field uuid", values[8])
+	} else if value != nil {
+		u.UUID = *value
+	}
+	values = values[9:]
 	if len(values) == len(user.ForeignKeys) {
 		if value, ok := values[0].(*sql.NullInt64); !ok {
 			return fmt.Errorf("unexpected type %T for edge-field group_users", value)
@@ -172,12 +221,22 @@ func (u *User) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v", u.ID))
 	builder.WriteString(", age=")
 	builder.WriteString(fmt.Sprintf("%v", u.Age))
+	builder.WriteString(", rank=")
+	builder.WriteString(fmt.Sprintf("%v", u.Rank))
+	builder.WriteString(", active=")
+	builder.WriteString(fmt.Sprintf("%v", u.Active))
 	builder.WriteString(", name=")
 	builder.WriteString(u.Name)
-	builder.WriteString(", username=")
-	builder.WriteString(u.Username)
 	builder.WriteString(", created_at=")
 	builder.WriteString(u.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", url=")
+	builder.WriteString(fmt.Sprintf("%v", u.URL))
+	builder.WriteString(", strings=")
+	builder.WriteString(fmt.Sprintf("%v", u.Strings))
+	builder.WriteString(", state=")
+	builder.WriteString(fmt.Sprintf("%v", u.State))
+	builder.WriteString(", uuid=")
+	builder.WriteString(fmt.Sprintf("%v", u.UUID))
 	builder.WriteByte(')')
 	return builder.String()
 }

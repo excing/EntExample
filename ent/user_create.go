@@ -9,10 +9,12 @@ import (
 	"ent_example/ent/user"
 	"errors"
 	"fmt"
+	"net/url"
 	"time"
 
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
 	"github.com/facebook/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // UserCreate is the builder for creating a User entity.
@@ -28,23 +30,37 @@ func (uc *UserCreate) SetAge(i int) *UserCreate {
 	return uc
 }
 
-// SetName sets the name field.
-func (uc *UserCreate) SetName(s string) *UserCreate {
-	uc.mutation.SetName(s)
+// SetRank sets the rank field.
+func (uc *UserCreate) SetRank(f float64) *UserCreate {
+	uc.mutation.SetRank(f)
 	return uc
 }
 
-// SetNillableName sets the name field if the given value is not nil.
-func (uc *UserCreate) SetNillableName(s *string) *UserCreate {
-	if s != nil {
-		uc.SetName(*s)
+// SetNillableRank sets the rank field if the given value is not nil.
+func (uc *UserCreate) SetNillableRank(f *float64) *UserCreate {
+	if f != nil {
+		uc.SetRank(*f)
 	}
 	return uc
 }
 
-// SetUsername sets the username field.
-func (uc *UserCreate) SetUsername(s string) *UserCreate {
-	uc.mutation.SetUsername(s)
+// SetActive sets the active field.
+func (uc *UserCreate) SetActive(b bool) *UserCreate {
+	uc.mutation.SetActive(b)
+	return uc
+}
+
+// SetNillableActive sets the active field if the given value is not nil.
+func (uc *UserCreate) SetNillableActive(b *bool) *UserCreate {
+	if b != nil {
+		uc.SetActive(*b)
+	}
+	return uc
+}
+
+// SetName sets the name field.
+func (uc *UserCreate) SetName(s string) *UserCreate {
+	uc.mutation.SetName(s)
 	return uc
 }
 
@@ -59,6 +75,38 @@ func (uc *UserCreate) SetNillableCreatedAt(t *time.Time) *UserCreate {
 	if t != nil {
 		uc.SetCreatedAt(*t)
 	}
+	return uc
+}
+
+// SetURL sets the url field.
+func (uc *UserCreate) SetURL(u *url.URL) *UserCreate {
+	uc.mutation.SetURL(u)
+	return uc
+}
+
+// SetStrings sets the strings field.
+func (uc *UserCreate) SetStrings(s []string) *UserCreate {
+	uc.mutation.SetStrings(s)
+	return uc
+}
+
+// SetState sets the state field.
+func (uc *UserCreate) SetState(u user.State) *UserCreate {
+	uc.mutation.SetState(u)
+	return uc
+}
+
+// SetNillableState sets the state field if the given value is not nil.
+func (uc *UserCreate) SetNillableState(u *user.State) *UserCreate {
+	if u != nil {
+		uc.SetState(*u)
+	}
+	return uc
+}
+
+// SetUUID sets the uuid field.
+func (uc *UserCreate) SetUUID(u uuid.UUID) *UserCreate {
+	uc.mutation.SetUUID(u)
 	return uc
 }
 
@@ -159,13 +207,17 @@ func (uc *UserCreate) SaveX(ctx context.Context) *User {
 
 // defaults sets the default values of the builder before save.
 func (uc *UserCreate) defaults() {
-	if _, ok := uc.mutation.Name(); !ok {
-		v := user.DefaultName
-		uc.mutation.SetName(v)
+	if _, ok := uc.mutation.Active(); !ok {
+		v := user.DefaultActive
+		uc.mutation.SetActive(v)
 	}
 	if _, ok := uc.mutation.CreatedAt(); !ok {
 		v := user.DefaultCreatedAt()
 		uc.mutation.SetCreatedAt(v)
+	}
+	if _, ok := uc.mutation.UUID(); !ok {
+		v := user.DefaultUUID()
+		uc.mutation.SetUUID(v)
 	}
 }
 
@@ -179,14 +231,22 @@ func (uc *UserCreate) check() error {
 			return &ValidationError{Name: "age", err: fmt.Errorf("ent: validator failed for field \"age\": %w", err)}
 		}
 	}
+	if _, ok := uc.mutation.Active(); !ok {
+		return &ValidationError{Name: "active", err: errors.New("ent: missing required field \"active\"")}
+	}
 	if _, ok := uc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New("ent: missing required field \"name\"")}
 	}
-	if _, ok := uc.mutation.Username(); !ok {
-		return &ValidationError{Name: "username", err: errors.New("ent: missing required field \"username\"")}
-	}
 	if _, ok := uc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New("ent: missing required field \"created_at\"")}
+	}
+	if v, ok := uc.mutation.State(); ok {
+		if err := user.StateValidator(v); err != nil {
+			return &ValidationError{Name: "state", err: fmt.Errorf("ent: validator failed for field \"state\": %w", err)}
+		}
+	}
+	if _, ok := uc.mutation.UUID(); !ok {
+		return &ValidationError{Name: "uuid", err: errors.New("ent: missing required field \"uuid\"")}
 	}
 	return nil
 }
@@ -223,6 +283,22 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		})
 		_node.Age = value
 	}
+	if value, ok := uc.mutation.Rank(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeFloat64,
+			Value:  value,
+			Column: user.FieldRank,
+		})
+		_node.Rank = value
+	}
+	if value, ok := uc.mutation.Active(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: user.FieldActive,
+		})
+		_node.Active = value
+	}
 	if value, ok := uc.mutation.Name(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -231,14 +307,6 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		})
 		_node.Name = value
 	}
-	if value, ok := uc.mutation.Username(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: user.FieldUsername,
-		})
-		_node.Username = value
-	}
 	if value, ok := uc.mutation.CreatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
@@ -246,6 +314,38 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Column: user.FieldCreatedAt,
 		})
 		_node.CreatedAt = value
+	}
+	if value, ok := uc.mutation.URL(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeJSON,
+			Value:  value,
+			Column: user.FieldURL,
+		})
+		_node.URL = value
+	}
+	if value, ok := uc.mutation.Strings(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeJSON,
+			Value:  value,
+			Column: user.FieldStrings,
+		})
+		_node.Strings = value
+	}
+	if value, ok := uc.mutation.State(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeEnum,
+			Value:  value,
+			Column: user.FieldState,
+		})
+		_node.State = value
+	}
+	if value, ok := uc.mutation.UUID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: user.FieldUUID,
+		})
+		_node.UUID = value
 	}
 	if nodes := uc.mutation.CarsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
