@@ -7,6 +7,7 @@ import (
 	"ent_example/ent/car"
 	"ent_example/ent/card"
 	"ent_example/ent/group"
+	"ent_example/ent/pet"
 	"ent_example/ent/predicate"
 	"ent_example/ent/schema"
 	"ent_example/ent/user"
@@ -2250,6 +2251,8 @@ type PetMutation struct {
 	typ           string
 	id            *string
 	clearedFields map[string]struct{}
+	owner         *int
+	clearedowner  bool
 	done          bool
 	oldValue      func(context.Context) (*Pet, error)
 	predicates    []predicate.Pet
@@ -2338,6 +2341,45 @@ func (m *PetMutation) ID() (id string, exists bool) {
 		return
 	}
 	return *m.id, true
+}
+
+// SetOwnerID sets the owner edge to User by id.
+func (m *PetMutation) SetOwnerID(id int) {
+	m.owner = &id
+}
+
+// ClearOwner clears the owner edge to User.
+func (m *PetMutation) ClearOwner() {
+	m.clearedowner = true
+}
+
+// OwnerCleared returns if the edge owner was cleared.
+func (m *PetMutation) OwnerCleared() bool {
+	return m.clearedowner
+}
+
+// OwnerID returns the owner id in the mutation.
+func (m *PetMutation) OwnerID() (id int, exists bool) {
+	if m.owner != nil {
+		return *m.owner, true
+	}
+	return
+}
+
+// OwnerIDs returns the owner ids in the mutation.
+// Note that ids always returns len(ids) <= 1 for unique edges, and you should use
+// OwnerID instead. It exists only for internal usage by the builders.
+func (m *PetMutation) OwnerIDs() (ids []int) {
+	if id := m.owner; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetOwner reset all changes of the "owner" edge.
+func (m *PetMutation) ResetOwner() {
+	m.owner = nil
+	m.clearedowner = false
 }
 
 // Op returns the operation name.
@@ -2430,45 +2472,68 @@ func (m *PetMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this
 // mutation.
 func (m *PetMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.owner != nil {
+		edges = append(edges, pet.EdgeOwner)
+	}
 	return edges
 }
 
 // AddedIDs returns all ids (to other nodes) that were added for
 // the given edge name.
 func (m *PetMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case pet.EdgeOwner:
+		if id := m.owner; id != nil {
+			return []ent.Value{*id}
+		}
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this
 // mutation.
 func (m *PetMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
 	return edges
 }
 
 // RemovedIDs returns all ids (to other nodes) that were removed for
 // the given edge name.
 func (m *PetMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this
 // mutation.
 func (m *PetMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.clearedowner {
+		edges = append(edges, pet.EdgeOwner)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean indicates if this edge was
 // cleared in this mutation.
 func (m *PetMutation) EdgeCleared(name string) bool {
+	switch name {
+	case pet.EdgeOwner:
+		return m.clearedowner
+	}
 	return false
 }
 
 // ClearEdge clears the value for the given name. It returns an
 // error if the edge name is not defined in the schema.
 func (m *PetMutation) ClearEdge(name string) error {
+	switch name {
+	case pet.EdgeOwner:
+		m.ClearOwner()
+		return nil
+	}
 	return fmt.Errorf("unknown Pet unique edge %s", name)
 }
 
@@ -2476,6 +2541,11 @@ func (m *PetMutation) ClearEdge(name string) error {
 // given edge name. It returns an error if the edge is not
 // defined in the schema.
 func (m *PetMutation) ResetEdge(name string) error {
+	switch name {
+	case pet.EdgeOwner:
+		m.ResetOwner()
+		return nil
+	}
 	return fmt.Errorf("unknown Pet edge %s", name)
 }
 
@@ -2511,6 +2581,9 @@ type UserMutation struct {
 	friends        map[int]struct{}
 	removedfriends map[int]struct{}
 	clearedfriends bool
+	pets           map[string]struct{}
+	removedpets    map[string]struct{}
+	clearedpets    bool
 	done           bool
 	oldValue       func(context.Context) (*User, error)
 	predicates     []predicate.User
@@ -3341,6 +3414,59 @@ func (m *UserMutation) ResetFriends() {
 	m.removedfriends = nil
 }
 
+// AddPetIDs adds the pets edge to Pet by ids.
+func (m *UserMutation) AddPetIDs(ids ...string) {
+	if m.pets == nil {
+		m.pets = make(map[string]struct{})
+	}
+	for i := range ids {
+		m.pets[ids[i]] = struct{}{}
+	}
+}
+
+// ClearPets clears the pets edge to Pet.
+func (m *UserMutation) ClearPets() {
+	m.clearedpets = true
+}
+
+// PetsCleared returns if the edge pets was cleared.
+func (m *UserMutation) PetsCleared() bool {
+	return m.clearedpets
+}
+
+// RemovePetIDs removes the pets edge to Pet by ids.
+func (m *UserMutation) RemovePetIDs(ids ...string) {
+	if m.removedpets == nil {
+		m.removedpets = make(map[string]struct{})
+	}
+	for i := range ids {
+		m.removedpets[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedPets returns the removed ids of pets.
+func (m *UserMutation) RemovedPetsIDs() (ids []string) {
+	for id := range m.removedpets {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// PetsIDs returns the pets ids in the mutation.
+func (m *UserMutation) PetsIDs() (ids []string) {
+	for id := range m.pets {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetPets reset all changes of the "pets" edge.
+func (m *UserMutation) ResetPets() {
+	m.pets = nil
+	m.clearedpets = false
+	m.removedpets = nil
+}
+
 // Op returns the operation name.
 func (m *UserMutation) Op() Op {
 	return m.op
@@ -3720,7 +3846,7 @@ func (m *UserMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this
 // mutation.
 func (m *UserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.cars != nil {
 		edges = append(edges, user.EdgeCars)
 	}
@@ -3729,6 +3855,9 @@ func (m *UserMutation) AddedEdges() []string {
 	}
 	if m.friends != nil {
 		edges = append(edges, user.EdgeFriends)
+	}
+	if m.pets != nil {
+		edges = append(edges, user.EdgePets)
 	}
 	return edges
 }
@@ -3755,6 +3884,12 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgePets:
+		ids := make([]ent.Value, 0, len(m.pets))
+		for id := range m.pets {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
@@ -3762,7 +3897,7 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this
 // mutation.
 func (m *UserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.removedcars != nil {
 		edges = append(edges, user.EdgeCars)
 	}
@@ -3771,6 +3906,9 @@ func (m *UserMutation) RemovedEdges() []string {
 	}
 	if m.removedfriends != nil {
 		edges = append(edges, user.EdgeFriends)
+	}
+	if m.removedpets != nil {
+		edges = append(edges, user.EdgePets)
 	}
 	return edges
 }
@@ -3797,6 +3935,12 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgePets:
+		ids := make([]ent.Value, 0, len(m.removedpets))
+		for id := range m.removedpets {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
@@ -3804,7 +3948,7 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this
 // mutation.
 func (m *UserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.clearedcars {
 		edges = append(edges, user.EdgeCars)
 	}
@@ -3813,6 +3957,9 @@ func (m *UserMutation) ClearedEdges() []string {
 	}
 	if m.clearedfriends {
 		edges = append(edges, user.EdgeFriends)
+	}
+	if m.clearedpets {
+		edges = append(edges, user.EdgePets)
 	}
 	return edges
 }
@@ -3827,6 +3974,8 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 		return m.clearedgroups
 	case user.EdgeFriends:
 		return m.clearedfriends
+	case user.EdgePets:
+		return m.clearedpets
 	}
 	return false
 }
@@ -3852,6 +4001,9 @@ func (m *UserMutation) ResetEdge(name string) error {
 		return nil
 	case user.EdgeFriends:
 		m.ResetFriends()
+		return nil
+	case user.EdgePets:
+		m.ResetPets()
 		return nil
 	}
 	return fmt.Errorf("unknown User edge %s", name)

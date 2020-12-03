@@ -47,8 +47,7 @@ type User struct {
 	CreationDate time.Time `json:"creation_date,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
-	Edges       UserEdges `json:"edges"`
-	group_users *int
+	Edges UserEdges `json:"edges"`
 }
 
 // UserEdges holds the relations/edges for other nodes in the graph.
@@ -59,9 +58,11 @@ type UserEdges struct {
 	Groups []*Group
 	// Friends holds the value of the friends edge.
 	Friends []*User
+	// Pets holds the value of the pets edge.
+	Pets []*Pet
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [4]bool
 }
 
 // CarsOrErr returns the Cars value or an error if the edge
@@ -91,6 +92,15 @@ func (e UserEdges) FriendsOrErr() ([]*User, error) {
 	return nil, &NotLoadedError{edge: "friends"}
 }
 
+// PetsOrErr returns the Pets value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) PetsOrErr() ([]*Pet, error) {
+	if e.loadedTypes[3] {
+		return e.Pets, nil
+	}
+	return nil, &NotLoadedError{edge: "pets"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*User) scanValues() []interface{} {
 	return []interface{}{
@@ -108,13 +118,6 @@ func (*User) scanValues() []interface{} {
 		&sql.NullString{},  // nickname
 		&sql.NullString{},  // password
 		&sql.NullTime{},    // creation_date
-	}
-}
-
-// fkValues returns the types for scanning foreign-keys values from sql.Rows.
-func (*User) fkValues() []interface{} {
-	return []interface{}{
-		&sql.NullInt64{}, // group_users
 	}
 }
 
@@ -202,15 +205,6 @@ func (u *User) assignValues(values ...interface{}) error {
 	} else if value.Valid {
 		u.CreationDate = value.Time
 	}
-	values = values[13:]
-	if len(values) == len(user.ForeignKeys) {
-		if value, ok := values[0].(*sql.NullInt64); !ok {
-			return fmt.Errorf("unexpected type %T for edge-field group_users", value)
-		} else if value.Valid {
-			u.group_users = new(int)
-			*u.group_users = int(value.Int64)
-		}
-	}
 	return nil
 }
 
@@ -227,6 +221,11 @@ func (u *User) QueryGroups() *GroupQuery {
 // QueryFriends queries the friends edge of the User.
 func (u *User) QueryFriends() *UserQuery {
 	return (&UserClient{config: u.config}).QueryFriends(u)
+}
+
+// QueryPets queries the pets edge of the User.
+func (u *User) QueryPets() *PetQuery {
+	return (&UserClient{config: u.config}).QueryPets(u)
 }
 
 // Update returns a builder for updating this User.

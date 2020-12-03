@@ -5,6 +5,7 @@ package ent
 import (
 	"context"
 	"ent_example/ent/pet"
+	"ent_example/ent/user"
 	"fmt"
 
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
@@ -22,6 +23,25 @@ type PetCreate struct {
 func (pc *PetCreate) SetID(s string) *PetCreate {
 	pc.mutation.SetID(s)
 	return pc
+}
+
+// SetOwnerID sets the owner edge to User by id.
+func (pc *PetCreate) SetOwnerID(id int) *PetCreate {
+	pc.mutation.SetOwnerID(id)
+	return pc
+}
+
+// SetNillableOwnerID sets the owner edge to User by id if the given value is not nil.
+func (pc *PetCreate) SetNillableOwnerID(id *int) *PetCreate {
+	if id != nil {
+		pc = pc.SetOwnerID(*id)
+	}
+	return pc
+}
+
+// SetOwner sets the owner edge to User.
+func (pc *PetCreate) SetOwner(u *User) *PetCreate {
+	return pc.SetOwnerID(u.ID)
 }
 
 // Mutation returns the PetMutation object of the builder.
@@ -108,6 +128,25 @@ func (pc *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 	if id, ok := pc.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
+	}
+	if nodes := pc.mutation.OwnerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   pet.OwnerTable,
+			Columns: []string{pet.OwnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

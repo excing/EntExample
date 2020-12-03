@@ -6,6 +6,7 @@ import (
 	"context"
 	"ent_example/ent/pet"
 	"ent_example/ent/predicate"
+	"ent_example/ent/user"
 	"fmt"
 
 	"github.com/facebook/ent/dialect/sql"
@@ -26,9 +27,34 @@ func (pu *PetUpdate) Where(ps ...predicate.Pet) *PetUpdate {
 	return pu
 }
 
+// SetOwnerID sets the owner edge to User by id.
+func (pu *PetUpdate) SetOwnerID(id int) *PetUpdate {
+	pu.mutation.SetOwnerID(id)
+	return pu
+}
+
+// SetNillableOwnerID sets the owner edge to User by id if the given value is not nil.
+func (pu *PetUpdate) SetNillableOwnerID(id *int) *PetUpdate {
+	if id != nil {
+		pu = pu.SetOwnerID(*id)
+	}
+	return pu
+}
+
+// SetOwner sets the owner edge to User.
+func (pu *PetUpdate) SetOwner(u *User) *PetUpdate {
+	return pu.SetOwnerID(u.ID)
+}
+
 // Mutation returns the PetMutation object of the builder.
 func (pu *PetUpdate) Mutation() *PetMutation {
 	return pu.mutation
+}
+
+// ClearOwner clears the "owner" edge to type User.
+func (pu *PetUpdate) ClearOwner() *PetUpdate {
+	pu.mutation.ClearOwner()
+	return pu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -100,6 +126,41 @@ func (pu *PetUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if pu.mutation.OwnerCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   pet.OwnerTable,
+			Columns: []string{pet.OwnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.OwnerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   pet.OwnerTable,
+			Columns: []string{pet.OwnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, pu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{pet.Label}
@@ -118,9 +179,34 @@ type PetUpdateOne struct {
 	mutation *PetMutation
 }
 
+// SetOwnerID sets the owner edge to User by id.
+func (puo *PetUpdateOne) SetOwnerID(id int) *PetUpdateOne {
+	puo.mutation.SetOwnerID(id)
+	return puo
+}
+
+// SetNillableOwnerID sets the owner edge to User by id if the given value is not nil.
+func (puo *PetUpdateOne) SetNillableOwnerID(id *int) *PetUpdateOne {
+	if id != nil {
+		puo = puo.SetOwnerID(*id)
+	}
+	return puo
+}
+
+// SetOwner sets the owner edge to User.
+func (puo *PetUpdateOne) SetOwner(u *User) *PetUpdateOne {
+	return puo.SetOwnerID(u.ID)
+}
+
 // Mutation returns the PetMutation object of the builder.
 func (puo *PetUpdateOne) Mutation() *PetMutation {
 	return puo.mutation
+}
+
+// ClearOwner clears the "owner" edge to type User.
+func (puo *PetUpdateOne) ClearOwner() *PetUpdateOne {
+	puo.mutation.ClearOwner()
+	return puo
 }
 
 // Save executes the query and returns the updated entity.
@@ -190,6 +276,41 @@ func (puo *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 		return nil, &ValidationError{Name: "ID", err: fmt.Errorf("missing Pet.ID for update")}
 	}
 	_spec.Node.ID.Value = id
+	if puo.mutation.OwnerCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   pet.OwnerTable,
+			Columns: []string{pet.OwnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.OwnerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   pet.OwnerTable,
+			Columns: []string{pet.OwnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	_node = &Pet{config: puo.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues()
