@@ -26,6 +26,19 @@ func (nu *NodeUpdate) Where(ps ...predicate.Node) *NodeUpdate {
 	return nu
 }
 
+// SetValue sets the value field.
+func (nu *NodeUpdate) SetValue(i int) *NodeUpdate {
+	nu.mutation.ResetValue()
+	nu.mutation.SetValue(i)
+	return nu
+}
+
+// AddValue adds i to value.
+func (nu *NodeUpdate) AddValue(i int) *NodeUpdate {
+	nu.mutation.AddValue(i)
+	return nu
+}
+
 // SetPrevID sets the prev edge to Node by id.
 func (nu *NodeUpdate) SetPrevID(id int) *NodeUpdate {
 	nu.mutation.SetPrevID(id)
@@ -150,6 +163,20 @@ func (nu *NodeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := nu.mutation.Value(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: node.FieldValue,
+		})
+	}
+	if value, ok := nu.mutation.AddedValue(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: node.FieldValue,
+		})
+	}
 	if nu.mutation.PrevCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
@@ -236,6 +263,19 @@ type NodeUpdateOne struct {
 	config
 	hooks    []Hook
 	mutation *NodeMutation
+}
+
+// SetValue sets the value field.
+func (nuo *NodeUpdateOne) SetValue(i int) *NodeUpdateOne {
+	nuo.mutation.ResetValue()
+	nuo.mutation.SetValue(i)
+	return nuo
+}
+
+// AddValue adds i to value.
+func (nuo *NodeUpdateOne) AddValue(i int) *NodeUpdateOne {
+	nuo.mutation.AddValue(i)
+	return nuo
 }
 
 // SetPrevID sets the prev edge to Node by id.
@@ -360,6 +400,20 @@ func (nuo *NodeUpdateOne) sqlSave(ctx context.Context) (_node *Node, err error) 
 		return nil, &ValidationError{Name: "ID", err: fmt.Errorf("missing Node.ID for update")}
 	}
 	_spec.Node.ID.Value = id
+	if value, ok := nuo.mutation.Value(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: node.FieldValue,
+		})
+	}
+	if value, ok := nuo.mutation.AddedValue(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: node.FieldValue,
+		})
+	}
 	if nuo.mutation.PrevCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,

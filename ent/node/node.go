@@ -7,6 +7,8 @@ const (
 	Label = "node"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldValue holds the string denoting the value field in the database.
+	FieldValue = "value"
 
 	// EdgePrev holds the string denoting the prev edge name in mutations.
 	EdgePrev = "prev"
@@ -28,6 +30,7 @@ const (
 // Columns holds all SQL columns for node fields.
 var Columns = []string{
 	FieldID,
+	FieldValue,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the Node type.

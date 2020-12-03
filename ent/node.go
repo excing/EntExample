@@ -12,9 +12,11 @@ import (
 
 // Node is the model entity for the Node schema.
 type Node struct {
-	config
+	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// Value holds the value of the "value" field.
+	Value int `json:"value,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the NodeQuery when eager-loading is set.
 	Edges     NodeEdges `json:"edges"`
@@ -64,6 +66,7 @@ func (e NodeEdges) NextOrErr() (*Node, error) {
 func (*Node) scanValues() []interface{} {
 	return []interface{}{
 		&sql.NullInt64{}, // id
+		&sql.NullInt64{}, // value
 	}
 }
 
@@ -85,6 +88,12 @@ func (n *Node) assignValues(values ...interface{}) error {
 		return fmt.Errorf("unexpected type %T for field id", value)
 	}
 	n.ID = int(value.Int64)
+	values = values[1:]
+	if value, ok := values[0].(*sql.NullInt64); !ok {
+		return fmt.Errorf("unexpected type %T for field value", values[0])
+	} else if value.Valid {
+		n.Value = int(value.Int64)
+	}
 	values = values[1:]
 	if len(values) == len(node.ForeignKeys) {
 		if value, ok := values[0].(*sql.NullInt64); !ok {
@@ -130,6 +139,8 @@ func (n *Node) String() string {
 	var builder strings.Builder
 	builder.WriteString("Node(")
 	builder.WriteString(fmt.Sprintf("id=%v", n.ID))
+	builder.WriteString(", value=")
+	builder.WriteString(fmt.Sprintf("%v", n.Value))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -309,6 +309,19 @@ func (nq *NodeQuery) WithNext(opts ...func(*NodeQuery)) *NodeQuery {
 
 // GroupBy used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		Value int `json:"value,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.Node.Query().
+//		GroupBy(node.FieldValue).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
+//
 func (nq *NodeQuery) GroupBy(field string, fields ...string) *NodeGroupBy {
 	group := &NodeGroupBy{config: nq.config}
 	group.fields = append([]string{field}, fields...)
@@ -322,6 +335,17 @@ func (nq *NodeQuery) GroupBy(field string, fields ...string) *NodeGroupBy {
 }
 
 // Select one or more fields from the given query.
+//
+// Example:
+//
+//	var v []struct {
+//		Value int `json:"value,omitempty"`
+//	}
+//
+//	client.Node.Query().
+//		Select(node.FieldValue).
+//		Scan(ctx, &v)
+//
 func (nq *NodeQuery) Select(field string, fields ...string) *NodeSelect {
 	selector := &NodeSelect{config: nq.config}
 	selector.fields = append([]string{field}, fields...)

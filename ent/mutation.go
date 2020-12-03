@@ -2339,6 +2339,8 @@ type NodeMutation struct {
 	op            Op
 	typ           string
 	id            *int
+	value         *int
+	addvalue      *int
 	clearedFields map[string]struct{}
 	prev          *int
 	clearedprev   bool
@@ -2426,6 +2428,63 @@ func (m *NodeMutation) ID() (id int, exists bool) {
 		return
 	}
 	return *m.id, true
+}
+
+// SetValue sets the value field.
+func (m *NodeMutation) SetValue(i int) {
+	m.value = &i
+	m.addvalue = nil
+}
+
+// Value returns the value value in the mutation.
+func (m *NodeMutation) Value() (r int, exists bool) {
+	v := m.value
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldValue returns the old value value of the Node.
+// If the Node object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *NodeMutation) OldValue(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldValue is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldValue requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldValue: %w", err)
+	}
+	return oldValue.Value, nil
+}
+
+// AddValue adds i to value.
+func (m *NodeMutation) AddValue(i int) {
+	if m.addvalue != nil {
+		*m.addvalue += i
+	} else {
+		m.addvalue = &i
+	}
+}
+
+// AddedValue returns the value that was added to the value field in this mutation.
+func (m *NodeMutation) AddedValue() (r int, exists bool) {
+	v := m.addvalue
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetValue reset all changes of the "value" field.
+func (m *NodeMutation) ResetValue() {
+	m.value = nil
+	m.addvalue = nil
 }
 
 // SetPrevID sets the prev edge to Node by id.
@@ -2520,7 +2579,10 @@ func (m *NodeMutation) Type() string {
 // this mutation. Note that, in order to get all numeric
 // fields that were in/decremented, call AddedFields().
 func (m *NodeMutation) Fields() []string {
-	fields := make([]string, 0, 0)
+	fields := make([]string, 0, 1)
+	if m.value != nil {
+		fields = append(fields, node.FieldValue)
+	}
 	return fields
 }
 
@@ -2528,6 +2590,10 @@ func (m *NodeMutation) Fields() []string {
 // The second boolean value indicates that this field was
 // not set, or was not define in the schema.
 func (m *NodeMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case node.FieldValue:
+		return m.Value()
+	}
 	return nil, false
 }
 
@@ -2535,6 +2601,10 @@ func (m *NodeMutation) Field(name string) (ent.Value, bool) {
 // An error is returned if the mutation operation is not UpdateOne,
 // or the query to the database was failed.
 func (m *NodeMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case node.FieldValue:
+		return m.OldValue(ctx)
+	}
 	return nil, fmt.Errorf("unknown Node field %s", name)
 }
 
@@ -2543,6 +2613,13 @@ func (m *NodeMutation) OldField(ctx context.Context, name string) (ent.Value, er
 // type mismatch the field type.
 func (m *NodeMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case node.FieldValue:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetValue(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Node field %s", name)
 }
@@ -2550,13 +2627,21 @@ func (m *NodeMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented
 // or decremented during this mutation.
 func (m *NodeMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addvalue != nil {
+		fields = append(fields, node.FieldValue)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was in/decremented
 // from a field with the given name. The second value indicates
 // that this field was not set, or was not define in the schema.
 func (m *NodeMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case node.FieldValue:
+		return m.AddedValue()
+	}
 	return nil, false
 }
 
@@ -2564,6 +2649,15 @@ func (m *NodeMutation) AddedField(name string) (ent.Value, bool) {
 // error if the field is not defined in the schema, or if the
 // type mismatch the field type.
 func (m *NodeMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case node.FieldValue:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddValue(v)
+		return nil
+	}
 	return fmt.Errorf("unknown Node numeric field %s", name)
 }
 
@@ -2590,6 +2684,11 @@ func (m *NodeMutation) ClearField(name string) error {
 // given field name. It returns an error if the field is not
 // defined in the schema.
 func (m *NodeMutation) ResetField(name string) error {
+	switch name {
+	case node.FieldValue:
+		m.ResetValue()
+		return nil
+	}
 	return fmt.Errorf("unknown Node field %s", name)
 }
 

@@ -89,6 +89,7 @@ var (
 	// NodesColumns holds the columns for the "nodes" table.
 	NodesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "value", Type: field.TypeInt},
 		{Name: "node_next", Type: field.TypeInt, Unique: true, Nullable: true},
 	}
 	// NodesTable holds the schema information for the "nodes" table.
@@ -99,7 +100,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:  "nodes_nodes_next",
-				Columns: []*schema.Column{NodesColumns[1]},
+				Columns: []*schema.Column{NodesColumns[2]},
 
 				RefColumns: []*schema.Column{NodesColumns[0]},
 				OnDelete:   schema.SetNull,

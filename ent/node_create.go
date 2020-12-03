@@ -5,6 +5,7 @@ package ent
 import (
 	"context"
 	"ent_example/ent/node"
+	"errors"
 	"fmt"
 
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
@@ -16,6 +17,12 @@ type NodeCreate struct {
 	config
 	mutation *NodeMutation
 	hooks    []Hook
+}
+
+// SetValue sets the value field.
+func (nc *NodeCreate) SetValue(i int) *NodeCreate {
+	nc.mutation.SetValue(i)
+	return nc
 }
 
 // SetPrevID sets the prev edge to Node by id.
@@ -107,6 +114,9 @@ func (nc *NodeCreate) SaveX(ctx context.Context) *Node {
 
 // check runs all checks and user-defined validators on the builder.
 func (nc *NodeCreate) check() error {
+	if _, ok := nc.mutation.Value(); !ok {
+		return &ValidationError{Name: "value", err: errors.New("ent: missing required field \"value\"")}
+	}
 	return nil
 }
 
@@ -134,6 +144,14 @@ func (nc *NodeCreate) createSpec() (*Node, *sqlgraph.CreateSpec) {
 			},
 		}
 	)
+	if value, ok := nc.mutation.Value(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: node.FieldValue,
+		})
+		_node.Value = value
+	}
 	if nodes := nc.mutation.PrevIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
