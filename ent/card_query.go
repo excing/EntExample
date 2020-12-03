@@ -6,6 +6,7 @@ import (
 	"context"
 	"ent_example/ent/card"
 	"ent_example/ent/predicate"
+	"ent_example/ent/user"
 	"errors"
 	"fmt"
 	"math"
@@ -23,6 +24,9 @@ type CardQuery struct {
 	order      []OrderFunc
 	unique     []string
 	predicates []predicate.Card
+	// eager-loading edges.
+	withOwner *UserQuery
+	withFKs   bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -50,6 +54,28 @@ func (cq *CardQuery) Offset(offset int) *CardQuery {
 func (cq *CardQuery) Order(o ...OrderFunc) *CardQuery {
 	cq.order = append(cq.order, o...)
 	return cq
+}
+
+// QueryOwner chains the current query on the owner edge.
+func (cq *CardQuery) QueryOwner() *UserQuery {
+	query := &UserQuery{config: cq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := cq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := cq.sqlQuery()
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(card.Table, card.FieldID, selector),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, card.OwnerTable, card.OwnerColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first Card entity in the query. Returns *NotFoundError when no card was found.
@@ -228,10 +254,22 @@ func (cq *CardQuery) Clone() *CardQuery {
 		order:      append([]OrderFunc{}, cq.order...),
 		unique:     append([]string{}, cq.unique...),
 		predicates: append([]predicate.Card{}, cq.predicates...),
+		withOwner:  cq.withOwner.Clone(),
 		// clone intermediate query.
 		sql:  cq.sql.Clone(),
 		path: cq.path,
 	}
+}
+
+//  WithOwner tells the query-builder to eager-loads the nodes that are connected to
+// the "owner" edge. The optional arguments used to configure the query builder of the edge.
+func (cq *CardQuery) WithOwner(opts ...func(*UserQuery)) *CardQuery {
+	query := &UserQuery{config: cq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	cq.withOwner = query
+	return cq
 }
 
 // GroupBy used to group vertices by one or more fields/columns.
@@ -240,12 +278,12 @@ func (cq *CardQuery) Clone() *CardQuery {
 // Example:
 //
 //	var v []struct {
-//		Amout schema.Amount `json:"amout,omitempty"`
+//		Name sql.NullString `json:"name,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Card.Query().
-//		GroupBy(card.FieldAmout).
+//		GroupBy(card.FieldName).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 //
@@ -266,11 +304,11 @@ func (cq *CardQuery) GroupBy(field string, fields ...string) *CardGroupBy {
 // Example:
 //
 //	var v []struct {
-//		Amout schema.Amount `json:"amout,omitempty"`
+//		Name sql.NullString `json:"name,omitempty"`
 //	}
 //
 //	client.Card.Query().
-//		Select(card.FieldAmout).
+//		Select(card.FieldName).
 //		Scan(ctx, &v)
 //
 func (cq *CardQuery) Select(field string, fields ...string) *CardSelect {
@@ -298,13 +336,26 @@ func (cq *CardQuery) prepareQuery(ctx context.Context) error {
 
 func (cq *CardQuery) sqlAll(ctx context.Context) ([]*Card, error) {
 	var (
-		nodes = []*Card{}
-		_spec = cq.querySpec()
+		nodes       = []*Card{}
+		withFKs     = cq.withFKs
+		_spec       = cq.querySpec()
+		loadedTypes = [1]bool{
+			cq.withOwner != nil,
+		}
 	)
+	if cq.withOwner != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, card.ForeignKeys...)
+	}
 	_spec.ScanValues = func() []interface{} {
 		node := &Card{config: cq.config}
 		nodes = append(nodes, node)
 		values := node.scanValues()
+		if withFKs {
+			values = append(values, node.fkValues()...)
+		}
 		return values
 	}
 	_spec.Assign = func(values ...interface{}) error {
@@ -312,6 +363,7 @@ func (cq *CardQuery) sqlAll(ctx context.Context) ([]*Card, error) {
 			return fmt.Errorf("ent: Assign called without calling ScanValues")
 		}
 		node := nodes[len(nodes)-1]
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(values...)
 	}
 	if err := sqlgraph.QueryNodes(ctx, cq.driver, _spec); err != nil {
@@ -320,6 +372,32 @@ func (cq *CardQuery) sqlAll(ctx context.Context) ([]*Card, error) {
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+
+	if query := cq.withOwner; query != nil {
+		ids := make([]int, 0, len(nodes))
+		nodeids := make(map[int][]*Card)
+		for i := range nodes {
+			if fk := nodes[i].user_card; fk != nil {
+				ids = append(ids, *fk)
+				nodeids[*fk] = append(nodeids[*fk], nodes[i])
+			}
+		}
+		query.Where(user.IDIn(ids...))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			nodes, ok := nodeids[n.ID]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected foreign-key "user_card" returned %v`, n.ID)
+			}
+			for i := range nodes {
+				nodes[i].Edges.Owner = n
+			}
+		}
+	}
+
 	return nodes, nil
 }
 

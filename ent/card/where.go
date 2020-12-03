@@ -4,9 +4,10 @@ package card
 
 import (
 	"ent_example/ent/predicate"
-	"ent_example/ent/schema"
+	"time"
 
 	"github.com/facebook/ent/dialect/sql"
+	"github.com/facebook/ent/dialect/sql/sqlgraph"
 )
 
 // ID filters vertices based on their identifier.
@@ -92,14 +93,6 @@ func IDLTE(id int) predicate.Card {
 	})
 }
 
-// Amout applies equality check predicate on the "amout" field. It's identical to AmoutEQ.
-func Amout(v schema.Amount) predicate.Card {
-	vc := float64(v)
-	return predicate.Card(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldAmout), vc))
-	})
-}
-
 // Name applies equality check predicate on the "name" field. It's identical to NameEQ.
 func Name(v sql.NullString) predicate.Card {
 	vc := v.String
@@ -108,85 +101,17 @@ func Name(v sql.NullString) predicate.Card {
 	})
 }
 
-// AmoutEQ applies the EQ predicate on the "amout" field.
-func AmoutEQ(v schema.Amount) predicate.Card {
-	vc := float64(v)
+// Number applies equality check predicate on the "number" field. It's identical to NumberEQ.
+func Number(v string) predicate.Card {
 	return predicate.Card(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldAmout), vc))
+		s.Where(sql.EQ(s.C(FieldNumber), v))
 	})
 }
 
-// AmoutNEQ applies the NEQ predicate on the "amout" field.
-func AmoutNEQ(v schema.Amount) predicate.Card {
-	vc := float64(v)
+// Expired applies equality check predicate on the "expired" field. It's identical to ExpiredEQ.
+func Expired(v time.Time) predicate.Card {
 	return predicate.Card(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldAmout), vc))
-	})
-}
-
-// AmoutIn applies the In predicate on the "amout" field.
-func AmoutIn(vs ...schema.Amount) predicate.Card {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = float64(vs[i])
-	}
-	return predicate.Card(func(s *sql.Selector) {
-		// if not arguments were provided, append the FALSE constants,
-		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(v) == 0 {
-			s.Where(sql.False())
-			return
-		}
-		s.Where(sql.In(s.C(FieldAmout), v...))
-	})
-}
-
-// AmoutNotIn applies the NotIn predicate on the "amout" field.
-func AmoutNotIn(vs ...schema.Amount) predicate.Card {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = float64(vs[i])
-	}
-	return predicate.Card(func(s *sql.Selector) {
-		// if not arguments were provided, append the FALSE constants,
-		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(v) == 0 {
-			s.Where(sql.False())
-			return
-		}
-		s.Where(sql.NotIn(s.C(FieldAmout), v...))
-	})
-}
-
-// AmoutGT applies the GT predicate on the "amout" field.
-func AmoutGT(v schema.Amount) predicate.Card {
-	vc := float64(v)
-	return predicate.Card(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldAmout), vc))
-	})
-}
-
-// AmoutGTE applies the GTE predicate on the "amout" field.
-func AmoutGTE(v schema.Amount) predicate.Card {
-	vc := float64(v)
-	return predicate.Card(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldAmout), vc))
-	})
-}
-
-// AmoutLT applies the LT predicate on the "amout" field.
-func AmoutLT(v schema.Amount) predicate.Card {
-	vc := float64(v)
-	return predicate.Card(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldAmout), vc))
-	})
-}
-
-// AmoutLTE applies the LTE predicate on the "amout" field.
-func AmoutLTE(v schema.Amount) predicate.Card {
-	vc := float64(v)
-	return predicate.Card(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldAmout), vc))
+		s.Where(sql.EQ(s.C(FieldExpired), v))
 	})
 }
 
@@ -323,6 +248,221 @@ func NameContainsFold(v sql.NullString) predicate.Card {
 	vc := v.String
 	return predicate.Card(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldName), vc))
+	})
+}
+
+// NumberEQ applies the EQ predicate on the "number" field.
+func NumberEQ(v string) predicate.Card {
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldNumber), v))
+	})
+}
+
+// NumberNEQ applies the NEQ predicate on the "number" field.
+func NumberNEQ(v string) predicate.Card {
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldNumber), v))
+	})
+}
+
+// NumberIn applies the In predicate on the "number" field.
+func NumberIn(vs ...string) predicate.Card {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Card(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldNumber), v...))
+	})
+}
+
+// NumberNotIn applies the NotIn predicate on the "number" field.
+func NumberNotIn(vs ...string) predicate.Card {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Card(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldNumber), v...))
+	})
+}
+
+// NumberGT applies the GT predicate on the "number" field.
+func NumberGT(v string) predicate.Card {
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldNumber), v))
+	})
+}
+
+// NumberGTE applies the GTE predicate on the "number" field.
+func NumberGTE(v string) predicate.Card {
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldNumber), v))
+	})
+}
+
+// NumberLT applies the LT predicate on the "number" field.
+func NumberLT(v string) predicate.Card {
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldNumber), v))
+	})
+}
+
+// NumberLTE applies the LTE predicate on the "number" field.
+func NumberLTE(v string) predicate.Card {
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldNumber), v))
+	})
+}
+
+// NumberContains applies the Contains predicate on the "number" field.
+func NumberContains(v string) predicate.Card {
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldNumber), v))
+	})
+}
+
+// NumberHasPrefix applies the HasPrefix predicate on the "number" field.
+func NumberHasPrefix(v string) predicate.Card {
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldNumber), v))
+	})
+}
+
+// NumberHasSuffix applies the HasSuffix predicate on the "number" field.
+func NumberHasSuffix(v string) predicate.Card {
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldNumber), v))
+	})
+}
+
+// NumberEqualFold applies the EqualFold predicate on the "number" field.
+func NumberEqualFold(v string) predicate.Card {
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldNumber), v))
+	})
+}
+
+// NumberContainsFold applies the ContainsFold predicate on the "number" field.
+func NumberContainsFold(v string) predicate.Card {
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldNumber), v))
+	})
+}
+
+// ExpiredEQ applies the EQ predicate on the "expired" field.
+func ExpiredEQ(v time.Time) predicate.Card {
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldExpired), v))
+	})
+}
+
+// ExpiredNEQ applies the NEQ predicate on the "expired" field.
+func ExpiredNEQ(v time.Time) predicate.Card {
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldExpired), v))
+	})
+}
+
+// ExpiredIn applies the In predicate on the "expired" field.
+func ExpiredIn(vs ...time.Time) predicate.Card {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Card(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldExpired), v...))
+	})
+}
+
+// ExpiredNotIn applies the NotIn predicate on the "expired" field.
+func ExpiredNotIn(vs ...time.Time) predicate.Card {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Card(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldExpired), v...))
+	})
+}
+
+// ExpiredGT applies the GT predicate on the "expired" field.
+func ExpiredGT(v time.Time) predicate.Card {
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldExpired), v))
+	})
+}
+
+// ExpiredGTE applies the GTE predicate on the "expired" field.
+func ExpiredGTE(v time.Time) predicate.Card {
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldExpired), v))
+	})
+}
+
+// ExpiredLT applies the LT predicate on the "expired" field.
+func ExpiredLT(v time.Time) predicate.Card {
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldExpired), v))
+	})
+}
+
+// ExpiredLTE applies the LTE predicate on the "expired" field.
+func ExpiredLTE(v time.Time) predicate.Card {
+	return predicate.Card(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldExpired), v))
+	})
+}
+
+// HasOwner applies the HasEdge predicate on the "owner" edge.
+func HasOwner() predicate.Card {
+	return predicate.Card(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(OwnerTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, OwnerTable, OwnerColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasOwnerWith applies the HasEdge predicate on the "owner" edge with a given conditions (other predicates).
+func HasOwnerWith(preds ...predicate.User) predicate.Card {
+	return predicate.Card(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(OwnerInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, OwnerTable, OwnerColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
 	})
 }
 

@@ -8,7 +8,6 @@ import (
 	"github.com/facebook/ent/schema/edge"
 	"github.com/facebook/ent/schema/field"
 	"github.com/facebook/ent/schema/index"
-	"github.com/facebookincubator/ent-contrib/entgql"
 	"github.com/google/uuid"
 )
 
@@ -33,10 +32,6 @@ func (User) Fields() []ent.Field {
 		field.UUID("uuid", uuid.UUID{}).Default(uuid.New),
 		// 	Nickname *string `json:"nickname,omitempty"
 		field.String("nickname").Optional().Nillable(),
-		field.String("password").Sensitive(),
-		field.Time("creation_date").Annotations(entgql.Annotation{
-			OrderField: "CREATE_AT",
-		}),
 	}
 }
 
@@ -47,6 +42,7 @@ func (User) Edges() []ent.Edge {
 		edge.From("groups", Group.Type).Ref("users"),
 		edge.To("friends", User.Type),
 		edge.To("pets", Pet.Type),
+		edge.To("card", Card.Type).Unique(),
 	}
 }
 

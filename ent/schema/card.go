@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/facebook/ent"
+	"github.com/facebook/ent/schema/edge"
 	"github.com/facebook/ent/schema/field"
 )
 
@@ -18,14 +19,18 @@ type Card struct {
 // Fields of the Card.
 func (Card) Fields() []ent.Field {
 	return []ent.Field{
-		field.Float("amout").GoType(Amount(0)),
 		field.String("name").Optional().
 			// A ValueScanner type.
 			GoType(&sql.NullString{}),
+		field.String("number").NotEmpty(),
+		field.Time("expired").Immutable(),
 	}
 }
 
 // Edges of the Card.
 func (Card) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.From("owner", User.Type).Ref("card").Unique().
+			Required(),
+	}
 }

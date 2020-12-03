@@ -5,6 +5,7 @@ package ent
 import (
 	"context"
 	"ent_example/ent/car"
+	"ent_example/ent/card"
 	"ent_example/ent/group"
 	"ent_example/ent/pet"
 	"ent_example/ent/user"
@@ -139,18 +140,6 @@ func (uc *UserCreate) SetNillableNickname(s *string) *UserCreate {
 	return uc
 }
 
-// SetPassword sets the password field.
-func (uc *UserCreate) SetPassword(s string) *UserCreate {
-	uc.mutation.SetPassword(s)
-	return uc
-}
-
-// SetCreationDate sets the creation_date field.
-func (uc *UserCreate) SetCreationDate(t time.Time) *UserCreate {
-	uc.mutation.SetCreationDate(t)
-	return uc
-}
-
 // AddCarIDs adds the cars edge to Car by ids.
 func (uc *UserCreate) AddCarIDs(ids ...int) *UserCreate {
 	uc.mutation.AddCarIDs(ids...)
@@ -209,6 +198,25 @@ func (uc *UserCreate) AddPets(p ...*Pet) *UserCreate {
 		ids[i] = p[i].ID
 	}
 	return uc.AddPetIDs(ids...)
+}
+
+// SetCardID sets the card edge to Card by id.
+func (uc *UserCreate) SetCardID(id int) *UserCreate {
+	uc.mutation.SetCardID(id)
+	return uc
+}
+
+// SetNillableCardID sets the card edge to Card by id if the given value is not nil.
+func (uc *UserCreate) SetNillableCardID(id *int) *UserCreate {
+	if id != nil {
+		uc = uc.SetCardID(*id)
+	}
+	return uc
+}
+
+// SetCard sets the card edge to Card.
+func (uc *UserCreate) SetCard(c *Card) *UserCreate {
+	return uc.SetCardID(c.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -310,12 +318,6 @@ func (uc *UserCreate) check() error {
 	}
 	if _, ok := uc.mutation.UUID(); !ok {
 		return &ValidationError{Name: "uuid", err: errors.New("ent: missing required field \"uuid\"")}
-	}
-	if _, ok := uc.mutation.Password(); !ok {
-		return &ValidationError{Name: "password", err: errors.New("ent: missing required field \"password\"")}
-	}
-	if _, ok := uc.mutation.CreationDate(); !ok {
-		return &ValidationError{Name: "creation_date", err: errors.New("ent: missing required field \"creation_date\"")}
 	}
 	return nil
 }
@@ -432,22 +434,6 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		})
 		_node.Nickname = &value
 	}
-	if value, ok := uc.mutation.Password(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: user.FieldPassword,
-		})
-		_node.Password = value
-	}
-	if value, ok := uc.mutation.CreationDate(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: user.FieldCreationDate,
-		})
-		_node.CreationDate = value
-	}
 	if nodes := uc.mutation.CarsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -516,6 +502,25 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeString,
 					Column: pet.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.CardIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.CardTable,
+			Columns: []string{user.CardColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: card.FieldID,
 				},
 			},
 		}

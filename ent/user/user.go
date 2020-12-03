@@ -36,10 +36,6 @@ const (
 	FieldUUID = "uuid"
 	// FieldNickname holds the string denoting the nickname field in the database.
 	FieldNickname = "nickname"
-	// FieldPassword holds the string denoting the password field in the database.
-	FieldPassword = "password"
-	// FieldCreationDate holds the string denoting the creation_date field in the database.
-	FieldCreationDate = "creation_date"
 
 	// EdgeCars holds the string denoting the cars edge name in mutations.
 	EdgeCars = "cars"
@@ -49,6 +45,8 @@ const (
 	EdgeFriends = "friends"
 	// EdgePets holds the string denoting the pets edge name in mutations.
 	EdgePets = "pets"
+	// EdgeCard holds the string denoting the card edge name in mutations.
+	EdgeCard = "card"
 
 	// Table holds the table name of the user in the database.
 	Table = "users"
@@ -73,6 +71,13 @@ const (
 	PetsInverseTable = "pets"
 	// PetsColumn is the table column denoting the pets relation/edge.
 	PetsColumn = "user_pets"
+	// CardTable is the table the holds the card relation/edge.
+	CardTable = "cards"
+	// CardInverseTable is the table name for the Card entity.
+	// It exists in this package in order to avoid circular dependency with the "card" package.
+	CardInverseTable = "cards"
+	// CardColumn is the table column denoting the card relation/edge.
+	CardColumn = "user_card"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -89,8 +94,6 @@ var Columns = []string{
 	FieldState,
 	FieldUUID,
 	FieldNickname,
-	FieldPassword,
-	FieldCreationDate,
 }
 
 var (

@@ -4,6 +4,7 @@ package ent
 
 import (
 	"ent_example/ent/blob"
+	"ent_example/ent/card"
 	"ent_example/ent/group"
 	"ent_example/ent/pet"
 	"ent_example/ent/schema"
@@ -23,6 +24,12 @@ func init() {
 	blobDescID := blobFields[0].Descriptor()
 	// blob.DefaultID holds the default value on creation for the id field.
 	blob.DefaultID = blobDescID.Default.(func() uuid.UUID)
+	cardFields := schema.Card{}.Fields()
+	_ = cardFields
+	// cardDescNumber is the schema descriptor for number field.
+	cardDescNumber := cardFields[1].Descriptor()
+	// card.NumberValidator is a validator for the "number" field. It is called by the builders before save.
+	card.NumberValidator = cardDescNumber.Validators[0].(func(string) error)
 	groupFields := schema.Group{}.Fields()
 	_ = groupFields
 	// groupDescName is the schema descriptor for name field.

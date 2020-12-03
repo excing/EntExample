@@ -4,6 +4,7 @@ package ent
 
 import (
 	"encoding/json"
+	"ent_example/ent/card"
 	"ent_example/ent/user"
 	"fmt"
 	"net/url"
@@ -41,10 +42,6 @@ type User struct {
 	UUID uuid.UUID `json:"uuid,omitempty"`
 	// Nickname holds the value of the "nickname" field.
 	Nickname *string `json:"nickname,omitempty"`
-	// Password holds the value of the "password" field.
-	Password string `gqlgen:"-" json:"-"`
-	// CreationDate holds the value of the "creation_date" field.
-	CreationDate time.Time `json:"creation_date,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges UserEdges `json:"edges"`
@@ -60,9 +57,11 @@ type UserEdges struct {
 	Friends []*User
 	// Pets holds the value of the pets edge.
 	Pets []*Pet
+	// Card holds the value of the card edge.
+	Card *Card
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [5]bool
 }
 
 // CarsOrErr returns the Cars value or an error if the edge
@@ -101,6 +100,20 @@ func (e UserEdges) PetsOrErr() ([]*Pet, error) {
 	return nil, &NotLoadedError{edge: "pets"}
 }
 
+// CardOrErr returns the Card value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserEdges) CardOrErr() (*Card, error) {
+	if e.loadedTypes[4] {
+		if e.Card == nil {
+			// The edge card was loaded in eager-loading,
+			// but was not found.
+			return nil, &NotFoundError{label: card.Label}
+		}
+		return e.Card, nil
+	}
+	return nil, &NotLoadedError{edge: "card"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*User) scanValues() []interface{} {
 	return []interface{}{
@@ -116,8 +129,6 @@ func (*User) scanValues() []interface{} {
 		&sql.NullString{},  // state
 		&uuid.UUID{},       // uuid
 		&sql.NullString{},  // nickname
-		&sql.NullString{},  // password
-		&sql.NullTime{},    // creation_date
 	}
 }
 
@@ -195,16 +206,6 @@ func (u *User) assignValues(values ...interface{}) error {
 		u.Nickname = new(string)
 		*u.Nickname = value.String
 	}
-	if value, ok := values[11].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field password", values[11])
-	} else if value.Valid {
-		u.Password = value.String
-	}
-	if value, ok := values[12].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field creation_date", values[12])
-	} else if value.Valid {
-		u.CreationDate = value.Time
-	}
 	return nil
 }
 
@@ -226,6 +227,11 @@ func (u *User) QueryFriends() *UserQuery {
 // QueryPets queries the pets edge of the User.
 func (u *User) QueryPets() *PetQuery {
 	return (&UserClient{config: u.config}).QueryPets(u)
+}
+
+// QueryCard queries the card edge of the User.
+func (u *User) QueryCard() *CardQuery {
+	return (&UserClient{config: u.config}).QueryCard(u)
 }
 
 // Update returns a builder for updating this User.
@@ -275,9 +281,6 @@ func (u *User) String() string {
 		builder.WriteString(", nickname=")
 		builder.WriteString(*v)
 	}
-	builder.WriteString(", password=<sensitive>")
-	builder.WriteString(", creation_date=")
-	builder.WriteString(u.CreationDate.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

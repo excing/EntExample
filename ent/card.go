@@ -4,9 +4,10 @@ package ent
 
 import (
 	"ent_example/ent/card"
-	"ent_example/ent/schema"
+	"ent_example/ent/user"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/facebook/ent/dialect/sql"
 )
@@ -16,18 +17,55 @@ type Card struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
-	// Amout holds the value of the "amout" field.
-	Amout schema.Amount `json:"amout,omitempty"`
 	// Name holds the value of the "name" field.
 	Name sql.NullString `json:"name,omitempty"`
+	// Number holds the value of the "number" field.
+	Number string `json:"number,omitempty"`
+	// Expired holds the value of the "expired" field.
+	Expired time.Time `json:"expired,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the CardQuery when eager-loading is set.
+	Edges     CardEdges `json:"edges"`
+	user_card *int
+}
+
+// CardEdges holds the relations/edges for other nodes in the graph.
+type CardEdges struct {
+	// Owner holds the value of the owner edge.
+	Owner *User
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// OwnerOrErr returns the Owner value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e CardEdges) OwnerOrErr() (*User, error) {
+	if e.loadedTypes[0] {
+		if e.Owner == nil {
+			// The edge owner was loaded in eager-loading,
+			// but was not found.
+			return nil, &NotFoundError{label: user.Label}
+		}
+		return e.Owner, nil
+	}
+	return nil, &NotLoadedError{edge: "owner"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Card) scanValues() []interface{} {
 	return []interface{}{
-		&sql.NullInt64{},   // id
-		&sql.NullFloat64{}, // amout
-		&sql.NullString{},  // name
+		&sql.NullInt64{},  // id
+		&sql.NullString{}, // name
+		&sql.NullString{}, // number
+		&sql.NullTime{},   // expired
+	}
+}
+
+// fkValues returns the types for scanning foreign-keys values from sql.Rows.
+func (*Card) fkValues() []interface{} {
+	return []interface{}{
+		&sql.NullInt64{}, // user_card
 	}
 }
 
@@ -43,17 +81,36 @@ func (c *Card) assignValues(values ...interface{}) error {
 	}
 	c.ID = int(value.Int64)
 	values = values[1:]
-	if value, ok := values[0].(*sql.NullFloat64); !ok {
-		return fmt.Errorf("unexpected type %T for field amout", values[0])
-	} else if value.Valid {
-		c.Amout = schema.Amount(value.Float64)
-	}
-	if value, ok := values[1].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field name", values[1])
+	if value, ok := values[0].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field name", values[0])
 	} else if value != nil {
 		c.Name = *value
 	}
+	if value, ok := values[1].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field number", values[1])
+	} else if value.Valid {
+		c.Number = value.String
+	}
+	if value, ok := values[2].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field expired", values[2])
+	} else if value.Valid {
+		c.Expired = value.Time
+	}
+	values = values[3:]
+	if len(values) == len(card.ForeignKeys) {
+		if value, ok := values[0].(*sql.NullInt64); !ok {
+			return fmt.Errorf("unexpected type %T for edge-field user_card", value)
+		} else if value.Valid {
+			c.user_card = new(int)
+			*c.user_card = int(value.Int64)
+		}
+	}
 	return nil
+}
+
+// QueryOwner queries the owner edge of the Card.
+func (c *Card) QueryOwner() *UserQuery {
+	return (&CardClient{config: c.config}).QueryOwner(c)
 }
 
 // Update returns a builder for updating this Card.
@@ -79,10 +136,12 @@ func (c *Card) String() string {
 	var builder strings.Builder
 	builder.WriteString("Card(")
 	builder.WriteString(fmt.Sprintf("id=%v", c.ID))
-	builder.WriteString(", amout=")
-	builder.WriteString(fmt.Sprintf("%v", c.Amout))
 	builder.WriteString(", name=")
 	builder.WriteString(fmt.Sprintf("%v", c.Name))
+	builder.WriteString(", number=")
+	builder.WriteString(c.Number)
+	builder.WriteString(", expired=")
+	builder.WriteString(c.Expired.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -44,15 +44,25 @@ var (
 	// CardsColumns holds the columns for the "cards" table.
 	CardsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "amout", Type: field.TypeFloat64},
 		{Name: "name", Type: field.TypeString, Nullable: true},
+		{Name: "number", Type: field.TypeString},
+		{Name: "expired", Type: field.TypeTime},
+		{Name: "user_card", Type: field.TypeInt, Unique: true, Nullable: true},
 	}
 	// CardsTable holds the schema information for the "cards" table.
 	CardsTable = &schema.Table{
-		Name:        "cards",
-		Columns:     CardsColumns,
-		PrimaryKey:  []*schema.Column{CardsColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{},
+		Name:       "cards",
+		Columns:    CardsColumns,
+		PrimaryKey: []*schema.Column{CardsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:  "cards_users_card",
+				Columns: []*schema.Column{CardsColumns[4]},
+
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// GroupsColumns holds the columns for the "groups" table.
 	GroupsColumns = []*schema.Column{
@@ -110,8 +120,6 @@ var (
 		{Name: "state", Type: field.TypeEnum, Nullable: true, Enums: []string{"on", "off"}},
 		{Name: "uuid", Type: field.TypeUUID},
 		{Name: "nickname", Type: field.TypeString, Nullable: true},
-		{Name: "password", Type: field.TypeString},
-		{Name: "creation_date", Type: field.TypeTime},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
@@ -189,6 +197,7 @@ var (
 
 func init() {
 	CarsTable.ForeignKeys[0].RefTable = UsersTable
+	CardsTable.ForeignKeys[0].RefTable = UsersTable
 	PetsTable.ForeignKeys[0].RefTable = UsersTable
 	GroupUsersTable.ForeignKeys[0].RefTable = GroupsTable
 	GroupUsersTable.ForeignKeys[1].RefTable = UsersTable

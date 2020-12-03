@@ -5,6 +5,7 @@ package ent
 import (
 	"context"
 	"ent_example/ent/car"
+	"ent_example/ent/card"
 	"ent_example/ent/group"
 	"ent_example/ent/pet"
 	"ent_example/ent/predicate"
@@ -168,18 +169,6 @@ func (uu *UserUpdate) ClearNickname() *UserUpdate {
 	return uu
 }
 
-// SetPassword sets the password field.
-func (uu *UserUpdate) SetPassword(s string) *UserUpdate {
-	uu.mutation.SetPassword(s)
-	return uu
-}
-
-// SetCreationDate sets the creation_date field.
-func (uu *UserUpdate) SetCreationDate(t time.Time) *UserUpdate {
-	uu.mutation.SetCreationDate(t)
-	return uu
-}
-
 // AddCarIDs adds the cars edge to Car by ids.
 func (uu *UserUpdate) AddCarIDs(ids ...int) *UserUpdate {
 	uu.mutation.AddCarIDs(ids...)
@@ -238,6 +227,25 @@ func (uu *UserUpdate) AddPets(p ...*Pet) *UserUpdate {
 		ids[i] = p[i].ID
 	}
 	return uu.AddPetIDs(ids...)
+}
+
+// SetCardID sets the card edge to Card by id.
+func (uu *UserUpdate) SetCardID(id int) *UserUpdate {
+	uu.mutation.SetCardID(id)
+	return uu
+}
+
+// SetNillableCardID sets the card edge to Card by id if the given value is not nil.
+func (uu *UserUpdate) SetNillableCardID(id *int) *UserUpdate {
+	if id != nil {
+		uu = uu.SetCardID(*id)
+	}
+	return uu
+}
+
+// SetCard sets the card edge to Card.
+func (uu *UserUpdate) SetCard(c *Card) *UserUpdate {
+	return uu.SetCardID(c.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -327,6 +335,12 @@ func (uu *UserUpdate) RemovePets(p ...*Pet) *UserUpdate {
 		ids[i] = p[i].ID
 	}
 	return uu.RemovePetIDs(ids...)
+}
+
+// ClearCard clears the "card" edge to type Card.
+func (uu *UserUpdate) ClearCard() *UserUpdate {
+	uu.mutation.ClearCard()
+	return uu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -540,20 +554,6 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Column: user.FieldNickname,
-		})
-	}
-	if value, ok := uu.mutation.Password(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: user.FieldPassword,
-		})
-	}
-	if value, ok := uu.mutation.CreationDate(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: user.FieldCreationDate,
 		})
 	}
 	if uu.mutation.CarsCleared() {
@@ -772,6 +772,41 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if uu.mutation.CardCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.CardTable,
+			Columns: []string{user.CardColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: card.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.CardIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.CardTable,
+			Columns: []string{user.CardColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: card.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{user.Label}
@@ -926,18 +961,6 @@ func (uuo *UserUpdateOne) ClearNickname() *UserUpdateOne {
 	return uuo
 }
 
-// SetPassword sets the password field.
-func (uuo *UserUpdateOne) SetPassword(s string) *UserUpdateOne {
-	uuo.mutation.SetPassword(s)
-	return uuo
-}
-
-// SetCreationDate sets the creation_date field.
-func (uuo *UserUpdateOne) SetCreationDate(t time.Time) *UserUpdateOne {
-	uuo.mutation.SetCreationDate(t)
-	return uuo
-}
-
 // AddCarIDs adds the cars edge to Car by ids.
 func (uuo *UserUpdateOne) AddCarIDs(ids ...int) *UserUpdateOne {
 	uuo.mutation.AddCarIDs(ids...)
@@ -996,6 +1019,25 @@ func (uuo *UserUpdateOne) AddPets(p ...*Pet) *UserUpdateOne {
 		ids[i] = p[i].ID
 	}
 	return uuo.AddPetIDs(ids...)
+}
+
+// SetCardID sets the card edge to Card by id.
+func (uuo *UserUpdateOne) SetCardID(id int) *UserUpdateOne {
+	uuo.mutation.SetCardID(id)
+	return uuo
+}
+
+// SetNillableCardID sets the card edge to Card by id if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableCardID(id *int) *UserUpdateOne {
+	if id != nil {
+		uuo = uuo.SetCardID(*id)
+	}
+	return uuo
+}
+
+// SetCard sets the card edge to Card.
+func (uuo *UserUpdateOne) SetCard(c *Card) *UserUpdateOne {
+	return uuo.SetCardID(c.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -1085,6 +1127,12 @@ func (uuo *UserUpdateOne) RemovePets(p ...*Pet) *UserUpdateOne {
 		ids[i] = p[i].ID
 	}
 	return uuo.RemovePetIDs(ids...)
+}
+
+// ClearCard clears the "card" edge to type Card.
+func (uuo *UserUpdateOne) ClearCard() *UserUpdateOne {
+	uuo.mutation.ClearCard()
+	return uuo
 }
 
 // Save executes the query and returns the updated entity.
@@ -1298,20 +1346,6 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Column: user.FieldNickname,
 		})
 	}
-	if value, ok := uuo.mutation.Password(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: user.FieldPassword,
-		})
-	}
-	if value, ok := uuo.mutation.CreationDate(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: user.FieldCreationDate,
-		})
-	}
 	if uuo.mutation.CarsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -1520,6 +1554,41 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeString,
 					Column: pet.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.CardCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.CardTable,
+			Columns: []string{user.CardColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: card.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.CardIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.CardTable,
+			Columns: []string{user.CardColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: card.FieldID,
 				},
 			},
 		}
