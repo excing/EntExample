@@ -25,9 +25,11 @@ type NodeQuery struct {
 	unique     []string
 	predicates []predicate.Node
 	// eager-loading edges.
-	withPrev *NodeQuery
-	withNext *NodeQuery
-	withFKs  bool
+	withPrev     *NodeQuery
+	withNext     *NodeQuery
+	withParent   *NodeQuery
+	withChildren *NodeQuery
+	withFKs      bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -94,6 +96,50 @@ func (nq *NodeQuery) QueryNext() *NodeQuery {
 			sqlgraph.From(node.Table, node.FieldID, selector),
 			sqlgraph.To(node.Table, node.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, false, node.NextTable, node.NextColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(nq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryParent chains the current query on the parent edge.
+func (nq *NodeQuery) QueryParent() *NodeQuery {
+	query := &NodeQuery{config: nq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := nq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := nq.sqlQuery()
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(node.Table, node.FieldID, selector),
+			sqlgraph.To(node.Table, node.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, node.ParentTable, node.ParentColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(nq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryChildren chains the current query on the children edge.
+func (nq *NodeQuery) QueryChildren() *NodeQuery {
+	query := &NodeQuery{config: nq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := nq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := nq.sqlQuery()
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(node.Table, node.FieldID, selector),
+			sqlgraph.To(node.Table, node.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, node.ChildrenTable, node.ChildrenColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(nq.driver.Dialect(), step)
 		return fromU, nil
@@ -271,14 +317,16 @@ func (nq *NodeQuery) Clone() *NodeQuery {
 		return nil
 	}
 	return &NodeQuery{
-		config:     nq.config,
-		limit:      nq.limit,
-		offset:     nq.offset,
-		order:      append([]OrderFunc{}, nq.order...),
-		unique:     append([]string{}, nq.unique...),
-		predicates: append([]predicate.Node{}, nq.predicates...),
-		withPrev:   nq.withPrev.Clone(),
-		withNext:   nq.withNext.Clone(),
+		config:       nq.config,
+		limit:        nq.limit,
+		offset:       nq.offset,
+		order:        append([]OrderFunc{}, nq.order...),
+		unique:       append([]string{}, nq.unique...),
+		predicates:   append([]predicate.Node{}, nq.predicates...),
+		withPrev:     nq.withPrev.Clone(),
+		withNext:     nq.withNext.Clone(),
+		withParent:   nq.withParent.Clone(),
+		withChildren: nq.withChildren.Clone(),
 		// clone intermediate query.
 		sql:  nq.sql.Clone(),
 		path: nq.path,
@@ -304,6 +352,28 @@ func (nq *NodeQuery) WithNext(opts ...func(*NodeQuery)) *NodeQuery {
 		opt(query)
 	}
 	nq.withNext = query
+	return nq
+}
+
+//  WithParent tells the query-builder to eager-loads the nodes that are connected to
+// the "parent" edge. The optional arguments used to configure the query builder of the edge.
+func (nq *NodeQuery) WithParent(opts ...func(*NodeQuery)) *NodeQuery {
+	query := &NodeQuery{config: nq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	nq.withParent = query
+	return nq
+}
+
+//  WithChildren tells the query-builder to eager-loads the nodes that are connected to
+// the "children" edge. The optional arguments used to configure the query builder of the edge.
+func (nq *NodeQuery) WithChildren(opts ...func(*NodeQuery)) *NodeQuery {
+	query := &NodeQuery{config: nq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	nq.withChildren = query
 	return nq
 }
 
@@ -374,12 +444,14 @@ func (nq *NodeQuery) sqlAll(ctx context.Context) ([]*Node, error) {
 		nodes       = []*Node{}
 		withFKs     = nq.withFKs
 		_spec       = nq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [4]bool{
 			nq.withPrev != nil,
 			nq.withNext != nil,
+			nq.withParent != nil,
+			nq.withChildren != nil,
 		}
 	)
-	if nq.withPrev != nil {
+	if nq.withPrev != nil || nq.withParent != nil {
 		withFKs = true
 	}
 	if withFKs {
@@ -459,6 +531,60 @@ func (nq *NodeQuery) sqlAll(ctx context.Context) ([]*Node, error) {
 				return nil, fmt.Errorf(`unexpected foreign-key "node_next" returned %v for node %v`, *fk, n.ID)
 			}
 			node.Edges.Next = n
+		}
+	}
+
+	if query := nq.withParent; query != nil {
+		ids := make([]int, 0, len(nodes))
+		nodeids := make(map[int][]*Node)
+		for i := range nodes {
+			if fk := nodes[i].node_children; fk != nil {
+				ids = append(ids, *fk)
+				nodeids[*fk] = append(nodeids[*fk], nodes[i])
+			}
+		}
+		query.Where(node.IDIn(ids...))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			nodes, ok := nodeids[n.ID]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected foreign-key "node_children" returned %v`, n.ID)
+			}
+			for i := range nodes {
+				nodes[i].Edges.Parent = n
+			}
+		}
+	}
+
+	if query := nq.withChildren; query != nil {
+		fks := make([]driver.Value, 0, len(nodes))
+		nodeids := make(map[int]*Node)
+		for i := range nodes {
+			fks = append(fks, nodes[i].ID)
+			nodeids[nodes[i].ID] = nodes[i]
+			nodes[i].Edges.Children = []*Node{}
+		}
+		query.withFKs = true
+		query.Where(predicate.Node(func(s *sql.Selector) {
+			s.Where(sql.InValues(node.ChildrenColumn, fks...))
+		}))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			fk := n.node_children
+			if fk == nil {
+				return nil, fmt.Errorf(`foreign-key "node_children" is nil for node %v`, n.ID)
+			}
+			node, ok := nodeids[*fk]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected foreign-key "node_children" returned %v for node %v`, *fk, n.ID)
+			}
+			node.Edges.Children = append(node.Edges.Children, n)
 		}
 	}
 

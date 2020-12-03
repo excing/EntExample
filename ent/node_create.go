@@ -63,6 +63,40 @@ func (nc *NodeCreate) SetNext(n *Node) *NodeCreate {
 	return nc.SetNextID(n.ID)
 }
 
+// SetParentID sets the parent edge to Node by id.
+func (nc *NodeCreate) SetParentID(id int) *NodeCreate {
+	nc.mutation.SetParentID(id)
+	return nc
+}
+
+// SetNillableParentID sets the parent edge to Node by id if the given value is not nil.
+func (nc *NodeCreate) SetNillableParentID(id *int) *NodeCreate {
+	if id != nil {
+		nc = nc.SetParentID(*id)
+	}
+	return nc
+}
+
+// SetParent sets the parent edge to Node.
+func (nc *NodeCreate) SetParent(n *Node) *NodeCreate {
+	return nc.SetParentID(n.ID)
+}
+
+// AddChildIDs adds the children edge to Node by ids.
+func (nc *NodeCreate) AddChildIDs(ids ...int) *NodeCreate {
+	nc.mutation.AddChildIDs(ids...)
+	return nc
+}
+
+// AddChildren adds the children edges to Node.
+func (nc *NodeCreate) AddChildren(n ...*Node) *NodeCreate {
+	ids := make([]int, len(n))
+	for i := range n {
+		ids[i] = n[i].ID
+	}
+	return nc.AddChildIDs(ids...)
+}
+
 // Mutation returns the NodeMutation object of the builder.
 func (nc *NodeCreate) Mutation() *NodeMutation {
 	return nc.mutation
@@ -177,6 +211,44 @@ func (nc *NodeCreate) createSpec() (*Node, *sqlgraph.CreateSpec) {
 			Inverse: false,
 			Table:   node.NextTable,
 			Columns: []string{node.NextColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: node.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := nc.mutation.ParentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   node.ParentTable,
+			Columns: []string{node.ParentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: node.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := nc.mutation.ChildrenIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   node.ChildrenTable,
+			Columns: []string{node.ChildrenColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

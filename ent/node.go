@@ -19,8 +19,9 @@ type Node struct {
 	Value int `json:"value,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the NodeQuery when eager-loading is set.
-	Edges     NodeEdges `json:"edges"`
-	node_next *int
+	Edges         NodeEdges `json:"edges"`
+	node_next     *int
+	node_children *int
 }
 
 // NodeEdges holds the relations/edges for other nodes in the graph.
@@ -29,9 +30,13 @@ type NodeEdges struct {
 	Prev *Node
 	// Next holds the value of the next edge.
 	Next *Node
+	// Parent holds the value of the parent edge.
+	Parent *Node
+	// Children holds the value of the children edge.
+	Children []*Node
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [4]bool
 }
 
 // PrevOrErr returns the Prev value or an error if the edge
@@ -62,6 +67,29 @@ func (e NodeEdges) NextOrErr() (*Node, error) {
 	return nil, &NotLoadedError{edge: "next"}
 }
 
+// ParentOrErr returns the Parent value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e NodeEdges) ParentOrErr() (*Node, error) {
+	if e.loadedTypes[2] {
+		if e.Parent == nil {
+			// The edge parent was loaded in eager-loading,
+			// but was not found.
+			return nil, &NotFoundError{label: node.Label}
+		}
+		return e.Parent, nil
+	}
+	return nil, &NotLoadedError{edge: "parent"}
+}
+
+// ChildrenOrErr returns the Children value or an error if the edge
+// was not loaded in eager-loading.
+func (e NodeEdges) ChildrenOrErr() ([]*Node, error) {
+	if e.loadedTypes[3] {
+		return e.Children, nil
+	}
+	return nil, &NotLoadedError{edge: "children"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Node) scanValues() []interface{} {
 	return []interface{}{
@@ -74,6 +102,7 @@ func (*Node) scanValues() []interface{} {
 func (*Node) fkValues() []interface{} {
 	return []interface{}{
 		&sql.NullInt64{}, // node_next
+		&sql.NullInt64{}, // node_children
 	}
 }
 
@@ -102,6 +131,12 @@ func (n *Node) assignValues(values ...interface{}) error {
 			n.node_next = new(int)
 			*n.node_next = int(value.Int64)
 		}
+		if value, ok := values[1].(*sql.NullInt64); !ok {
+			return fmt.Errorf("unexpected type %T for edge-field node_children", value)
+		} else if value.Valid {
+			n.node_children = new(int)
+			*n.node_children = int(value.Int64)
+		}
 	}
 	return nil
 }
@@ -114,6 +149,16 @@ func (n *Node) QueryPrev() *NodeQuery {
 // QueryNext queries the next edge of the Node.
 func (n *Node) QueryNext() *NodeQuery {
 	return (&NodeClient{config: n.config}).QueryNext(n)
+}
+
+// QueryParent queries the parent edge of the Node.
+func (n *Node) QueryParent() *NodeQuery {
+	return (&NodeClient{config: n.config}).QueryParent(n)
+}
+
+// QueryChildren queries the children edge of the Node.
+func (n *Node) QueryChildren() *NodeQuery {
+	return (&NodeClient{config: n.config}).QueryChildren(n)
 }
 
 // Update returns a builder for updating this Node.

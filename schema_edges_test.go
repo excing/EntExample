@@ -1,6 +1,7 @@
 package main
 
 import (
+	"ent_example/ent"
 	"ent_example/ent/node"
 	"ent_example/ent/user"
 	"testing"
@@ -131,4 +132,32 @@ func TestO2MTwoTypes(t *testing.T) {
 
 	count := padro.QueryOwner().QueryPets().CountX(ctx)
 	t.Logf("padro owner has pet count is %d", count)
+}
+
+func TestO2MSameType(t *testing.T) {
+	ctx, client := CreateClient(t)
+	defer client.Close()
+
+	root, err := client.Node.Create().SetValue(2).Save(ctx)
+	if err != nil {
+		t.Fatalf("creating root failed %v", err)
+	}
+
+	n1 := client.Node.Create().SetValue(1).SetParent(root).SaveX(ctx)
+	n4 := client.Node.Create().SetValue(4).SetParent(root).SaveX(ctx)
+	n3 := client.Node.Create().SetValue(3).SetParent(n4).SaveX(ctx)
+	n5 := client.Node.Create().SetValue(5).SetParent(n4).SaveX(ctx)
+
+	t.Logf("Tree leafs %v", []int{n1.Value, n3.Value, n5.Value})
+
+	ints := client.Node.Query().
+		Where(node.Not(node.HasChildren())).
+		Order(ent.Asc(node.FieldValue)).
+		GroupBy(node.FieldValue).IntsX(ctx)
+	t.Logf("all leafs(without children) %v", ints)
+
+	orphan := client.Node.Query().
+		Where(node.Not(node.HasParent())).
+		OnlyX(ctx)
+	t.Logf("all leafs(without parent) %v", orphan)
 }

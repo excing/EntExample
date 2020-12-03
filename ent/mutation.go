@@ -2336,19 +2336,24 @@ func (m *GroupMutation) ResetEdge(name string) error {
 // nodes in the graph.
 type NodeMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *int
-	value         *int
-	addvalue      *int
-	clearedFields map[string]struct{}
-	prev          *int
-	clearedprev   bool
-	next          *int
-	clearednext   bool
-	done          bool
-	oldValue      func(context.Context) (*Node, error)
-	predicates    []predicate.Node
+	op              Op
+	typ             string
+	id              *int
+	value           *int
+	addvalue        *int
+	clearedFields   map[string]struct{}
+	prev            *int
+	clearedprev     bool
+	next            *int
+	clearednext     bool
+	parent          *int
+	clearedparent   bool
+	children        map[int]struct{}
+	removedchildren map[int]struct{}
+	clearedchildren bool
+	done            bool
+	oldValue        func(context.Context) (*Node, error)
+	predicates      []predicate.Node
 }
 
 var _ ent.Mutation = (*NodeMutation)(nil)
@@ -2565,6 +2570,98 @@ func (m *NodeMutation) ResetNext() {
 	m.clearednext = false
 }
 
+// SetParentID sets the parent edge to Node by id.
+func (m *NodeMutation) SetParentID(id int) {
+	m.parent = &id
+}
+
+// ClearParent clears the parent edge to Node.
+func (m *NodeMutation) ClearParent() {
+	m.clearedparent = true
+}
+
+// ParentCleared returns if the edge parent was cleared.
+func (m *NodeMutation) ParentCleared() bool {
+	return m.clearedparent
+}
+
+// ParentID returns the parent id in the mutation.
+func (m *NodeMutation) ParentID() (id int, exists bool) {
+	if m.parent != nil {
+		return *m.parent, true
+	}
+	return
+}
+
+// ParentIDs returns the parent ids in the mutation.
+// Note that ids always returns len(ids) <= 1 for unique edges, and you should use
+// ParentID instead. It exists only for internal usage by the builders.
+func (m *NodeMutation) ParentIDs() (ids []int) {
+	if id := m.parent; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetParent reset all changes of the "parent" edge.
+func (m *NodeMutation) ResetParent() {
+	m.parent = nil
+	m.clearedparent = false
+}
+
+// AddChildIDs adds the children edge to Node by ids.
+func (m *NodeMutation) AddChildIDs(ids ...int) {
+	if m.children == nil {
+		m.children = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.children[ids[i]] = struct{}{}
+	}
+}
+
+// ClearChildren clears the children edge to Node.
+func (m *NodeMutation) ClearChildren() {
+	m.clearedchildren = true
+}
+
+// ChildrenCleared returns if the edge children was cleared.
+func (m *NodeMutation) ChildrenCleared() bool {
+	return m.clearedchildren
+}
+
+// RemoveChildIDs removes the children edge to Node by ids.
+func (m *NodeMutation) RemoveChildIDs(ids ...int) {
+	if m.removedchildren == nil {
+		m.removedchildren = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.removedchildren[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedChildren returns the removed ids of children.
+func (m *NodeMutation) RemovedChildrenIDs() (ids []int) {
+	for id := range m.removedchildren {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ChildrenIDs returns the children ids in the mutation.
+func (m *NodeMutation) ChildrenIDs() (ids []int) {
+	for id := range m.children {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetChildren reset all changes of the "children" edge.
+func (m *NodeMutation) ResetChildren() {
+	m.children = nil
+	m.clearedchildren = false
+	m.removedchildren = nil
+}
+
 // Op returns the operation name.
 func (m *NodeMutation) Op() Op {
 	return m.op
@@ -2695,12 +2792,18 @@ func (m *NodeMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this
 // mutation.
 func (m *NodeMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 4)
 	if m.prev != nil {
 		edges = append(edges, node.EdgePrev)
 	}
 	if m.next != nil {
 		edges = append(edges, node.EdgeNext)
+	}
+	if m.parent != nil {
+		edges = append(edges, node.EdgeParent)
+	}
+	if m.children != nil {
+		edges = append(edges, node.EdgeChildren)
 	}
 	return edges
 }
@@ -2717,6 +2820,16 @@ func (m *NodeMutation) AddedIDs(name string) []ent.Value {
 		if id := m.next; id != nil {
 			return []ent.Value{*id}
 		}
+	case node.EdgeParent:
+		if id := m.parent; id != nil {
+			return []ent.Value{*id}
+		}
+	case node.EdgeChildren:
+		ids := make([]ent.Value, 0, len(m.children))
+		for id := range m.children {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
@@ -2724,7 +2837,10 @@ func (m *NodeMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this
 // mutation.
 func (m *NodeMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 4)
+	if m.removedchildren != nil {
+		edges = append(edges, node.EdgeChildren)
+	}
 	return edges
 }
 
@@ -2732,6 +2848,12 @@ func (m *NodeMutation) RemovedEdges() []string {
 // the given edge name.
 func (m *NodeMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
+	case node.EdgeChildren:
+		ids := make([]ent.Value, 0, len(m.removedchildren))
+		for id := range m.removedchildren {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
@@ -2739,12 +2861,18 @@ func (m *NodeMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this
 // mutation.
 func (m *NodeMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 4)
 	if m.clearedprev {
 		edges = append(edges, node.EdgePrev)
 	}
 	if m.clearednext {
 		edges = append(edges, node.EdgeNext)
+	}
+	if m.clearedparent {
+		edges = append(edges, node.EdgeParent)
+	}
+	if m.clearedchildren {
+		edges = append(edges, node.EdgeChildren)
 	}
 	return edges
 }
@@ -2757,6 +2885,10 @@ func (m *NodeMutation) EdgeCleared(name string) bool {
 		return m.clearedprev
 	case node.EdgeNext:
 		return m.clearednext
+	case node.EdgeParent:
+		return m.clearedparent
+	case node.EdgeChildren:
+		return m.clearedchildren
 	}
 	return false
 }
@@ -2770,6 +2902,9 @@ func (m *NodeMutation) ClearEdge(name string) error {
 		return nil
 	case node.EdgeNext:
 		m.ClearNext()
+		return nil
+	case node.EdgeParent:
+		m.ClearParent()
 		return nil
 	}
 	return fmt.Errorf("unknown Node unique edge %s", name)
@@ -2785,6 +2920,12 @@ func (m *NodeMutation) ResetEdge(name string) error {
 		return nil
 	case node.EdgeNext:
 		m.ResetNext()
+		return nil
+	case node.EdgeParent:
+		m.ResetParent()
+		return nil
+	case node.EdgeChildren:
+		m.ResetChildren()
 		return nil
 	}
 	return fmt.Errorf("unknown Node edge %s", name)

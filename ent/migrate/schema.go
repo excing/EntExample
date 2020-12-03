@@ -91,6 +91,7 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "value", Type: field.TypeInt},
 		{Name: "node_next", Type: field.TypeInt, Unique: true, Nullable: true},
+		{Name: "node_children", Type: field.TypeInt, Nullable: true},
 	}
 	// NodesTable holds the schema information for the "nodes" table.
 	NodesTable = &schema.Table{
@@ -101,6 +102,13 @@ var (
 			{
 				Symbol:  "nodes_nodes_next",
 				Columns: []*schema.Column{NodesColumns[2]},
+
+				RefColumns: []*schema.Column{NodesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:  "nodes_nodes_children",
+				Columns: []*schema.Column{NodesColumns[3]},
 
 				RefColumns: []*schema.Column{NodesColumns[0]},
 				OnDelete:   schema.SetNull,
@@ -231,6 +239,7 @@ func init() {
 	CarsTable.ForeignKeys[0].RefTable = UsersTable
 	CardsTable.ForeignKeys[0].RefTable = UsersTable
 	NodesTable.ForeignKeys[0].RefTable = NodesTable
+	NodesTable.ForeignKeys[1].RefTable = NodesTable
 	PetsTable.ForeignKeys[0].RefTable = UsersTable
 	UsersTable.ForeignKeys[0].RefTable = UsersTable
 	GroupUsersTable.ForeignKeys[0].RefTable = GroupsTable

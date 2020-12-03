@@ -23,5 +23,6 @@ func (Node) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("next", Node.Type).Unique().
 			From("prev").Unique(),
+		edge.To("children", Node.Type).From("parent").Unique(),
 	}
 }
