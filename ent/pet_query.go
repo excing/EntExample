@@ -100,8 +100,8 @@ func (pq *PetQuery) FirstX(ctx context.Context) *Pet {
 }
 
 // FirstID returns the first Pet id in the query. Returns *NotFoundError when no id was found.
-func (pq *PetQuery) FirstID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (pq *PetQuery) FirstID(ctx context.Context) (id int, err error) {
+	var ids []int
 	if ids, err = pq.Limit(1).IDs(ctx); err != nil {
 		return
 	}
@@ -113,7 +113,7 @@ func (pq *PetQuery) FirstID(ctx context.Context) (id string, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (pq *PetQuery) FirstIDX(ctx context.Context) string {
+func (pq *PetQuery) FirstIDX(ctx context.Context) int {
 	id, err := pq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -147,8 +147,8 @@ func (pq *PetQuery) OnlyX(ctx context.Context) *Pet {
 }
 
 // OnlyID returns the only Pet id in the query, returns an error if not exactly one id was returned.
-func (pq *PetQuery) OnlyID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (pq *PetQuery) OnlyID(ctx context.Context) (id int, err error) {
+	var ids []int
 	if ids, err = pq.Limit(2).IDs(ctx); err != nil {
 		return
 	}
@@ -164,7 +164,7 @@ func (pq *PetQuery) OnlyID(ctx context.Context) (id string, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (pq *PetQuery) OnlyIDX(ctx context.Context) string {
+func (pq *PetQuery) OnlyIDX(ctx context.Context) int {
 	id, err := pq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -190,8 +190,8 @@ func (pq *PetQuery) AllX(ctx context.Context) []*Pet {
 }
 
 // IDs executes the query and returns a list of Pet ids.
-func (pq *PetQuery) IDs(ctx context.Context) ([]string, error) {
-	var ids []string
+func (pq *PetQuery) IDs(ctx context.Context) ([]int, error) {
+	var ids []int
 	if err := pq.Select(pet.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -199,7 +199,7 @@ func (pq *PetQuery) IDs(ctx context.Context) ([]string, error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (pq *PetQuery) IDsX(ctx context.Context) []string {
+func (pq *PetQuery) IDsX(ctx context.Context) []int {
 	ids, err := pq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -274,6 +274,19 @@ func (pq *PetQuery) WithOwner(opts ...func(*UserQuery)) *PetQuery {
 
 // GroupBy used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		Name string `json:"name,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.Pet.Query().
+//		GroupBy(pet.FieldName).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
+//
 func (pq *PetQuery) GroupBy(field string, fields ...string) *PetGroupBy {
 	group := &PetGroupBy{config: pq.config}
 	group.fields = append([]string{field}, fields...)
@@ -287,6 +300,17 @@ func (pq *PetQuery) GroupBy(field string, fields ...string) *PetGroupBy {
 }
 
 // Select one or more fields from the given query.
+//
+// Example:
+//
+//	var v []struct {
+//		Name string `json:"name,omitempty"`
+//	}
+//
+//	client.Pet.Query().
+//		Select(pet.FieldName).
+//		Scan(ctx, &v)
+//
 func (pq *PetQuery) Select(field string, fields ...string) *PetSelect {
 	selector := &PetSelect{config: pq.config}
 	selector.fields = append([]string{field}, fields...)
@@ -396,7 +420,7 @@ func (pq *PetQuery) querySpec() *sqlgraph.QuerySpec {
 			Table:   pet.Table,
 			Columns: pet.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeString,
+				Type:   field.TypeInt,
 				Column: pet.FieldID,
 			},
 		},

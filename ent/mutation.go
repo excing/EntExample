@@ -2796,7 +2796,8 @@ type PetMutation struct {
 	config
 	op            Op
 	typ           string
-	id            *string
+	id            *int
+	name          *string
 	clearedFields map[string]struct{}
 	owner         *int
 	clearedowner  bool
@@ -2825,7 +2826,7 @@ func newPetMutation(c config, op Op, opts ...petOption) *PetMutation {
 }
 
 // withPetID sets the id field of the mutation.
-func withPetID(id string) petOption {
+func withPetID(id int) petOption {
 	return func(m *PetMutation) {
 		var (
 			err   error
@@ -2875,19 +2876,50 @@ func (m PetMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
-// SetID sets the value of the id field. Note that, this
-// operation is accepted only on Pet creation.
-func (m *PetMutation) SetID(id string) {
-	m.id = &id
-}
-
 // ID returns the id value in the mutation. Note that, the id
 // is available only if it was provided to the builder.
-func (m *PetMutation) ID() (id string, exists bool) {
+func (m *PetMutation) ID() (id int, exists bool) {
 	if m.id == nil {
 		return
 	}
 	return *m.id, true
+}
+
+// SetName sets the name field.
+func (m *PetMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the name value in the mutation.
+func (m *PetMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old name value of the Pet.
+// If the Pet object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *PetMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldName is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName reset all changes of the "name" field.
+func (m *PetMutation) ResetName() {
+	m.name = nil
 }
 
 // SetOwnerID sets the owner edge to User by id.
@@ -2943,7 +2975,10 @@ func (m *PetMutation) Type() string {
 // this mutation. Note that, in order to get all numeric
 // fields that were in/decremented, call AddedFields().
 func (m *PetMutation) Fields() []string {
-	fields := make([]string, 0, 0)
+	fields := make([]string, 0, 1)
+	if m.name != nil {
+		fields = append(fields, pet.FieldName)
+	}
 	return fields
 }
 
@@ -2951,6 +2986,10 @@ func (m *PetMutation) Fields() []string {
 // The second boolean value indicates that this field was
 // not set, or was not define in the schema.
 func (m *PetMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case pet.FieldName:
+		return m.Name()
+	}
 	return nil, false
 }
 
@@ -2958,6 +2997,10 @@ func (m *PetMutation) Field(name string) (ent.Value, bool) {
 // An error is returned if the mutation operation is not UpdateOne,
 // or the query to the database was failed.
 func (m *PetMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case pet.FieldName:
+		return m.OldName(ctx)
+	}
 	return nil, fmt.Errorf("unknown Pet field %s", name)
 }
 
@@ -2966,6 +3009,13 @@ func (m *PetMutation) OldField(ctx context.Context, name string) (ent.Value, err
 // type mismatch the field type.
 func (m *PetMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case pet.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Pet field %s", name)
 }
@@ -2987,6 +3037,8 @@ func (m *PetMutation) AddedField(name string) (ent.Value, bool) {
 // error if the field is not defined in the schema, or if the
 // type mismatch the field type.
 func (m *PetMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
 	return fmt.Errorf("unknown Pet numeric field %s", name)
 }
 
@@ -3013,6 +3065,11 @@ func (m *PetMutation) ClearField(name string) error {
 // given field name. It returns an error if the field is not
 // defined in the schema.
 func (m *PetMutation) ResetField(name string) error {
+	switch name {
+	case pet.FieldName:
+		m.ResetName()
+		return nil
+	}
 	return fmt.Errorf("unknown Pet field %s", name)
 }
 
@@ -3126,11 +3183,13 @@ type UserMutation struct {
 	friends        map[int]struct{}
 	removedfriends map[int]struct{}
 	clearedfriends bool
-	pets           map[string]struct{}
-	removedpets    map[string]struct{}
+	pets           map[int]struct{}
+	removedpets    map[int]struct{}
 	clearedpets    bool
 	card           *int
 	clearedcard    bool
+	spouse         *int
+	clearedspouse  bool
 	done           bool
 	oldValue       func(context.Context) (*User, error)
 	predicates     []predicate.User
@@ -3888,9 +3947,9 @@ func (m *UserMutation) ResetFriends() {
 }
 
 // AddPetIDs adds the pets edge to Pet by ids.
-func (m *UserMutation) AddPetIDs(ids ...string) {
+func (m *UserMutation) AddPetIDs(ids ...int) {
 	if m.pets == nil {
-		m.pets = make(map[string]struct{})
+		m.pets = make(map[int]struct{})
 	}
 	for i := range ids {
 		m.pets[ids[i]] = struct{}{}
@@ -3908,9 +3967,9 @@ func (m *UserMutation) PetsCleared() bool {
 }
 
 // RemovePetIDs removes the pets edge to Pet by ids.
-func (m *UserMutation) RemovePetIDs(ids ...string) {
+func (m *UserMutation) RemovePetIDs(ids ...int) {
 	if m.removedpets == nil {
-		m.removedpets = make(map[string]struct{})
+		m.removedpets = make(map[int]struct{})
 	}
 	for i := range ids {
 		m.removedpets[ids[i]] = struct{}{}
@@ -3918,7 +3977,7 @@ func (m *UserMutation) RemovePetIDs(ids ...string) {
 }
 
 // RemovedPets returns the removed ids of pets.
-func (m *UserMutation) RemovedPetsIDs() (ids []string) {
+func (m *UserMutation) RemovedPetsIDs() (ids []int) {
 	for id := range m.removedpets {
 		ids = append(ids, id)
 	}
@@ -3926,7 +3985,7 @@ func (m *UserMutation) RemovedPetsIDs() (ids []string) {
 }
 
 // PetsIDs returns the pets ids in the mutation.
-func (m *UserMutation) PetsIDs() (ids []string) {
+func (m *UserMutation) PetsIDs() (ids []int) {
 	for id := range m.pets {
 		ids = append(ids, id)
 	}
@@ -3977,6 +4036,45 @@ func (m *UserMutation) CardIDs() (ids []int) {
 func (m *UserMutation) ResetCard() {
 	m.card = nil
 	m.clearedcard = false
+}
+
+// SetSpouseID sets the spouse edge to User by id.
+func (m *UserMutation) SetSpouseID(id int) {
+	m.spouse = &id
+}
+
+// ClearSpouse clears the spouse edge to User.
+func (m *UserMutation) ClearSpouse() {
+	m.clearedspouse = true
+}
+
+// SpouseCleared returns if the edge spouse was cleared.
+func (m *UserMutation) SpouseCleared() bool {
+	return m.clearedspouse
+}
+
+// SpouseID returns the spouse id in the mutation.
+func (m *UserMutation) SpouseID() (id int, exists bool) {
+	if m.spouse != nil {
+		return *m.spouse, true
+	}
+	return
+}
+
+// SpouseIDs returns the spouse ids in the mutation.
+// Note that ids always returns len(ids) <= 1 for unique edges, and you should use
+// SpouseID instead. It exists only for internal usage by the builders.
+func (m *UserMutation) SpouseIDs() (ids []int) {
+	if id := m.spouse; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetSpouse reset all changes of the "spouse" edge.
+func (m *UserMutation) ResetSpouse() {
+	m.spouse = nil
+	m.clearedspouse = false
 }
 
 // Op returns the operation name.
@@ -4324,7 +4422,7 @@ func (m *UserMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this
 // mutation.
 func (m *UserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 5)
+	edges := make([]string, 0, 6)
 	if m.cars != nil {
 		edges = append(edges, user.EdgeCars)
 	}
@@ -4339,6 +4437,9 @@ func (m *UserMutation) AddedEdges() []string {
 	}
 	if m.card != nil {
 		edges = append(edges, user.EdgeCard)
+	}
+	if m.spouse != nil {
+		edges = append(edges, user.EdgeSpouse)
 	}
 	return edges
 }
@@ -4375,6 +4476,10 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 		if id := m.card; id != nil {
 			return []ent.Value{*id}
 		}
+	case user.EdgeSpouse:
+		if id := m.spouse; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
@@ -4382,7 +4487,7 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this
 // mutation.
 func (m *UserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 5)
+	edges := make([]string, 0, 6)
 	if m.removedcars != nil {
 		edges = append(edges, user.EdgeCars)
 	}
@@ -4433,7 +4538,7 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this
 // mutation.
 func (m *UserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 5)
+	edges := make([]string, 0, 6)
 	if m.clearedcars {
 		edges = append(edges, user.EdgeCars)
 	}
@@ -4448,6 +4553,9 @@ func (m *UserMutation) ClearedEdges() []string {
 	}
 	if m.clearedcard {
 		edges = append(edges, user.EdgeCard)
+	}
+	if m.clearedspouse {
+		edges = append(edges, user.EdgeSpouse)
 	}
 	return edges
 }
@@ -4466,6 +4574,8 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 		return m.clearedpets
 	case user.EdgeCard:
 		return m.clearedcard
+	case user.EdgeSpouse:
+		return m.clearedspouse
 	}
 	return false
 }
@@ -4476,6 +4586,9 @@ func (m *UserMutation) ClearEdge(name string) error {
 	switch name {
 	case user.EdgeCard:
 		m.ClearCard()
+		return nil
+	case user.EdgeSpouse:
+		m.ClearSpouse()
 		return nil
 	}
 	return fmt.Errorf("unknown User unique edge %s", name)
@@ -4500,6 +4613,9 @@ func (m *UserMutation) ResetEdge(name string) error {
 		return nil
 	case user.EdgeCard:
 		m.ResetCard()
+		return nil
+	case user.EdgeSpouse:
+		m.ResetSpouse()
 		return nil
 	}
 	return fmt.Errorf("unknown User edge %s", name)

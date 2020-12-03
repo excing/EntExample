@@ -215,14 +215,14 @@ func (uu *UserUpdate) AddFriends(u ...*User) *UserUpdate {
 }
 
 // AddPetIDs adds the pets edge to Pet by ids.
-func (uu *UserUpdate) AddPetIDs(ids ...string) *UserUpdate {
+func (uu *UserUpdate) AddPetIDs(ids ...int) *UserUpdate {
 	uu.mutation.AddPetIDs(ids...)
 	return uu
 }
 
 // AddPets adds the pets edges to Pet.
 func (uu *UserUpdate) AddPets(p ...*Pet) *UserUpdate {
-	ids := make([]string, len(p))
+	ids := make([]int, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
@@ -246,6 +246,25 @@ func (uu *UserUpdate) SetNillableCardID(id *int) *UserUpdate {
 // SetCard sets the card edge to Card.
 func (uu *UserUpdate) SetCard(c *Card) *UserUpdate {
 	return uu.SetCardID(c.ID)
+}
+
+// SetSpouseID sets the spouse edge to User by id.
+func (uu *UserUpdate) SetSpouseID(id int) *UserUpdate {
+	uu.mutation.SetSpouseID(id)
+	return uu
+}
+
+// SetNillableSpouseID sets the spouse edge to User by id if the given value is not nil.
+func (uu *UserUpdate) SetNillableSpouseID(id *int) *UserUpdate {
+	if id != nil {
+		uu = uu.SetSpouseID(*id)
+	}
+	return uu
+}
+
+// SetSpouse sets the spouse edge to User.
+func (uu *UserUpdate) SetSpouse(u *User) *UserUpdate {
+	return uu.SetSpouseID(u.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -323,14 +342,14 @@ func (uu *UserUpdate) ClearPets() *UserUpdate {
 }
 
 // RemovePetIDs removes the pets edge to Pet by ids.
-func (uu *UserUpdate) RemovePetIDs(ids ...string) *UserUpdate {
+func (uu *UserUpdate) RemovePetIDs(ids ...int) *UserUpdate {
 	uu.mutation.RemovePetIDs(ids...)
 	return uu
 }
 
 // RemovePets removes pets edges to Pet.
 func (uu *UserUpdate) RemovePets(p ...*Pet) *UserUpdate {
-	ids := make([]string, len(p))
+	ids := make([]int, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
@@ -340,6 +359,12 @@ func (uu *UserUpdate) RemovePets(p ...*Pet) *UserUpdate {
 // ClearCard clears the "card" edge to type Card.
 func (uu *UserUpdate) ClearCard() *UserUpdate {
 	uu.mutation.ClearCard()
+	return uu
+}
+
+// ClearSpouse clears the "spouse" edge to type User.
+func (uu *UserUpdate) ClearSpouse() *UserUpdate {
+	uu.mutation.ClearSpouse()
 	return uu
 }
 
@@ -727,7 +752,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeString,
+					Type:   field.TypeInt,
 					Column: pet.FieldID,
 				},
 			},
@@ -743,7 +768,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeString,
+					Type:   field.TypeInt,
 					Column: pet.FieldID,
 				},
 			},
@@ -762,7 +787,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeString,
+					Type:   field.TypeInt,
 					Column: pet.FieldID,
 				},
 			},
@@ -799,6 +824,41 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: card.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uu.mutation.SpouseCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.SpouseTable,
+			Columns: []string{user.SpouseColumn},
+			Bidi:    true,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.SpouseIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.SpouseTable,
+			Columns: []string{user.SpouseColumn},
+			Bidi:    true,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
 				},
 			},
 		}
@@ -1007,14 +1067,14 @@ func (uuo *UserUpdateOne) AddFriends(u ...*User) *UserUpdateOne {
 }
 
 // AddPetIDs adds the pets edge to Pet by ids.
-func (uuo *UserUpdateOne) AddPetIDs(ids ...string) *UserUpdateOne {
+func (uuo *UserUpdateOne) AddPetIDs(ids ...int) *UserUpdateOne {
 	uuo.mutation.AddPetIDs(ids...)
 	return uuo
 }
 
 // AddPets adds the pets edges to Pet.
 func (uuo *UserUpdateOne) AddPets(p ...*Pet) *UserUpdateOne {
-	ids := make([]string, len(p))
+	ids := make([]int, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
@@ -1038,6 +1098,25 @@ func (uuo *UserUpdateOne) SetNillableCardID(id *int) *UserUpdateOne {
 // SetCard sets the card edge to Card.
 func (uuo *UserUpdateOne) SetCard(c *Card) *UserUpdateOne {
 	return uuo.SetCardID(c.ID)
+}
+
+// SetSpouseID sets the spouse edge to User by id.
+func (uuo *UserUpdateOne) SetSpouseID(id int) *UserUpdateOne {
+	uuo.mutation.SetSpouseID(id)
+	return uuo
+}
+
+// SetNillableSpouseID sets the spouse edge to User by id if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableSpouseID(id *int) *UserUpdateOne {
+	if id != nil {
+		uuo = uuo.SetSpouseID(*id)
+	}
+	return uuo
+}
+
+// SetSpouse sets the spouse edge to User.
+func (uuo *UserUpdateOne) SetSpouse(u *User) *UserUpdateOne {
+	return uuo.SetSpouseID(u.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -1115,14 +1194,14 @@ func (uuo *UserUpdateOne) ClearPets() *UserUpdateOne {
 }
 
 // RemovePetIDs removes the pets edge to Pet by ids.
-func (uuo *UserUpdateOne) RemovePetIDs(ids ...string) *UserUpdateOne {
+func (uuo *UserUpdateOne) RemovePetIDs(ids ...int) *UserUpdateOne {
 	uuo.mutation.RemovePetIDs(ids...)
 	return uuo
 }
 
 // RemovePets removes pets edges to Pet.
 func (uuo *UserUpdateOne) RemovePets(p ...*Pet) *UserUpdateOne {
-	ids := make([]string, len(p))
+	ids := make([]int, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
@@ -1132,6 +1211,12 @@ func (uuo *UserUpdateOne) RemovePets(p ...*Pet) *UserUpdateOne {
 // ClearCard clears the "card" edge to type Card.
 func (uuo *UserUpdateOne) ClearCard() *UserUpdateOne {
 	uuo.mutation.ClearCard()
+	return uuo
+}
+
+// ClearSpouse clears the "spouse" edge to type User.
+func (uuo *UserUpdateOne) ClearSpouse() *UserUpdateOne {
+	uuo.mutation.ClearSpouse()
 	return uuo
 }
 
@@ -1517,7 +1602,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeString,
+					Type:   field.TypeInt,
 					Column: pet.FieldID,
 				},
 			},
@@ -1533,7 +1618,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeString,
+					Type:   field.TypeInt,
 					Column: pet.FieldID,
 				},
 			},
@@ -1552,7 +1637,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeString,
+					Type:   field.TypeInt,
 					Column: pet.FieldID,
 				},
 			},
@@ -1589,6 +1674,41 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: card.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.SpouseCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.SpouseTable,
+			Columns: []string{user.SpouseColumn},
+			Bidi:    true,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.SpouseIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.SpouseTable,
+			Columns: []string{user.SpouseColumn},
+			Bidi:    true,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
 				},
 			},
 		}

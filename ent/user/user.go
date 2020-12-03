@@ -47,6 +47,8 @@ const (
 	EdgePets = "pets"
 	// EdgeCard holds the string denoting the card edge name in mutations.
 	EdgeCard = "card"
+	// EdgeSpouse holds the string denoting the spouse edge name in mutations.
+	EdgeSpouse = "spouse"
 
 	// Table holds the table name of the user in the database.
 	Table = "users"
@@ -78,6 +80,10 @@ const (
 	CardInverseTable = "cards"
 	// CardColumn is the table column denoting the card relation/edge.
 	CardColumn = "user_card"
+	// SpouseTable is the table the holds the spouse relation/edge.
+	SpouseTable = "users"
+	// SpouseColumn is the table column denoting the spouse relation/edge.
+	SpouseColumn = "user_spouse"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -96,6 +102,11 @@ var Columns = []string{
 	FieldNickname,
 }
 
+// ForeignKeys holds the SQL foreign-keys that are owned by the User type.
+var ForeignKeys = []string{
+	"user_spouse",
+}
+
 var (
 	// GroupsPrimaryKey and GroupsColumn2 are the table columns denoting the
 	// primary key for the groups relation (M2M).
@@ -109,6 +120,11 @@ var (
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
+			return true
+		}
+	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
 			return true
 		}
 	}

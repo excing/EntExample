@@ -43,6 +43,7 @@ func (User) Edges() []ent.Edge {
 		edge.To("friends", User.Type),
 		edge.To("pets", Pet.Type),
 		edge.To("card", Card.Type).Unique(),
+		edge.To("spouse", User.Type).Unique(),
 	}
 }
 

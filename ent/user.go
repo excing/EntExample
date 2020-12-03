@@ -44,7 +44,8 @@ type User struct {
 	Nickname *string `json:"nickname,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
-	Edges UserEdges `json:"edges"`
+	Edges       UserEdges `json:"edges"`
+	user_spouse *int
 }
 
 // UserEdges holds the relations/edges for other nodes in the graph.
@@ -59,9 +60,11 @@ type UserEdges struct {
 	Pets []*Pet
 	// Card holds the value of the card edge.
 	Card *Card
+	// Spouse holds the value of the spouse edge.
+	Spouse *User
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [5]bool
+	loadedTypes [6]bool
 }
 
 // CarsOrErr returns the Cars value or an error if the edge
@@ -114,6 +117,20 @@ func (e UserEdges) CardOrErr() (*Card, error) {
 	return nil, &NotLoadedError{edge: "card"}
 }
 
+// SpouseOrErr returns the Spouse value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserEdges) SpouseOrErr() (*User, error) {
+	if e.loadedTypes[5] {
+		if e.Spouse == nil {
+			// The edge spouse was loaded in eager-loading,
+			// but was not found.
+			return nil, &NotFoundError{label: user.Label}
+		}
+		return e.Spouse, nil
+	}
+	return nil, &NotLoadedError{edge: "spouse"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*User) scanValues() []interface{} {
 	return []interface{}{
@@ -129,6 +146,13 @@ func (*User) scanValues() []interface{} {
 		&sql.NullString{},  // state
 		&uuid.UUID{},       // uuid
 		&sql.NullString{},  // nickname
+	}
+}
+
+// fkValues returns the types for scanning foreign-keys values from sql.Rows.
+func (*User) fkValues() []interface{} {
+	return []interface{}{
+		&sql.NullInt64{}, // user_spouse
 	}
 }
 
@@ -206,6 +230,15 @@ func (u *User) assignValues(values ...interface{}) error {
 		u.Nickname = new(string)
 		*u.Nickname = value.String
 	}
+	values = values[11:]
+	if len(values) == len(user.ForeignKeys) {
+		if value, ok := values[0].(*sql.NullInt64); !ok {
+			return fmt.Errorf("unexpected type %T for edge-field user_spouse", value)
+		} else if value.Valid {
+			u.user_spouse = new(int)
+			*u.user_spouse = int(value.Int64)
+		}
+	}
 	return nil
 }
 
@@ -232,6 +265,11 @@ func (u *User) QueryPets() *PetQuery {
 // QueryCard queries the card edge of the User.
 func (u *User) QueryCard() *CardQuery {
 	return (&UserClient{config: u.config}).QueryCard(u)
+}
+
+// QuerySpouse queries the spouse edge of the User.
+func (u *User) QuerySpouse() *UserQuery {
+	return (&UserClient{config: u.config}).QuerySpouse(u)
 }
 
 // Update returns a builder for updating this User.

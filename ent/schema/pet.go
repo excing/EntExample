@@ -14,7 +14,7 @@ type Pet struct {
 // Fields of the Pet.
 func (Pet) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("id").MaxLen(25).NotEmpty().Unique().Immutable(),
+		field.String("name"),
 	}
 }
 

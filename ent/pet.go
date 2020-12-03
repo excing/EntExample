@@ -13,9 +13,11 @@ import (
 
 // Pet is the model entity for the Pet schema.
 type Pet struct {
-	config
+	config `json:"-"`
 	// ID of the ent.
-	ID string `json:"id,omitempty"`
+	ID int `json:"id,omitempty"`
+	// Name holds the value of the "name" field.
+	Name string `json:"name,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PetQuery when eager-loading is set.
 	Edges     PetEdges `json:"edges"`
@@ -48,7 +50,8 @@ func (e PetEdges) OwnerOrErr() (*User, error) {
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Pet) scanValues() []interface{} {
 	return []interface{}{
-		&sql.NullString{}, // id
+		&sql.NullInt64{},  // id
+		&sql.NullString{}, // name
 	}
 }
 
@@ -65,10 +68,16 @@ func (pe *Pet) assignValues(values ...interface{}) error {
 	if m, n := len(values), len(pet.Columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
+	value, ok := values[0].(*sql.NullInt64)
+	if !ok {
+		return fmt.Errorf("unexpected type %T for field id", value)
+	}
+	pe.ID = int(value.Int64)
+	values = values[1:]
 	if value, ok := values[0].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field id", values[0])
+		return fmt.Errorf("unexpected type %T for field name", values[0])
 	} else if value.Valid {
-		pe.ID = value.String
+		pe.Name = value.String
 	}
 	values = values[1:]
 	if len(values) == len(pet.ForeignKeys) {
@@ -110,6 +119,8 @@ func (pe *Pet) String() string {
 	var builder strings.Builder
 	builder.WriteString("Pet(")
 	builder.WriteString(fmt.Sprintf("id=%v", pe.ID))
+	builder.WriteString(", name=")
+	builder.WriteString(pe.Name)
 	builder.WriteByte(')')
 	return builder.String()
 }

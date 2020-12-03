@@ -2,6 +2,7 @@ package main
 
 import (
 	"ent_example/ent/node"
+	"ent_example/ent/user"
 	"testing"
 	"time"
 )
@@ -75,4 +76,59 @@ func TestO2OSameType(t *testing.T) {
 	}
 	t.Logf("head's prev is %v", prev)
 	t.Logf("\n%v", prev.Value == tail.Value)
+}
+
+func TestO2OBidirectional(t *testing.T) {
+	ctx, client := CreateClient(t)
+	defer client.Close()
+
+	a8m, err := client.User.Create().SetAge(30).SetName("a8m").Save(ctx)
+	if err != nil {
+		t.Fatalf("creating a8m user failed %v", err)
+	}
+
+	nati, err := client.User.Create().SetAge(28).SetName("nati").SetSpouse(a8m).Save(ctx)
+	if err != nil {
+		t.Fatalf("creating nati user failed %v", err)
+	}
+
+	spouse := nati.QuerySpouse().OnlyX(ctx)
+	t.Logf("nati spouse is %v", spouse)
+
+	spouse = a8m.QuerySpouse().OnlyX(ctx)
+	t.Logf("a8m spouse is %v", spouse)
+
+	count := client.User.Query().Where(user.HasSpouse()).CountX(ctx)
+	t.Logf("has spouse count %d", count)
+
+	spouse = client.User.Query().Where(user.HasSpouseWith(user.Name("a8m"))).OnlyX(ctx)
+	t.Logf("a8m spouse is %v", spouse)
+}
+
+func TestO2MTwoTypes(t *testing.T) {
+	ctx, client := CreateClient(t)
+	defer client.Close()
+
+	padro, err := client.Pet.Create().SetName("padro").Save(ctx)
+	if err != nil {
+		t.Fatalf("creating padro pet failed %v", err)
+	}
+
+	lola, err := client.Pet.Create().SetName("lola").Save(ctx)
+	if err != nil {
+		t.Fatalf("creating lola pet failed %v", err)
+	}
+
+	a8m, err := client.User.Create().SetAge(30).SetName("a8m").AddPets(padro, lola).Save(ctx)
+	if err != nil {
+		t.Fatalf("creating a8m user failed %v", err)
+	}
+
+	t.Logf("User created: %v", a8m)
+
+	owner := padro.QueryOwner().OnlyX(ctx)
+	t.Logf("padro owner is %v", owner)
+
+	count := padro.QueryOwner().QueryPets().CountX(ctx)
+	t.Logf("padro owner has pet count is %d", count)
 }

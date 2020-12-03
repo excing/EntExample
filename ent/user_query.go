@@ -34,6 +34,8 @@ type UserQuery struct {
 	withFriends *UserQuery
 	withPets    *PetQuery
 	withCard    *CardQuery
+	withSpouse  *UserQuery
+	withFKs     bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -166,6 +168,28 @@ func (uq *UserQuery) QueryCard() *CardQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(card.Table, card.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, false, user.CardTable, user.CardColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QuerySpouse chains the current query on the spouse edge.
+func (uq *UserQuery) QuerySpouse() *UserQuery {
+	query := &UserQuery{config: uq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery()
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, user.SpouseTable, user.SpouseColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -354,6 +378,7 @@ func (uq *UserQuery) Clone() *UserQuery {
 		withFriends: uq.withFriends.Clone(),
 		withPets:    uq.withPets.Clone(),
 		withCard:    uq.withCard.Clone(),
+		withSpouse:  uq.withSpouse.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
 		path: uq.path,
@@ -412,6 +437,17 @@ func (uq *UserQuery) WithCard(opts ...func(*CardQuery)) *UserQuery {
 		opt(query)
 	}
 	uq.withCard = query
+	return uq
+}
+
+//  WithSpouse tells the query-builder to eager-loads the nodes that are connected to
+// the "spouse" edge. The optional arguments used to configure the query builder of the edge.
+func (uq *UserQuery) WithSpouse(opts ...func(*UserQuery)) *UserQuery {
+	query := &UserQuery{config: uq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withSpouse = query
 	return uq
 }
 
@@ -480,19 +516,30 @@ func (uq *UserQuery) prepareQuery(ctx context.Context) error {
 func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 	var (
 		nodes       = []*User{}
+		withFKs     = uq.withFKs
 		_spec       = uq.querySpec()
-		loadedTypes = [5]bool{
+		loadedTypes = [6]bool{
 			uq.withCars != nil,
 			uq.withGroups != nil,
 			uq.withFriends != nil,
 			uq.withPets != nil,
 			uq.withCard != nil,
+			uq.withSpouse != nil,
 		}
 	)
+	if uq.withSpouse != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, user.ForeignKeys...)
+	}
 	_spec.ScanValues = func() []interface{} {
 		node := &User{config: uq.config}
 		nodes = append(nodes, node)
 		values := node.scanValues()
+		if withFKs {
+			values = append(values, node.fkValues()...)
+		}
 		return values
 	}
 	_spec.Assign = func(values ...interface{}) error {
@@ -721,6 +768,31 @@ func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 				return nil, fmt.Errorf(`unexpected foreign-key "user_card" returned %v for node %v`, *fk, n.ID)
 			}
 			node.Edges.Card = n
+		}
+	}
+
+	if query := uq.withSpouse; query != nil {
+		ids := make([]int, 0, len(nodes))
+		nodeids := make(map[int][]*User)
+		for i := range nodes {
+			if fk := nodes[i].user_spouse; fk != nil {
+				ids = append(ids, *fk)
+				nodeids[*fk] = append(nodeids[*fk], nodes[i])
+			}
+		}
+		query.Where(user.IDIn(ids...))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			nodes, ok := nodeids[n.ID]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected foreign-key "user_spouse" returned %v`, n.ID)
+			}
+			for i := range nodes {
+				nodes[i].Edges.Spouse = n
+			}
 		}
 	}
 

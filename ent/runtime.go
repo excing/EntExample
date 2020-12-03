@@ -6,7 +6,6 @@ import (
 	"ent_example/ent/blob"
 	"ent_example/ent/card"
 	"ent_example/ent/group"
-	"ent_example/ent/pet"
 	"ent_example/ent/schema"
 	"ent_example/ent/user"
 	"time"
@@ -90,26 +89,6 @@ func init() {
 	groupDescUsername := groupFields[11].Descriptor()
 	// group.UsernameValidator is a validator for the "username" field. It is called by the builders before save.
 	group.UsernameValidator = groupDescUsername.Validators[0].(func(string) error)
-	petFields := schema.Pet{}.Fields()
-	_ = petFields
-	// petDescID is the schema descriptor for id field.
-	petDescID := petFields[0].Descriptor()
-	// pet.IDValidator is a validator for the "id" field. It is called by the builders before save.
-	pet.IDValidator = func() func(string) error {
-		validators := petDescID.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(id string) error {
-			for _, fn := range fns {
-				if err := fn(id); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescAge is the schema descriptor for age field.

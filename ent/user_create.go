@@ -186,14 +186,14 @@ func (uc *UserCreate) AddFriends(u ...*User) *UserCreate {
 }
 
 // AddPetIDs adds the pets edge to Pet by ids.
-func (uc *UserCreate) AddPetIDs(ids ...string) *UserCreate {
+func (uc *UserCreate) AddPetIDs(ids ...int) *UserCreate {
 	uc.mutation.AddPetIDs(ids...)
 	return uc
 }
 
 // AddPets adds the pets edges to Pet.
 func (uc *UserCreate) AddPets(p ...*Pet) *UserCreate {
-	ids := make([]string, len(p))
+	ids := make([]int, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
@@ -217,6 +217,25 @@ func (uc *UserCreate) SetNillableCardID(id *int) *UserCreate {
 // SetCard sets the card edge to Card.
 func (uc *UserCreate) SetCard(c *Card) *UserCreate {
 	return uc.SetCardID(c.ID)
+}
+
+// SetSpouseID sets the spouse edge to User by id.
+func (uc *UserCreate) SetSpouseID(id int) *UserCreate {
+	uc.mutation.SetSpouseID(id)
+	return uc
+}
+
+// SetNillableSpouseID sets the spouse edge to User by id if the given value is not nil.
+func (uc *UserCreate) SetNillableSpouseID(id *int) *UserCreate {
+	if id != nil {
+		uc = uc.SetSpouseID(*id)
+	}
+	return uc
+}
+
+// SetSpouse sets the spouse edge to User.
+func (uc *UserCreate) SetSpouse(u *User) *UserCreate {
+	return uc.SetSpouseID(u.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -500,7 +519,7 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeString,
+					Type:   field.TypeInt,
 					Column: pet.FieldID,
 				},
 			},
@@ -521,6 +540,25 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: card.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.SpouseIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.SpouseTable,
+			Columns: []string{user.SpouseColumn},
+			Bidi:    true,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
 				},
 			},
 		}
