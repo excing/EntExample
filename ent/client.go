@@ -13,6 +13,7 @@ import (
 	"ent_example/ent/car"
 	"ent_example/ent/card"
 	"ent_example/ent/group"
+	"ent_example/ent/node"
 	"ent_example/ent/pet"
 	"ent_example/ent/user"
 
@@ -35,6 +36,8 @@ type Client struct {
 	Card *CardClient
 	// Group is the client for interacting with the Group builders.
 	Group *GroupClient
+	// Node is the client for interacting with the Node builders.
+	Node *NodeClient
 	// Pet is the client for interacting with the Pet builders.
 	Pet *PetClient
 	// User is the client for interacting with the User builders.
@@ -56,6 +59,7 @@ func (c *Client) init() {
 	c.Car = NewCarClient(c.config)
 	c.Card = NewCardClient(c.config)
 	c.Group = NewGroupClient(c.config)
+	c.Node = NewNodeClient(c.config)
 	c.Pet = NewPetClient(c.config)
 	c.User = NewUserClient(c.config)
 }
@@ -94,6 +98,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Car:    NewCarClient(cfg),
 		Card:   NewCardClient(cfg),
 		Group:  NewGroupClient(cfg),
+		Node:   NewNodeClient(cfg),
 		Pet:    NewPetClient(cfg),
 		User:   NewUserClient(cfg),
 	}, nil
@@ -115,6 +120,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Car:    NewCarClient(cfg),
 		Card:   NewCardClient(cfg),
 		Group:  NewGroupClient(cfg),
+		Node:   NewNodeClient(cfg),
 		Pet:    NewPetClient(cfg),
 		User:   NewUserClient(cfg),
 	}, nil
@@ -149,6 +155,7 @@ func (c *Client) Use(hooks ...Hook) {
 	c.Car.Use(hooks...)
 	c.Card.Use(hooks...)
 	c.Group.Use(hooks...)
+	c.Node.Use(hooks...)
 	c.Pet.Use(hooks...)
 	c.User.Use(hooks...)
 }
@@ -551,6 +558,126 @@ func (c *GroupClient) QueryUsers(gr *Group) *UserQuery {
 // Hooks returns the client hooks.
 func (c *GroupClient) Hooks() []Hook {
 	return c.hooks.Group
+}
+
+// NodeClient is a client for the Node schema.
+type NodeClient struct {
+	config
+}
+
+// NewNodeClient returns a client for the Node from the given config.
+func NewNodeClient(c config) *NodeClient {
+	return &NodeClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `node.Hooks(f(g(h())))`.
+func (c *NodeClient) Use(hooks ...Hook) {
+	c.hooks.Node = append(c.hooks.Node, hooks...)
+}
+
+// Create returns a create builder for Node.
+func (c *NodeClient) Create() *NodeCreate {
+	mutation := newNodeMutation(c.config, OpCreate)
+	return &NodeCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Node entities.
+func (c *NodeClient) CreateBulk(builders ...*NodeCreate) *NodeCreateBulk {
+	return &NodeCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Node.
+func (c *NodeClient) Update() *NodeUpdate {
+	mutation := newNodeMutation(c.config, OpUpdate)
+	return &NodeUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *NodeClient) UpdateOne(n *Node) *NodeUpdateOne {
+	mutation := newNodeMutation(c.config, OpUpdateOne, withNode(n))
+	return &NodeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *NodeClient) UpdateOneID(id int) *NodeUpdateOne {
+	mutation := newNodeMutation(c.config, OpUpdateOne, withNodeID(id))
+	return &NodeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Node.
+func (c *NodeClient) Delete() *NodeDelete {
+	mutation := newNodeMutation(c.config, OpDelete)
+	return &NodeDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *NodeClient) DeleteOne(n *Node) *NodeDeleteOne {
+	return c.DeleteOneID(n.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *NodeClient) DeleteOneID(id int) *NodeDeleteOne {
+	builder := c.Delete().Where(node.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &NodeDeleteOne{builder}
+}
+
+// Query returns a query builder for Node.
+func (c *NodeClient) Query() *NodeQuery {
+	return &NodeQuery{config: c.config}
+}
+
+// Get returns a Node entity by its id.
+func (c *NodeClient) Get(ctx context.Context, id int) (*Node, error) {
+	return c.Query().Where(node.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *NodeClient) GetX(ctx context.Context, id int) *Node {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryPrev queries the prev edge of a Node.
+func (c *NodeClient) QueryPrev(n *Node) *NodeQuery {
+	query := &NodeQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := n.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(node.Table, node.FieldID, id),
+			sqlgraph.To(node.Table, node.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, node.PrevTable, node.PrevColumn),
+		)
+		fromV = sqlgraph.Neighbors(n.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryNext queries the next edge of a Node.
+func (c *NodeClient) QueryNext(n *Node) *NodeQuery {
+	query := &NodeQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := n.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(node.Table, node.FieldID, id),
+			sqlgraph.To(node.Table, node.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, node.NextTable, node.NextColumn),
+		)
+		fromV = sqlgraph.Neighbors(n.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *NodeClient) Hooks() []Hook {
+	return c.hooks.Node
 }
 
 // PetClient is a client for the Pet schema.

@@ -28,6 +28,7 @@ type hooks struct {
 	Car   []ent.Hook
 	Card  []ent.Hook
 	Group []ent.Hook
+	Node  []ent.Hook
 	Pet   []ent.Hook
 	User  []ent.Hook
 }

@@ -20,6 +20,8 @@ type Tx struct {
 	Card *CardClient
 	// Group is the client for interacting with the Group builders.
 	Group *GroupClient
+	// Node is the client for interacting with the Node builders.
+	Node *NodeClient
 	// Pet is the client for interacting with the Pet builders.
 	Pet *PetClient
 	// User is the client for interacting with the User builders.
@@ -163,6 +165,7 @@ func (tx *Tx) init() {
 	tx.Car = NewCarClient(tx.config)
 	tx.Card = NewCardClient(tx.config)
 	tx.Group = NewGroupClient(tx.config)
+	tx.Node = NewNodeClient(tx.config)
 	tx.Pet = NewPetClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 }

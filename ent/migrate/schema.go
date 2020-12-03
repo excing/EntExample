@@ -86,6 +86,26 @@ var (
 		PrimaryKey:  []*schema.Column{GroupsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{},
 	}
+	// NodesColumns holds the columns for the "nodes" table.
+	NodesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "node_next", Type: field.TypeInt, Unique: true, Nullable: true},
+	}
+	// NodesTable holds the schema information for the "nodes" table.
+	NodesTable = &schema.Table{
+		Name:       "nodes",
+		Columns:    NodesColumns,
+		PrimaryKey: []*schema.Column{NodesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:  "nodes_nodes_next",
+				Columns: []*schema.Column{NodesColumns[1]},
+
+				RefColumns: []*schema.Column{NodesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
 	// PetsColumns holds the columns for the "pets" table.
 	PetsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true, Size: 25},
@@ -188,6 +208,7 @@ var (
 		CarsTable,
 		CardsTable,
 		GroupsTable,
+		NodesTable,
 		PetsTable,
 		UsersTable,
 		GroupUsersTable,
@@ -198,6 +219,7 @@ var (
 func init() {
 	CarsTable.ForeignKeys[0].RefTable = UsersTable
 	CardsTable.ForeignKeys[0].RefTable = UsersTable
+	NodesTable.ForeignKeys[0].RefTable = NodesTable
 	PetsTable.ForeignKeys[0].RefTable = UsersTable
 	GroupUsersTable.ForeignKeys[0].RefTable = GroupsTable
 	GroupUsersTable.ForeignKeys[1].RefTable = UsersTable
