@@ -32,9 +32,25 @@ func (gc *GroupCreate) SetNickname(s string) *GroupCreate {
 	return gc
 }
 
+// SetNillableNickname sets the nickname field if the given value is not nil.
+func (gc *GroupCreate) SetNillableNickname(s *string) *GroupCreate {
+	if s != nil {
+		gc.SetNickname(*s)
+	}
+	return gc
+}
+
 // SetCount sets the count field.
 func (gc *GroupCreate) SetCount(i int) *GroupCreate {
 	gc.mutation.SetCount(i)
+	return gc
+}
+
+// SetNillableCount sets the count field if the given value is not nil.
+func (gc *GroupCreate) SetNillableCount(i *int) *GroupCreate {
+	if i != nil {
+		gc.SetCount(*i)
+	}
 	return gc
 }
 
@@ -44,9 +60,25 @@ func (gc *GroupCreate) SetCode(i int) *GroupCreate {
 	return gc
 }
 
+// SetNillableCode sets the code field if the given value is not nil.
+func (gc *GroupCreate) SetNillableCode(i *int) *GroupCreate {
+	if i != nil {
+		gc.SetCode(*i)
+	}
+	return gc
+}
+
 // SetIndex sets the index field.
 func (gc *GroupCreate) SetIndex(i int) *GroupCreate {
 	gc.mutation.SetIndex(i)
+	return gc
+}
+
+// SetNillableIndex sets the index field if the given value is not nil.
+func (gc *GroupCreate) SetNillableIndex(i *int) *GroupCreate {
+	if i != nil {
+		gc.SetIndex(*i)
+	}
 	return gc
 }
 
@@ -56,9 +88,25 @@ func (gc *GroupCreate) SetMin(i int) *GroupCreate {
 	return gc
 }
 
+// SetNillableMin sets the min field if the given value is not nil.
+func (gc *GroupCreate) SetNillableMin(i *int) *GroupCreate {
+	if i != nil {
+		gc.SetMin(*i)
+	}
+	return gc
+}
+
 // SetMax sets the max field.
 func (gc *GroupCreate) SetMax(i int) *GroupCreate {
 	gc.mutation.SetMax(i)
+	return gc
+}
+
+// SetNillableMax sets the max field if the given value is not nil.
+func (gc *GroupCreate) SetNillableMax(i *int) *GroupCreate {
+	if i != nil {
+		gc.SetMax(*i)
+	}
 	return gc
 }
 
@@ -68,9 +116,25 @@ func (gc *GroupCreate) SetRange(i int) *GroupCreate {
 	return gc
 }
 
+// SetNillableRange sets the range field if the given value is not nil.
+func (gc *GroupCreate) SetNillableRange(i *int) *GroupCreate {
+	if i != nil {
+		gc.SetRange(*i)
+	}
+	return gc
+}
+
 // SetNote sets the note field.
 func (gc *GroupCreate) SetNote(s string) *GroupCreate {
 	gc.mutation.SetNote(s)
+	return gc
+}
+
+// SetNillableNote sets the note field if the given value is not nil.
+func (gc *GroupCreate) SetNillableNote(s *string) *GroupCreate {
+	if s != nil {
+		gc.SetNote(*s)
+	}
 	return gc
 }
 
@@ -80,9 +144,25 @@ func (gc *GroupCreate) SetLog(s string) *GroupCreate {
 	return gc
 }
 
+// SetNillableLog sets the log field if the given value is not nil.
+func (gc *GroupCreate) SetNillableLog(s *string) *GroupCreate {
+	if s != nil {
+		gc.SetLog(*s)
+	}
+	return gc
+}
+
 // SetUsername sets the username field.
 func (gc *GroupCreate) SetUsername(s string) *GroupCreate {
 	gc.mutation.SetUsername(s)
+	return gc
+}
+
+// SetNillableUsername sets the username field if the given value is not nil.
+func (gc *GroupCreate) SetNillableUsername(s *string) *GroupCreate {
+	if s != nil {
+		gc.SetUsername(*s)
+	}
 	return gc
 }
 
@@ -166,80 +246,50 @@ func (gc *GroupCreate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf("ent: validator failed for field \"name\": %w", err)}
 		}
 	}
-	if _, ok := gc.mutation.Nickname(); !ok {
-		return &ValidationError{Name: "nickname", err: errors.New("ent: missing required field \"nickname\"")}
-	}
 	if v, ok := gc.mutation.Nickname(); ok {
 		if err := group.NicknameValidator(v); err != nil {
 			return &ValidationError{Name: "nickname", err: fmt.Errorf("ent: validator failed for field \"nickname\": %w", err)}
 		}
-	}
-	if _, ok := gc.mutation.Count(); !ok {
-		return &ValidationError{Name: "count", err: errors.New("ent: missing required field \"count\"")}
 	}
 	if v, ok := gc.mutation.Count(); ok {
 		if err := group.CountValidator(v); err != nil {
 			return &ValidationError{Name: "count", err: fmt.Errorf("ent: validator failed for field \"count\": %w", err)}
 		}
 	}
-	if _, ok := gc.mutation.Code(); !ok {
-		return &ValidationError{Name: "code", err: errors.New("ent: missing required field \"code\"")}
-	}
 	if v, ok := gc.mutation.Code(); ok {
 		if err := group.CodeValidator(v); err != nil {
 			return &ValidationError{Name: "code", err: fmt.Errorf("ent: validator failed for field \"code\": %w", err)}
 		}
-	}
-	if _, ok := gc.mutation.Index(); !ok {
-		return &ValidationError{Name: "index", err: errors.New("ent: missing required field \"index\"")}
 	}
 	if v, ok := gc.mutation.Index(); ok {
 		if err := group.IndexValidator(v); err != nil {
 			return &ValidationError{Name: "index", err: fmt.Errorf("ent: validator failed for field \"index\": %w", err)}
 		}
 	}
-	if _, ok := gc.mutation.Min(); !ok {
-		return &ValidationError{Name: "min", err: errors.New("ent: missing required field \"min\"")}
-	}
 	if v, ok := gc.mutation.Min(); ok {
 		if err := group.MinValidator(v); err != nil {
 			return &ValidationError{Name: "min", err: fmt.Errorf("ent: validator failed for field \"min\": %w", err)}
 		}
-	}
-	if _, ok := gc.mutation.Max(); !ok {
-		return &ValidationError{Name: "max", err: errors.New("ent: missing required field \"max\"")}
 	}
 	if v, ok := gc.mutation.Max(); ok {
 		if err := group.MaxValidator(v); err != nil {
 			return &ValidationError{Name: "max", err: fmt.Errorf("ent: validator failed for field \"max\": %w", err)}
 		}
 	}
-	if _, ok := gc.mutation.Range(); !ok {
-		return &ValidationError{Name: "range", err: errors.New("ent: missing required field \"range\"")}
-	}
 	if v, ok := gc.mutation.Range(); ok {
 		if err := group.RangeValidator(v); err != nil {
 			return &ValidationError{Name: "range", err: fmt.Errorf("ent: validator failed for field \"range\": %w", err)}
 		}
-	}
-	if _, ok := gc.mutation.Note(); !ok {
-		return &ValidationError{Name: "note", err: errors.New("ent: missing required field \"note\"")}
 	}
 	if v, ok := gc.mutation.Note(); ok {
 		if err := group.NoteValidator(v); err != nil {
 			return &ValidationError{Name: "note", err: fmt.Errorf("ent: validator failed for field \"note\": %w", err)}
 		}
 	}
-	if _, ok := gc.mutation.Log(); !ok {
-		return &ValidationError{Name: "log", err: errors.New("ent: missing required field \"log\"")}
-	}
 	if v, ok := gc.mutation.Log(); ok {
 		if err := group.LogValidator(v); err != nil {
 			return &ValidationError{Name: "log", err: fmt.Errorf("ent: validator failed for field \"log\": %w", err)}
 		}
-	}
-	if _, ok := gc.mutation.Username(); !ok {
-		return &ValidationError{Name: "username", err: errors.New("ent: missing required field \"username\"")}
 	}
 	if v, ok := gc.mutation.Username(); ok {
 		if err := group.UsernameValidator(v); err != nil {

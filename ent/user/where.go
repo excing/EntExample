@@ -226,6 +226,20 @@ func AgeLTE(v int) predicate.User {
 	})
 }
 
+// AgeIsNil applies the IsNil predicate on the "age" field.
+func AgeIsNil() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldAge)))
+	})
+}
+
+// AgeNotNil applies the NotNil predicate on the "age" field.
+func AgeNotNil() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldAge)))
+	})
+}
+
 // RankEQ applies the EQ predicate on the "rank" field.
 func RankEQ(v float64) predicate.User {
 	return predicate.User(func(s *sql.Selector) {

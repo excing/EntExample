@@ -19,7 +19,7 @@ type User struct {
 // Fields of the User.
 func (User) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("age").Positive(),
+		field.Int("age").Positive().Optional(),
 		field.Float("rank").Optional(),
 		field.Bool("active").Default(false),
 		// Name string `json:"name,omitempty" gqlgen:"gql_name"`

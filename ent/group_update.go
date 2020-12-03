@@ -39,6 +39,20 @@ func (gu *GroupUpdate) SetNickname(s string) *GroupUpdate {
 	return gu
 }
 
+// SetNillableNickname sets the nickname field if the given value is not nil.
+func (gu *GroupUpdate) SetNillableNickname(s *string) *GroupUpdate {
+	if s != nil {
+		gu.SetNickname(*s)
+	}
+	return gu
+}
+
+// ClearNickname clears the value of nickname.
+func (gu *GroupUpdate) ClearNickname() *GroupUpdate {
+	gu.mutation.ClearNickname()
+	return gu
+}
+
 // SetCount sets the count field.
 func (gu *GroupUpdate) SetCount(i int) *GroupUpdate {
 	gu.mutation.ResetCount()
@@ -46,9 +60,23 @@ func (gu *GroupUpdate) SetCount(i int) *GroupUpdate {
 	return gu
 }
 
+// SetNillableCount sets the count field if the given value is not nil.
+func (gu *GroupUpdate) SetNillableCount(i *int) *GroupUpdate {
+	if i != nil {
+		gu.SetCount(*i)
+	}
+	return gu
+}
+
 // AddCount adds i to count.
 func (gu *GroupUpdate) AddCount(i int) *GroupUpdate {
 	gu.mutation.AddCount(i)
+	return gu
+}
+
+// ClearCount clears the value of count.
+func (gu *GroupUpdate) ClearCount() *GroupUpdate {
+	gu.mutation.ClearCount()
 	return gu
 }
 
@@ -59,9 +87,23 @@ func (gu *GroupUpdate) SetCode(i int) *GroupUpdate {
 	return gu
 }
 
+// SetNillableCode sets the code field if the given value is not nil.
+func (gu *GroupUpdate) SetNillableCode(i *int) *GroupUpdate {
+	if i != nil {
+		gu.SetCode(*i)
+	}
+	return gu
+}
+
 // AddCode adds i to code.
 func (gu *GroupUpdate) AddCode(i int) *GroupUpdate {
 	gu.mutation.AddCode(i)
+	return gu
+}
+
+// ClearCode clears the value of code.
+func (gu *GroupUpdate) ClearCode() *GroupUpdate {
+	gu.mutation.ClearCode()
 	return gu
 }
 
@@ -72,9 +114,23 @@ func (gu *GroupUpdate) SetIndex(i int) *GroupUpdate {
 	return gu
 }
 
+// SetNillableIndex sets the index field if the given value is not nil.
+func (gu *GroupUpdate) SetNillableIndex(i *int) *GroupUpdate {
+	if i != nil {
+		gu.SetIndex(*i)
+	}
+	return gu
+}
+
 // AddIndex adds i to index.
 func (gu *GroupUpdate) AddIndex(i int) *GroupUpdate {
 	gu.mutation.AddIndex(i)
+	return gu
+}
+
+// ClearIndex clears the value of index.
+func (gu *GroupUpdate) ClearIndex() *GroupUpdate {
+	gu.mutation.ClearIndex()
 	return gu
 }
 
@@ -85,9 +141,23 @@ func (gu *GroupUpdate) SetMin(i int) *GroupUpdate {
 	return gu
 }
 
+// SetNillableMin sets the min field if the given value is not nil.
+func (gu *GroupUpdate) SetNillableMin(i *int) *GroupUpdate {
+	if i != nil {
+		gu.SetMin(*i)
+	}
+	return gu
+}
+
 // AddMin adds i to min.
 func (gu *GroupUpdate) AddMin(i int) *GroupUpdate {
 	gu.mutation.AddMin(i)
+	return gu
+}
+
+// ClearMin clears the value of min.
+func (gu *GroupUpdate) ClearMin() *GroupUpdate {
+	gu.mutation.ClearMin()
 	return gu
 }
 
@@ -98,9 +168,23 @@ func (gu *GroupUpdate) SetMax(i int) *GroupUpdate {
 	return gu
 }
 
+// SetNillableMax sets the max field if the given value is not nil.
+func (gu *GroupUpdate) SetNillableMax(i *int) *GroupUpdate {
+	if i != nil {
+		gu.SetMax(*i)
+	}
+	return gu
+}
+
 // AddMax adds i to max.
 func (gu *GroupUpdate) AddMax(i int) *GroupUpdate {
 	gu.mutation.AddMax(i)
+	return gu
+}
+
+// ClearMax clears the value of max.
+func (gu *GroupUpdate) ClearMax() *GroupUpdate {
+	gu.mutation.ClearMax()
 	return gu
 }
 
@@ -111,9 +195,23 @@ func (gu *GroupUpdate) SetRange(i int) *GroupUpdate {
 	return gu
 }
 
+// SetNillableRange sets the range field if the given value is not nil.
+func (gu *GroupUpdate) SetNillableRange(i *int) *GroupUpdate {
+	if i != nil {
+		gu.SetRange(*i)
+	}
+	return gu
+}
+
 // AddRange adds i to range.
 func (gu *GroupUpdate) AddRange(i int) *GroupUpdate {
 	gu.mutation.AddRange(i)
+	return gu
+}
+
+// ClearRange clears the value of range.
+func (gu *GroupUpdate) ClearRange() *GroupUpdate {
+	gu.mutation.ClearRange()
 	return gu
 }
 
@@ -123,15 +221,57 @@ func (gu *GroupUpdate) SetNote(s string) *GroupUpdate {
 	return gu
 }
 
+// SetNillableNote sets the note field if the given value is not nil.
+func (gu *GroupUpdate) SetNillableNote(s *string) *GroupUpdate {
+	if s != nil {
+		gu.SetNote(*s)
+	}
+	return gu
+}
+
+// ClearNote clears the value of note.
+func (gu *GroupUpdate) ClearNote() *GroupUpdate {
+	gu.mutation.ClearNote()
+	return gu
+}
+
 // SetLog sets the log field.
 func (gu *GroupUpdate) SetLog(s string) *GroupUpdate {
 	gu.mutation.SetLog(s)
 	return gu
 }
 
+// SetNillableLog sets the log field if the given value is not nil.
+func (gu *GroupUpdate) SetNillableLog(s *string) *GroupUpdate {
+	if s != nil {
+		gu.SetLog(*s)
+	}
+	return gu
+}
+
+// ClearLog clears the value of log.
+func (gu *GroupUpdate) ClearLog() *GroupUpdate {
+	gu.mutation.ClearLog()
+	return gu
+}
+
 // SetUsername sets the username field.
 func (gu *GroupUpdate) SetUsername(s string) *GroupUpdate {
 	gu.mutation.SetUsername(s)
+	return gu
+}
+
+// SetNillableUsername sets the username field if the given value is not nil.
+func (gu *GroupUpdate) SetNillableUsername(s *string) *GroupUpdate {
+	if s != nil {
+		gu.SetUsername(*s)
+	}
+	return gu
+}
+
+// ClearUsername clears the value of username.
+func (gu *GroupUpdate) ClearUsername() *GroupUpdate {
+	gu.mutation.ClearUsername()
 	return gu
 }
 
@@ -325,6 +465,12 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: group.FieldNickname,
 		})
 	}
+	if gu.mutation.NicknameCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: group.FieldNickname,
+		})
+	}
 	if value, ok := gu.mutation.Count(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt,
@@ -336,6 +482,12 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt,
 			Value:  value,
+			Column: group.FieldCount,
+		})
+	}
+	if gu.mutation.CountCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
 			Column: group.FieldCount,
 		})
 	}
@@ -353,6 +505,12 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: group.FieldCode,
 		})
 	}
+	if gu.mutation.CodeCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Column: group.FieldCode,
+		})
+	}
 	if value, ok := gu.mutation.Index(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt,
@@ -364,6 +522,12 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt,
 			Value:  value,
+			Column: group.FieldIndex,
+		})
+	}
+	if gu.mutation.IndexCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
 			Column: group.FieldIndex,
 		})
 	}
@@ -381,6 +545,12 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: group.FieldMin,
 		})
 	}
+	if gu.mutation.MinCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Column: group.FieldMin,
+		})
+	}
 	if value, ok := gu.mutation.Max(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt,
@@ -392,6 +562,12 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt,
 			Value:  value,
+			Column: group.FieldMax,
+		})
+	}
+	if gu.mutation.MaxCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
 			Column: group.FieldMax,
 		})
 	}
@@ -409,10 +585,22 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: group.FieldRange,
 		})
 	}
+	if gu.mutation.RangeCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Column: group.FieldRange,
+		})
+	}
 	if value, ok := gu.mutation.Note(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
+			Column: group.FieldNote,
+		})
+	}
+	if gu.mutation.NoteCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
 			Column: group.FieldNote,
 		})
 	}
@@ -423,10 +611,22 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: group.FieldLog,
 		})
 	}
+	if gu.mutation.LogCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: group.FieldLog,
+		})
+	}
 	if value, ok := gu.mutation.Username(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
+			Column: group.FieldUsername,
+		})
+	}
+	if gu.mutation.UsernameCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
 			Column: group.FieldUsername,
 		})
 	}
@@ -514,6 +714,20 @@ func (guo *GroupUpdateOne) SetNickname(s string) *GroupUpdateOne {
 	return guo
 }
 
+// SetNillableNickname sets the nickname field if the given value is not nil.
+func (guo *GroupUpdateOne) SetNillableNickname(s *string) *GroupUpdateOne {
+	if s != nil {
+		guo.SetNickname(*s)
+	}
+	return guo
+}
+
+// ClearNickname clears the value of nickname.
+func (guo *GroupUpdateOne) ClearNickname() *GroupUpdateOne {
+	guo.mutation.ClearNickname()
+	return guo
+}
+
 // SetCount sets the count field.
 func (guo *GroupUpdateOne) SetCount(i int) *GroupUpdateOne {
 	guo.mutation.ResetCount()
@@ -521,9 +735,23 @@ func (guo *GroupUpdateOne) SetCount(i int) *GroupUpdateOne {
 	return guo
 }
 
+// SetNillableCount sets the count field if the given value is not nil.
+func (guo *GroupUpdateOne) SetNillableCount(i *int) *GroupUpdateOne {
+	if i != nil {
+		guo.SetCount(*i)
+	}
+	return guo
+}
+
 // AddCount adds i to count.
 func (guo *GroupUpdateOne) AddCount(i int) *GroupUpdateOne {
 	guo.mutation.AddCount(i)
+	return guo
+}
+
+// ClearCount clears the value of count.
+func (guo *GroupUpdateOne) ClearCount() *GroupUpdateOne {
+	guo.mutation.ClearCount()
 	return guo
 }
 
@@ -534,9 +762,23 @@ func (guo *GroupUpdateOne) SetCode(i int) *GroupUpdateOne {
 	return guo
 }
 
+// SetNillableCode sets the code field if the given value is not nil.
+func (guo *GroupUpdateOne) SetNillableCode(i *int) *GroupUpdateOne {
+	if i != nil {
+		guo.SetCode(*i)
+	}
+	return guo
+}
+
 // AddCode adds i to code.
 func (guo *GroupUpdateOne) AddCode(i int) *GroupUpdateOne {
 	guo.mutation.AddCode(i)
+	return guo
+}
+
+// ClearCode clears the value of code.
+func (guo *GroupUpdateOne) ClearCode() *GroupUpdateOne {
+	guo.mutation.ClearCode()
 	return guo
 }
 
@@ -547,9 +789,23 @@ func (guo *GroupUpdateOne) SetIndex(i int) *GroupUpdateOne {
 	return guo
 }
 
+// SetNillableIndex sets the index field if the given value is not nil.
+func (guo *GroupUpdateOne) SetNillableIndex(i *int) *GroupUpdateOne {
+	if i != nil {
+		guo.SetIndex(*i)
+	}
+	return guo
+}
+
 // AddIndex adds i to index.
 func (guo *GroupUpdateOne) AddIndex(i int) *GroupUpdateOne {
 	guo.mutation.AddIndex(i)
+	return guo
+}
+
+// ClearIndex clears the value of index.
+func (guo *GroupUpdateOne) ClearIndex() *GroupUpdateOne {
+	guo.mutation.ClearIndex()
 	return guo
 }
 
@@ -560,9 +816,23 @@ func (guo *GroupUpdateOne) SetMin(i int) *GroupUpdateOne {
 	return guo
 }
 
+// SetNillableMin sets the min field if the given value is not nil.
+func (guo *GroupUpdateOne) SetNillableMin(i *int) *GroupUpdateOne {
+	if i != nil {
+		guo.SetMin(*i)
+	}
+	return guo
+}
+
 // AddMin adds i to min.
 func (guo *GroupUpdateOne) AddMin(i int) *GroupUpdateOne {
 	guo.mutation.AddMin(i)
+	return guo
+}
+
+// ClearMin clears the value of min.
+func (guo *GroupUpdateOne) ClearMin() *GroupUpdateOne {
+	guo.mutation.ClearMin()
 	return guo
 }
 
@@ -573,9 +843,23 @@ func (guo *GroupUpdateOne) SetMax(i int) *GroupUpdateOne {
 	return guo
 }
 
+// SetNillableMax sets the max field if the given value is not nil.
+func (guo *GroupUpdateOne) SetNillableMax(i *int) *GroupUpdateOne {
+	if i != nil {
+		guo.SetMax(*i)
+	}
+	return guo
+}
+
 // AddMax adds i to max.
 func (guo *GroupUpdateOne) AddMax(i int) *GroupUpdateOne {
 	guo.mutation.AddMax(i)
+	return guo
+}
+
+// ClearMax clears the value of max.
+func (guo *GroupUpdateOne) ClearMax() *GroupUpdateOne {
+	guo.mutation.ClearMax()
 	return guo
 }
 
@@ -586,9 +870,23 @@ func (guo *GroupUpdateOne) SetRange(i int) *GroupUpdateOne {
 	return guo
 }
 
+// SetNillableRange sets the range field if the given value is not nil.
+func (guo *GroupUpdateOne) SetNillableRange(i *int) *GroupUpdateOne {
+	if i != nil {
+		guo.SetRange(*i)
+	}
+	return guo
+}
+
 // AddRange adds i to range.
 func (guo *GroupUpdateOne) AddRange(i int) *GroupUpdateOne {
 	guo.mutation.AddRange(i)
+	return guo
+}
+
+// ClearRange clears the value of range.
+func (guo *GroupUpdateOne) ClearRange() *GroupUpdateOne {
+	guo.mutation.ClearRange()
 	return guo
 }
 
@@ -598,15 +896,57 @@ func (guo *GroupUpdateOne) SetNote(s string) *GroupUpdateOne {
 	return guo
 }
 
+// SetNillableNote sets the note field if the given value is not nil.
+func (guo *GroupUpdateOne) SetNillableNote(s *string) *GroupUpdateOne {
+	if s != nil {
+		guo.SetNote(*s)
+	}
+	return guo
+}
+
+// ClearNote clears the value of note.
+func (guo *GroupUpdateOne) ClearNote() *GroupUpdateOne {
+	guo.mutation.ClearNote()
+	return guo
+}
+
 // SetLog sets the log field.
 func (guo *GroupUpdateOne) SetLog(s string) *GroupUpdateOne {
 	guo.mutation.SetLog(s)
 	return guo
 }
 
+// SetNillableLog sets the log field if the given value is not nil.
+func (guo *GroupUpdateOne) SetNillableLog(s *string) *GroupUpdateOne {
+	if s != nil {
+		guo.SetLog(*s)
+	}
+	return guo
+}
+
+// ClearLog clears the value of log.
+func (guo *GroupUpdateOne) ClearLog() *GroupUpdateOne {
+	guo.mutation.ClearLog()
+	return guo
+}
+
 // SetUsername sets the username field.
 func (guo *GroupUpdateOne) SetUsername(s string) *GroupUpdateOne {
 	guo.mutation.SetUsername(s)
+	return guo
+}
+
+// SetNillableUsername sets the username field if the given value is not nil.
+func (guo *GroupUpdateOne) SetNillableUsername(s *string) *GroupUpdateOne {
+	if s != nil {
+		guo.SetUsername(*s)
+	}
+	return guo
+}
+
+// ClearUsername clears the value of username.
+func (guo *GroupUpdateOne) ClearUsername() *GroupUpdateOne {
+	guo.mutation.ClearUsername()
 	return guo
 }
 
@@ -798,6 +1138,12 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 			Column: group.FieldNickname,
 		})
 	}
+	if guo.mutation.NicknameCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: group.FieldNickname,
+		})
+	}
 	if value, ok := guo.mutation.Count(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt,
@@ -809,6 +1155,12 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt,
 			Value:  value,
+			Column: group.FieldCount,
+		})
+	}
+	if guo.mutation.CountCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
 			Column: group.FieldCount,
 		})
 	}
@@ -826,6 +1178,12 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 			Column: group.FieldCode,
 		})
 	}
+	if guo.mutation.CodeCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Column: group.FieldCode,
+		})
+	}
 	if value, ok := guo.mutation.Index(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt,
@@ -837,6 +1195,12 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt,
 			Value:  value,
+			Column: group.FieldIndex,
+		})
+	}
+	if guo.mutation.IndexCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
 			Column: group.FieldIndex,
 		})
 	}
@@ -854,6 +1218,12 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 			Column: group.FieldMin,
 		})
 	}
+	if guo.mutation.MinCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Column: group.FieldMin,
+		})
+	}
 	if value, ok := guo.mutation.Max(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt,
@@ -865,6 +1235,12 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt,
 			Value:  value,
+			Column: group.FieldMax,
+		})
+	}
+	if guo.mutation.MaxCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
 			Column: group.FieldMax,
 		})
 	}
@@ -882,10 +1258,22 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 			Column: group.FieldRange,
 		})
 	}
+	if guo.mutation.RangeCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Column: group.FieldRange,
+		})
+	}
 	if value, ok := guo.mutation.Note(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
+			Column: group.FieldNote,
+		})
+	}
+	if guo.mutation.NoteCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
 			Column: group.FieldNote,
 		})
 	}
@@ -896,10 +1284,22 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 			Column: group.FieldLog,
 		})
 	}
+	if guo.mutation.LogCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: group.FieldLog,
+		})
+	}
 	if value, ok := guo.mutation.Username(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
+			Column: group.FieldUsername,
+		})
+	}
+	if guo.mutation.UsernameCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
 			Column: group.FieldUsername,
 		})
 	}

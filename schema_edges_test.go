@@ -2,6 +2,7 @@ package main
 
 import (
 	"ent_example/ent"
+	"ent_example/ent/group"
 	"ent_example/ent/node"
 	"ent_example/ent/user"
 	"testing"
@@ -160,4 +161,37 @@ func TestO2MSameType(t *testing.T) {
 		Where(node.Not(node.HasParent())).
 		OnlyX(ctx)
 	t.Logf("all leafs(without parent) %v", orphan)
+}
+
+func TestM2MTwoType(t *testing.T) {
+	ctx, client := CreateClient(t)
+	defer client.Close()
+
+	hub := client.Group.Create().SetName("GitHub").SaveX(ctx)
+	lab := client.Group.Create().SetName("GitLab").SaveX(ctx)
+	a8m := client.User.Create().SetName("a8m").AddGroups(hub, lab).SaveX(ctx)
+	nati := client.User.Create().SetName("nati").AddGroups(hub).SaveX(ctx)
+
+	groups, err := a8m.QueryGroups().All(ctx)
+	if err != nil {
+		t.Fatalf("querying a8m groups failed %v", err)
+	}
+	t.Logf("a8m groups are %v", groups)
+
+	groups, err = nati.QueryGroups().All(ctx)
+	if err != nil {
+		t.Fatalf("querying nati groups failed %v", err)
+	}
+	t.Logf("nati groups are %v", groups)
+
+	users, err := a8m.QueryGroups().
+		Where(group.Not(group.HasUsersWith(user.Name("nati")))).
+		QueryUsers().
+		QueryGroups().
+		QueryUsers().
+		All(ctx)
+	if err != nil {
+		t.Fatalf("traversing the grapth failed %v", err)
+	}
+	t.Logf("traversing the grapth %v", users)
 }

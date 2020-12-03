@@ -40,9 +40,23 @@ func (uu *UserUpdate) SetAge(i int) *UserUpdate {
 	return uu
 }
 
+// SetNillableAge sets the age field if the given value is not nil.
+func (uu *UserUpdate) SetNillableAge(i *int) *UserUpdate {
+	if i != nil {
+		uu.SetAge(*i)
+	}
+	return uu
+}
+
 // AddAge adds i to age.
 func (uu *UserUpdate) AddAge(i int) *UserUpdate {
 	uu.mutation.AddAge(i)
+	return uu
+}
+
+// ClearAge clears the value of age.
+func (uu *UserUpdate) ClearAge() *UserUpdate {
+	uu.mutation.ClearAge()
 	return uu
 }
 
@@ -481,6 +495,12 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: user.FieldAge,
 		})
 	}
+	if uu.mutation.AgeCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Column: user.FieldAge,
+		})
+	}
 	if value, ok := uu.mutation.Rank(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeFloat64,
@@ -892,9 +912,23 @@ func (uuo *UserUpdateOne) SetAge(i int) *UserUpdateOne {
 	return uuo
 }
 
+// SetNillableAge sets the age field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableAge(i *int) *UserUpdateOne {
+	if i != nil {
+		uuo.SetAge(*i)
+	}
+	return uuo
+}
+
 // AddAge adds i to age.
 func (uuo *UserUpdateOne) AddAge(i int) *UserUpdateOne {
 	uuo.mutation.AddAge(i)
+	return uuo
+}
+
+// ClearAge clears the value of age.
+func (uuo *UserUpdateOne) ClearAge() *UserUpdateOne {
+	uuo.mutation.ClearAge()
 	return uuo
 }
 
@@ -1328,6 +1362,12 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt,
 			Value:  value,
+			Column: user.FieldAge,
+		})
+	}
+	if uuo.mutation.AgeCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
 			Column: user.FieldAge,
 		})
 	}

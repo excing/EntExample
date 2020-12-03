@@ -1376,9 +1376,22 @@ func (m *GroupMutation) OldNickname(ctx context.Context) (v string, err error) {
 	return oldValue.Nickname, nil
 }
 
+// ClearNickname clears the value of nickname.
+func (m *GroupMutation) ClearNickname() {
+	m.nickname = nil
+	m.clearedFields[group.FieldNickname] = struct{}{}
+}
+
+// NicknameCleared returns if the field nickname was cleared in this mutation.
+func (m *GroupMutation) NicknameCleared() bool {
+	_, ok := m.clearedFields[group.FieldNickname]
+	return ok
+}
+
 // ResetNickname reset all changes of the "nickname" field.
 func (m *GroupMutation) ResetNickname() {
 	m.nickname = nil
+	delete(m.clearedFields, group.FieldNickname)
 }
 
 // SetCount sets the count field.
@@ -1432,10 +1445,24 @@ func (m *GroupMutation) AddedCount() (r int, exists bool) {
 	return *v, true
 }
 
+// ClearCount clears the value of count.
+func (m *GroupMutation) ClearCount() {
+	m.count = nil
+	m.addcount = nil
+	m.clearedFields[group.FieldCount] = struct{}{}
+}
+
+// CountCleared returns if the field count was cleared in this mutation.
+func (m *GroupMutation) CountCleared() bool {
+	_, ok := m.clearedFields[group.FieldCount]
+	return ok
+}
+
 // ResetCount reset all changes of the "count" field.
 func (m *GroupMutation) ResetCount() {
 	m.count = nil
 	m.addcount = nil
+	delete(m.clearedFields, group.FieldCount)
 }
 
 // SetCode sets the code field.
@@ -1489,10 +1516,24 @@ func (m *GroupMutation) AddedCode() (r int, exists bool) {
 	return *v, true
 }
 
+// ClearCode clears the value of code.
+func (m *GroupMutation) ClearCode() {
+	m.code = nil
+	m.addcode = nil
+	m.clearedFields[group.FieldCode] = struct{}{}
+}
+
+// CodeCleared returns if the field code was cleared in this mutation.
+func (m *GroupMutation) CodeCleared() bool {
+	_, ok := m.clearedFields[group.FieldCode]
+	return ok
+}
+
 // ResetCode reset all changes of the "code" field.
 func (m *GroupMutation) ResetCode() {
 	m.code = nil
 	m.addcode = nil
+	delete(m.clearedFields, group.FieldCode)
 }
 
 // SetIndex sets the index field.
@@ -1546,10 +1587,24 @@ func (m *GroupMutation) AddedIndex() (r int, exists bool) {
 	return *v, true
 }
 
+// ClearIndex clears the value of index.
+func (m *GroupMutation) ClearIndex() {
+	m.index = nil
+	m.addindex = nil
+	m.clearedFields[group.FieldIndex] = struct{}{}
+}
+
+// IndexCleared returns if the field index was cleared in this mutation.
+func (m *GroupMutation) IndexCleared() bool {
+	_, ok := m.clearedFields[group.FieldIndex]
+	return ok
+}
+
 // ResetIndex reset all changes of the "index" field.
 func (m *GroupMutation) ResetIndex() {
 	m.index = nil
 	m.addindex = nil
+	delete(m.clearedFields, group.FieldIndex)
 }
 
 // SetMin sets the min field.
@@ -1603,10 +1658,24 @@ func (m *GroupMutation) AddedMin() (r int, exists bool) {
 	return *v, true
 }
 
+// ClearMin clears the value of min.
+func (m *GroupMutation) ClearMin() {
+	m.min = nil
+	m.addmin = nil
+	m.clearedFields[group.FieldMin] = struct{}{}
+}
+
+// MinCleared returns if the field min was cleared in this mutation.
+func (m *GroupMutation) MinCleared() bool {
+	_, ok := m.clearedFields[group.FieldMin]
+	return ok
+}
+
 // ResetMin reset all changes of the "min" field.
 func (m *GroupMutation) ResetMin() {
 	m.min = nil
 	m.addmin = nil
+	delete(m.clearedFields, group.FieldMin)
 }
 
 // SetMax sets the max field.
@@ -1660,10 +1729,24 @@ func (m *GroupMutation) AddedMax() (r int, exists bool) {
 	return *v, true
 }
 
+// ClearMax clears the value of max.
+func (m *GroupMutation) ClearMax() {
+	m.max = nil
+	m.addmax = nil
+	m.clearedFields[group.FieldMax] = struct{}{}
+}
+
+// MaxCleared returns if the field max was cleared in this mutation.
+func (m *GroupMutation) MaxCleared() bool {
+	_, ok := m.clearedFields[group.FieldMax]
+	return ok
+}
+
 // ResetMax reset all changes of the "max" field.
 func (m *GroupMutation) ResetMax() {
 	m.max = nil
 	m.addmax = nil
+	delete(m.clearedFields, group.FieldMax)
 }
 
 // SetRange sets the range field.
@@ -1717,10 +1800,24 @@ func (m *GroupMutation) AddedRange() (r int, exists bool) {
 	return *v, true
 }
 
+// ClearRange clears the value of range.
+func (m *GroupMutation) ClearRange() {
+	m._range = nil
+	m.add_range = nil
+	m.clearedFields[group.FieldRange] = struct{}{}
+}
+
+// RangeCleared returns if the field range was cleared in this mutation.
+func (m *GroupMutation) RangeCleared() bool {
+	_, ok := m.clearedFields[group.FieldRange]
+	return ok
+}
+
 // ResetRange reset all changes of the "range" field.
 func (m *GroupMutation) ResetRange() {
 	m._range = nil
 	m.add_range = nil
+	delete(m.clearedFields, group.FieldRange)
 }
 
 // SetNote sets the note field.
@@ -1755,9 +1852,22 @@ func (m *GroupMutation) OldNote(ctx context.Context) (v string, err error) {
 	return oldValue.Note, nil
 }
 
+// ClearNote clears the value of note.
+func (m *GroupMutation) ClearNote() {
+	m.note = nil
+	m.clearedFields[group.FieldNote] = struct{}{}
+}
+
+// NoteCleared returns if the field note was cleared in this mutation.
+func (m *GroupMutation) NoteCleared() bool {
+	_, ok := m.clearedFields[group.FieldNote]
+	return ok
+}
+
 // ResetNote reset all changes of the "note" field.
 func (m *GroupMutation) ResetNote() {
 	m.note = nil
+	delete(m.clearedFields, group.FieldNote)
 }
 
 // SetLog sets the log field.
@@ -1792,9 +1902,22 @@ func (m *GroupMutation) OldLog(ctx context.Context) (v string, err error) {
 	return oldValue.Log, nil
 }
 
+// ClearLog clears the value of log.
+func (m *GroupMutation) ClearLog() {
+	m.log = nil
+	m.clearedFields[group.FieldLog] = struct{}{}
+}
+
+// LogCleared returns if the field log was cleared in this mutation.
+func (m *GroupMutation) LogCleared() bool {
+	_, ok := m.clearedFields[group.FieldLog]
+	return ok
+}
+
 // ResetLog reset all changes of the "log" field.
 func (m *GroupMutation) ResetLog() {
 	m.log = nil
+	delete(m.clearedFields, group.FieldLog)
 }
 
 // SetUsername sets the username field.
@@ -1829,9 +1952,22 @@ func (m *GroupMutation) OldUsername(ctx context.Context) (v string, err error) {
 	return oldValue.Username, nil
 }
 
+// ClearUsername clears the value of username.
+func (m *GroupMutation) ClearUsername() {
+	m.username = nil
+	m.clearedFields[group.FieldUsername] = struct{}{}
+}
+
+// UsernameCleared returns if the field username was cleared in this mutation.
+func (m *GroupMutation) UsernameCleared() bool {
+	_, ok := m.clearedFields[group.FieldUsername]
+	return ok
+}
+
 // ResetUsername reset all changes of the "username" field.
 func (m *GroupMutation) ResetUsername() {
 	m.username = nil
+	delete(m.clearedFields, group.FieldUsername)
 }
 
 // AddUserIDs adds the users edge to User by ids.
@@ -2186,7 +2322,38 @@ func (m *GroupMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared
 // during this mutation.
 func (m *GroupMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(group.FieldNickname) {
+		fields = append(fields, group.FieldNickname)
+	}
+	if m.FieldCleared(group.FieldCount) {
+		fields = append(fields, group.FieldCount)
+	}
+	if m.FieldCleared(group.FieldCode) {
+		fields = append(fields, group.FieldCode)
+	}
+	if m.FieldCleared(group.FieldIndex) {
+		fields = append(fields, group.FieldIndex)
+	}
+	if m.FieldCleared(group.FieldMin) {
+		fields = append(fields, group.FieldMin)
+	}
+	if m.FieldCleared(group.FieldMax) {
+		fields = append(fields, group.FieldMax)
+	}
+	if m.FieldCleared(group.FieldRange) {
+		fields = append(fields, group.FieldRange)
+	}
+	if m.FieldCleared(group.FieldNote) {
+		fields = append(fields, group.FieldNote)
+	}
+	if m.FieldCleared(group.FieldLog) {
+		fields = append(fields, group.FieldLog)
+	}
+	if m.FieldCleared(group.FieldUsername) {
+		fields = append(fields, group.FieldUsername)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicates if this field was
@@ -2199,6 +2366,38 @@ func (m *GroupMutation) FieldCleared(name string) bool {
 // ClearField clears the value for the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *GroupMutation) ClearField(name string) error {
+	switch name {
+	case group.FieldNickname:
+		m.ClearNickname()
+		return nil
+	case group.FieldCount:
+		m.ClearCount()
+		return nil
+	case group.FieldCode:
+		m.ClearCode()
+		return nil
+	case group.FieldIndex:
+		m.ClearIndex()
+		return nil
+	case group.FieldMin:
+		m.ClearMin()
+		return nil
+	case group.FieldMax:
+		m.ClearMax()
+		return nil
+	case group.FieldRange:
+		m.ClearRange()
+		return nil
+	case group.FieldNote:
+		m.ClearNote()
+		return nil
+	case group.FieldLog:
+		m.ClearLog()
+		return nil
+	case group.FieldUsername:
+		m.ClearUsername()
+		return nil
+	}
 	return fmt.Errorf("unknown Group nullable field %s", name)
 }
 
@@ -3466,10 +3665,24 @@ func (m *UserMutation) AddedAge() (r int, exists bool) {
 	return *v, true
 }
 
+// ClearAge clears the value of age.
+func (m *UserMutation) ClearAge() {
+	m.age = nil
+	m.addage = nil
+	m.clearedFields[user.FieldAge] = struct{}{}
+}
+
+// AgeCleared returns if the field age was cleared in this mutation.
+func (m *UserMutation) AgeCleared() bool {
+	_, ok := m.clearedFields[user.FieldAge]
+	return ok
+}
+
 // ResetAge reset all changes of the "age" field.
 func (m *UserMutation) ResetAge() {
 	m.age = nil
 	m.addage = nil
+	delete(m.clearedFields, user.FieldAge)
 }
 
 // SetRank sets the rank field.
@@ -4470,6 +4683,9 @@ func (m *UserMutation) AddField(name string, value ent.Value) error {
 // during this mutation.
 func (m *UserMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(user.FieldAge) {
+		fields = append(fields, user.FieldAge)
+	}
 	if m.FieldCleared(user.FieldRank) {
 		fields = append(fields, user.FieldRank)
 	}
@@ -4499,6 +4715,9 @@ func (m *UserMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *UserMutation) ClearField(name string) error {
 	switch name {
+	case user.FieldAge:
+		m.ClearAge()
+		return nil
 	case user.FieldRank:
 		m.ClearRank()
 		return nil

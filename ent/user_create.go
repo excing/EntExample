@@ -32,6 +32,14 @@ func (uc *UserCreate) SetAge(i int) *UserCreate {
 	return uc
 }
 
+// SetNillableAge sets the age field if the given value is not nil.
+func (uc *UserCreate) SetNillableAge(i *int) *UserCreate {
+	if i != nil {
+		uc.SetAge(*i)
+	}
+	return uc
+}
+
 // SetRank sets the rank field.
 func (uc *UserCreate) SetRank(f float64) *UserCreate {
 	uc.mutation.SetRank(f)
@@ -310,9 +318,6 @@ func (uc *UserCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (uc *UserCreate) check() error {
-	if _, ok := uc.mutation.Age(); !ok {
-		return &ValidationError{Name: "age", err: errors.New("ent: missing required field \"age\"")}
-	}
 	if v, ok := uc.mutation.Age(); ok {
 		if err := user.AgeValidator(v); err != nil {
 			return &ValidationError{Name: "age", err: fmt.Errorf("ent: validator failed for field \"age\": %w", err)}

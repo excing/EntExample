@@ -377,6 +377,20 @@ func NicknameHasSuffix(v string) predicate.Group {
 	})
 }
 
+// NicknameIsNil applies the IsNil predicate on the "nickname" field.
+func NicknameIsNil() predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldNickname)))
+	})
+}
+
+// NicknameNotNil applies the NotNil predicate on the "nickname" field.
+func NicknameNotNil() predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldNickname)))
+	})
+}
+
 // NicknameEqualFold applies the EqualFold predicate on the "nickname" field.
 func NicknameEqualFold(v string) predicate.Group {
 	return predicate.Group(func(s *sql.Selector) {
@@ -467,6 +481,20 @@ func CountLTE(v int) predicate.Group {
 	})
 }
 
+// CountIsNil applies the IsNil predicate on the "count" field.
+func CountIsNil() predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldCount)))
+	})
+}
+
+// CountNotNil applies the NotNil predicate on the "count" field.
+func CountNotNil() predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldCount)))
+	})
+}
+
 // CodeEQ applies the EQ predicate on the "code" field.
 func CodeEQ(v int) predicate.Group {
 	return predicate.Group(func(s *sql.Selector) {
@@ -540,6 +568,20 @@ func CodeLT(v int) predicate.Group {
 func CodeLTE(v int) predicate.Group {
 	return predicate.Group(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldCode), v))
+	})
+}
+
+// CodeIsNil applies the IsNil predicate on the "code" field.
+func CodeIsNil() predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldCode)))
+	})
+}
+
+// CodeNotNil applies the NotNil predicate on the "code" field.
+func CodeNotNil() predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldCode)))
 	})
 }
 
@@ -619,6 +661,20 @@ func IndexLTE(v int) predicate.Group {
 	})
 }
 
+// IndexIsNil applies the IsNil predicate on the "index" field.
+func IndexIsNil() predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldIndex)))
+	})
+}
+
+// IndexNotNil applies the NotNil predicate on the "index" field.
+func IndexNotNil() predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldIndex)))
+	})
+}
+
 // MinEQ applies the EQ predicate on the "min" field.
 func MinEQ(v int) predicate.Group {
 	return predicate.Group(func(s *sql.Selector) {
@@ -692,6 +748,20 @@ func MinLT(v int) predicate.Group {
 func MinLTE(v int) predicate.Group {
 	return predicate.Group(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldMin), v))
+	})
+}
+
+// MinIsNil applies the IsNil predicate on the "min" field.
+func MinIsNil() predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldMin)))
+	})
+}
+
+// MinNotNil applies the NotNil predicate on the "min" field.
+func MinNotNil() predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldMin)))
 	})
 }
 
@@ -771,6 +841,20 @@ func MaxLTE(v int) predicate.Group {
 	})
 }
 
+// MaxIsNil applies the IsNil predicate on the "max" field.
+func MaxIsNil() predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldMax)))
+	})
+}
+
+// MaxNotNil applies the NotNil predicate on the "max" field.
+func MaxNotNil() predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldMax)))
+	})
+}
+
 // RangeEQ applies the EQ predicate on the "range" field.
 func RangeEQ(v int) predicate.Group {
 	return predicate.Group(func(s *sql.Selector) {
@@ -844,6 +928,20 @@ func RangeLT(v int) predicate.Group {
 func RangeLTE(v int) predicate.Group {
 	return predicate.Group(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldRange), v))
+	})
+}
+
+// RangeIsNil applies the IsNil predicate on the "range" field.
+func RangeIsNil() predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldRange)))
+	})
+}
+
+// RangeNotNil applies the NotNil predicate on the "range" field.
+func RangeNotNil() predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldRange)))
 	})
 }
 
@@ -941,6 +1039,20 @@ func NoteHasPrefix(v string) predicate.Group {
 func NoteHasSuffix(v string) predicate.Group {
 	return predicate.Group(func(s *sql.Selector) {
 		s.Where(sql.HasSuffix(s.C(FieldNote), v))
+	})
+}
+
+// NoteIsNil applies the IsNil predicate on the "note" field.
+func NoteIsNil() predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldNote)))
+	})
+}
+
+// NoteNotNil applies the NotNil predicate on the "note" field.
+func NoteNotNil() predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldNote)))
 	})
 }
 
@@ -1055,6 +1167,20 @@ func LogHasSuffix(v string) predicate.Group {
 	})
 }
 
+// LogIsNil applies the IsNil predicate on the "log" field.
+func LogIsNil() predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldLog)))
+	})
+}
+
+// LogNotNil applies the NotNil predicate on the "log" field.
+func LogNotNil() predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldLog)))
+	})
+}
+
 // LogEqualFold applies the EqualFold predicate on the "log" field.
 func LogEqualFold(v string) predicate.Group {
 	return predicate.Group(func(s *sql.Selector) {
@@ -1163,6 +1289,20 @@ func UsernameHasPrefix(v string) predicate.Group {
 func UsernameHasSuffix(v string) predicate.Group {
 	return predicate.Group(func(s *sql.Selector) {
 		s.Where(sql.HasSuffix(s.C(FieldUsername), v))
+	})
+}
+
+// UsernameIsNil applies the IsNil predicate on the "username" field.
+func UsernameIsNil() predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldUsername)))
+	})
+}
+
+// UsernameNotNil applies the NotNil predicate on the "username" field.
+func UsernameNotNil() predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldUsername)))
 	})
 }
 

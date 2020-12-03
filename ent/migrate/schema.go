@@ -68,16 +68,16 @@ var (
 	GroupsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString},
-		{Name: "nickname", Type: field.TypeString},
-		{Name: "count", Type: field.TypeInt},
-		{Name: "code", Type: field.TypeInt},
-		{Name: "index", Type: field.TypeInt},
-		{Name: "min", Type: field.TypeInt},
-		{Name: "max", Type: field.TypeInt},
-		{Name: "range", Type: field.TypeInt},
-		{Name: "note", Type: field.TypeString},
-		{Name: "log", Type: field.TypeString, Size: 200},
-		{Name: "username", Type: field.TypeString},
+		{Name: "nickname", Type: field.TypeString, Nullable: true},
+		{Name: "count", Type: field.TypeInt, Nullable: true},
+		{Name: "code", Type: field.TypeInt, Nullable: true},
+		{Name: "index", Type: field.TypeInt, Nullable: true},
+		{Name: "min", Type: field.TypeInt, Nullable: true},
+		{Name: "max", Type: field.TypeInt, Nullable: true},
+		{Name: "range", Type: field.TypeInt, Nullable: true},
+		{Name: "note", Type: field.TypeString, Nullable: true},
+		{Name: "log", Type: field.TypeString, Nullable: true, Size: 200},
+		{Name: "username", Type: field.TypeString, Nullable: true},
 	}
 	// GroupsTable holds the schema information for the "groups" table.
 	GroupsTable = &schema.Table{
@@ -139,7 +139,7 @@ var (
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "age", Type: field.TypeInt},
+		{Name: "age", Type: field.TypeInt, Nullable: true},
 		{Name: "rank", Type: field.TypeFloat64, Nullable: true},
 		{Name: "active", Type: field.TypeBool},
 		{Name: "old_name", Type: field.TypeString, Unique: true},
